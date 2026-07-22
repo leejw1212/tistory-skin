@@ -5,10 +5,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 	<title>[##_page_title_##]</title>
 	<link rel="alternate" type="application/rss+xml" title="[##_title_##]" href="[##_rss_url_##]" />
+	<!-- 저장된 테마를 렌더 전에 적용해 깜빡임 방지 -->
+	<script>try{var t=localStorage.getItem("theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 
 	<!-- Pretendard (한글 웹폰트, 차단 시 시스템 폰트로 자동 대체) -->
 	<link rel="stylesheet" as="style" crossorigin
 		href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/variable/pretendardvariable-dynamic-subset.css">
+
+	<!-- 코드 문법 강조 (highlight.js · 차단 시 자동 무시) -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+	<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+	<meta name="twitter:card" content="summary_large_image">
 
 	<link rel="stylesheet" href="./style.css">
 </head>
@@ -16,6 +24,7 @@
 <body id="[##_body_id_##]">
 <s_t3>
 	<a href="#dkBody" class="skip-link">본문 바로가기</a>
+	<div class="read-progress" aria-hidden="true"><span></span></div>
 
 	<div class="wrap">
 
@@ -34,6 +43,10 @@
 					<a href="[##_taglog_link_##]">태그</a>
 					<a href="[##_guestbook_link_##]">방명록</a>
 					<a href="[##_rss_url_##]">RSS</a>
+					<button type="button" class="themer" id="themer" aria-label="라이트/다크 모드 전환">
+						<span class="themer__ic themer__ic--moon" aria-hidden="true">🌙</span>
+						<span class="themer__ic themer__ic--sun" aria-hidden="true">☀️</span>
+					</button>
 				</nav>
 			</div>
 		</header>
@@ -187,6 +200,7 @@
 
 					<!-- 상세 -->
 					<s_permalink_article_rep>
+					<nav id="toc" class="toc" aria-label="목차"></nav>
 					<article class="post skin_view">
 						<header class="post__head">
 							<a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a>
@@ -195,6 +209,7 @@
 								<span class="post__author">[##_article_rep_author_##]</span>
 								<span class="dot"></span>
 								<time>[##_article_rep_date_##]</time>
+								<span class="post__read"></span>
 								<s_ad_div>
 								<span class="post__admin">
 									<a href="[##_s_ad_m_link_##]">수정</a>
@@ -216,6 +231,14 @@
 							[##_tag_label_rep_##]
 						</div>
 						</s_tag_label>
+
+						<!-- 공유 -->
+						<div class="post__share">
+							<span class="post__share-label">SHARE</span>
+							<button type="button" class="share-btn" data-share="x" aria-label="X(트위터)에 공유">𝕏</button>
+							<button type="button" class="share-btn" data-share="facebook" aria-label="페이스북에 공유">f</button>
+							<button type="button" class="share-btn share-btn--copy" data-share="copy">🔗 링크 복사</button>
+						</div>
 					</article>
 
 					<!-- 이전/다음 글 -->
@@ -233,6 +256,30 @@
 						</a>
 						</s_article_next>
 					</nav>
+
+					<!-- 관련 글 (같은 카테고리) -->
+					<s_article_related>
+					<section class="related">
+						<strong class="related__title">이 카테고리의 다른 글</strong>
+						<ul class="related__grid list_related">
+							<s_article_related_rep>
+							<li class="related__item [##_article_related_rep_type_##]">
+								<a href="[##_article_related_rep_link_##]" class="related__link link_related">
+									<span class="related__thumb">
+										<span class="related__ph" aria-hidden="true">&lt;/&gt;</span>
+										<s_article_related_rep_thumbnail>
+										<img src="[##_article_related_rep_thumbnail_link_##]" class="related__img img_related" alt="" loading="lazy">
+										</s_article_related_rep_thumbnail>
+									</span>
+									<span class="related__t txt_related">[##_article_related_rep_title_##]</span>
+									<span class="related__d date_related">[##_article_related_rep_date_##]</span>
+								</a>
+							</li>
+							</s_article_related_rep>
+						</ul>
+						<a href="[##_article_rep_category_link_##]" class="related__more">카테고리 전체 보기 →</a>
+					</section>
+					</s_article_related>
 
 					<!-- 댓글 -->
 					<section class="comments area_reply">
