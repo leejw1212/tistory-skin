@@ -913,8 +913,13 @@ body#tt-body-index .list-head { display: none; }
 
 	.post__content { font-size: 16px; }
 	.post-nav { grid-template-columns: 1fr; }
-	.reply-form__row { flex-direction: column; align-items: stretch; }
-	.reply-form__submit { margin-left: 0; }
+
+	/* 댓글 폼: 모바일에서 이름·비밀번호·등록이 가로 넘침 방지 → 전부 세로로 꽉 채움 */
+	.reply-form__row { flex-direction: column; align-items: stretch; gap: 8px; }
+	.reply-form__guest { flex-direction: column; width: 100%; min-width: 0; gap: 8px; }
+	.reply-form__inp { width: 100%; max-width: 100%; }
+	.reply-form__secret { justify-content: flex-start; }
+	.reply-form__submit { margin-left: 0; width: 100%; }
 	.reply-list--nested { margin-left: 24px; }
 }
 
