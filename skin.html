@@ -31,12 +31,20 @@
 		relatedPosts:    true,   // 관련 글(같은 카테고리)
 		seo:             true,   // 게시글 JSON-LD 구조화 데이터
 		backToTop:       true,   // 맨 위로 버튼
-		githubCard:      true,   // 홈 하단 GitHub 프로필/잔디 카드
-		techBadges:      true,   // 홈 하단 기술스택 배지
+		githubCard:      true,   // GitHub 프로필/잔디 카드
+		techBadges:      true,   // 기술스택 배지(일반 모드에서 홈 하단)
+		homeProfile:     true,   // 홈을 '프로필 공간'으로 (게시글 대신 GitHub·자격증·스택 아이콘)
 
 		/* ── 위젯 데이터 (본인 값으로 변경) ───────────────────────────── */
-		github: "jjoyling",      // GitHub 사용자명 (githubCard 용)
+		github: "jjoyling",      // GitHub 사용자명
 		techStack: ["Terraform", "Kubernetes", "OpenStack", "AWS", "Docker", "Ansible", "Linux", "Python"],
+
+		/* 자격증 — name/issuer 는 텍스트, img 는 Credly 등 뱃지 이미지 URL(선택), url 은 링크(선택) */
+		certs: [
+			// { name: "CKA", issuer: "CNCF", url: "" },
+			// { name: "AWS SAA", issuer: "Amazon", url: "" },
+			// { img: "https://images.credly.com/size/220x220/images/....png", url: "https://www.credly.com/..." }
+		],
 
 		/* 연재(시리즈) 묶음 — 필요 없으면 [] 로 두세요.
 		   url 은 글 주소의 경로(예: /42 또는 /entry/글제목) */
@@ -115,6 +123,9 @@
 
 			<!-- 광고: 홈/목록 상단 (티스토리 수익 관리에서 켜면 노출) -->
 			<div class="ad ad--list-top">[##_revenue_list_upper_##]</div>
+
+			<!-- 홈 프로필 허브 (homeProfile:true 일 때 JS가 홈에서만 채웁니다) -->
+			<div class="profile-hub" id="profileHub" hidden></div>
 
 			<!-- 목록/카테고리/검색/태그 제목 -->
 			<s_list>
@@ -501,6 +512,12 @@
 				<span class="site-foot__by">Powered by <em>Tistory</em></span>
 			</div>
 		</footer>
+
+		<!-- 단축키/사용법 안내 -->
+		<button type="button" class="kbd-btn" id="kbdBtn" aria-label="단축키 안내" title="단축키 안내 ( ? )">
+			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2.5"></rect><line x1="6" y1="9" x2="6" y2="9"></line><line x1="10" y1="9" x2="10" y2="9"></line><line x1="14" y1="9" x2="14" y2="9"></line><line x1="18" y1="9" x2="18" y2="9"></line><line x1="6" y1="13" x2="6" y2="13"></line><line x1="18" y1="13" x2="18" y2="13"></line><line x1="9" y1="13" x2="15" y2="13"></line></svg>
+			<span class="kbd-btn__label">단축키</span>
+		</button>
 
 		<!-- 맨 위로 -->
 		<button type="button" class="to-top" aria-label="맨 위로 이동" hidden>

@@ -13,7 +13,8 @@
 		toc: true, readingBar: true, syntaxHighlight: true, codeLineNumbers: true, codeCopy: true,
 		mermaid: true, katex: true, callouts: true, lightbox: true, share: true,
 		relatedPosts: true, seo: true, backToTop: true, githubCard: true, techBadges: true,
-		github: "", techStack: [], series: []
+		homeProfile: false,
+		github: "", techStack: [], series: [], certs: []
 	};
 	var CFG = {};
 	(function () { var u = window.CLEAN_SKIN || {}, k; for (k in DEFAULTS) CFG[k] = DEFAULTS[k]; for (k in u) if (u.hasOwnProperty(k)) CFG[k] = u[k]; })();
@@ -278,31 +279,90 @@
 	/* ===================================================================== 12) 터미널 헤더 */
 	function initTerminal() { if (CFG.terminalHeader) document.documentElement.classList.add("cfg-terminal"); }
 
-	/* ===================================================================== 13) GitHub 카드 + 기술배지 (홈) */
-	function initHomeExtra() {
-		var section = qs(".home-extra"); if (!section || !isHome()) return;
+	/* ===================================================================== 13) 홈 프로필 허브 / 위젯 */
+	var DEVICON = {
+		terraform: "terraform-plain colored", kubernetes: "kubernetes-plain colored", k8s: "kubernetes-plain colored",
+		docker: "docker-plain colored", ansible: "ansible-plain colored", linux: "linux-plain colored",
+		python: "python-plain colored", openstack: "openstack-plain colored",
+		aws: "amazonwebservices-plain-wordmark colored", amazonwebservices: "amazonwebservices-plain-wordmark colored",
+		gcp: "googlecloud-plain colored", googlecloud: "googlecloud-plain colored", azure: "azure-plain colored",
+		go: "go-original-wordmark colored", golang: "go-original-wordmark colored",
+		grafana: "grafana-original colored", prometheus: "prometheus-original colored", nginx: "nginx-original colored",
+		redis: "redis-plain colored", postgresql: "postgresql-plain colored", postgres: "postgresql-plain colored",
+		mysql: "mysql-plain colored", mongodb: "mongodb-plain colored", git: "git-plain colored",
+		github: "github-original", gitlab: "gitlab-plain colored", jenkins: "jenkins-plain colored",
+		helm: "helm-plain colored", bash: "bash-plain colored", shell: "bash-plain colored",
+		java: "java-plain colored", spring: "spring-plain colored", javascript: "javascript-plain colored",
+		js: "javascript-plain colored", typescript: "typescript-plain colored", ts: "typescript-plain colored",
+		react: "react-original colored", nodejs: "nodejs-plain colored", node: "nodejs-plain colored",
+		kafka: "apachekafka-original colored", elasticsearch: "elasticsearch-plain colored",
+		vagrant: "vagrant-plain colored", vault: "vault-plain colored", argocd: "argocd-plain colored"
+	};
+	function techIconsHtml(list) {
+		var h = '<div class="hub-stack">';
+		list.forEach(function (t) {
+			var key = String(t).toLowerCase().replace(/[^a-z0-9]/g, ""), cls = DEVICON[key];
+			var icon = cls ? '<i class="devicon-' + cls + '"></i>' : '<span class="hub-stack__emoji">' + (pickIcon(String(t)) || esc(initial(String(t)))) + "</span>";
+			h += '<div class="hub-stack__item"><span class="hub-stack__ic">' + icon + '</span><span class="hub-stack__label">' + esc(t) + "</span></div>";
+		});
+		return h + "</div>";
+	}
+	function certsHtml(list) {
+		var h = '<div class="hub-certs">';
+		list.forEach(function (c) {
+			var inner = c.img
+				? '<img class="cert__img" src="' + esc(c.img) + '" alt="' + esc(c.name || "") + '" loading="lazy">'
+				: '<span class="cert__ic">🎖️</span><span class="cert__meta"><span class="cert__name">' + esc(c.name || "") + "</span>" + (c.issuer ? '<span class="cert__issuer">' + esc(c.issuer) + "</span>" : "") + "</span>";
+			h += c.url ? '<a class="cert' + (c.img ? " cert--img" : "") + '" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + inner + "</a>"
+				: '<span class="cert' + (c.img ? " cert--img" : "") + '">' + inner + "</span>";
+		});
+		return h + "</div>";
+	}
+	function githubCardHtml(u) {
+		return '<a class="ghcard__link" href="https://github.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">' +
+			'<img class="ghcard__avatar" src="https://github.com/' + encodeURIComponent(u) + '.png" alt="" width="64" height="64" loading="lazy">' +
+			'<span class="ghcard__meta"><strong class="ghcard__name">@' + esc(u) + '</strong><span class="ghcard__stats" id="ghstats">GitHub 프로필 →</span></span></a>' +
+			'<a class="ghcard__chart" href="https://github.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener" aria-label="contribution graph">' +
+			'<img src="https://ghchart.rshah.org/4f46e5/' + encodeURIComponent(u) + '" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></a>';
+	}
+	function fillGithubStats(u) {
+		try {
+			fetch("https://api.github.com/users/" + encodeURIComponent(u)).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+				if (!d) return; var st = qs("#ghstats"); if (!st) return;
+				st.textContent = "레포 " + (d.public_repos || 0) + " · 팔로워 " + (d.followers || 0) + (d.bio ? " · " + d.bio : "");
+			}).catch(function () {});
+		} catch (e) {}
+	}
+	function initHome() {
+		if (!isHome()) return;
+
+		/* 프로필 허브 모드: 홈에서 게시글 대신 프로필/자격증/스택 노출 */
+		if (CFG.homeProfile) {
+			var hub = qs("#profileHub"); if (!hub) return;
+			var g = qs(".gallery"); if (g) g.style.display = "none";
+			var lh = qs(".list-head"); if (lh) lh.style.display = "none";
+			var ex = qs(".home-extra"); if (ex) ex.setAttribute("hidden", "hidden");
+
+			var html = "";
+			if (CFG.githubCard && CFG.github) html += '<div class="hub-github">' + githubCardHtml(CFG.github) + "</div>";
+			if (CFG.certs && CFG.certs.length) html += '<section class="hub-block"><p class="hub-title">CERTIFICATIONS</p>' + certsHtml(CFG.certs) + "</section>";
+			if (CFG.techStack && CFG.techStack.length) { loadCss("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"); html += '<section class="hub-block"><p class="hub-title">TECH STACK</p>' + techIconsHtml(CFG.techStack) + "</section>"; }
+			html += '<a class="hub-posts" href="' + (qs("#catCircles") ? qs("#catCircles").getAttribute("data-home") : "/") + '#" onclick="return false">— 글은 위쪽 카테고리에서 —</a>';
+
+			hub.innerHTML = html; hub.removeAttribute("hidden");
+			if (CFG.githubCard && CFG.github) fillGithubStats(CFG.github);
+			return;
+		}
+
+		/* 일반 모드: 갤러리 아래에 GitHub 카드 + 배지 스트립 */
+		var section = qs(".home-extra"); if (!section) return;
 		var shown = false;
 		if (CFG.techBadges && CFG.techStack && CFG.techStack.length) {
-			var wrap = qs("#techbadges");
-			var html = '<span class="techbadges__label">STACK</span>';
-			CFG.techStack.forEach(function (t) { var ic = pickIcon(t); html += '<span class="techbadge">' + (ic ? '<span class="techbadge__ic">' + ic + "</span>" : "") + esc(t) + "</span>"; });
-			wrap.innerHTML = html; shown = true;
+			var wrap = qs("#techbadges"), h = '<span class="techbadges__label">STACK</span>';
+			CFG.techStack.forEach(function (t) { var ic = pickIcon(String(t)); h += '<span class="techbadge">' + (ic ? '<span class="techbadge__ic">' + ic + "</span>" : "") + esc(t) + "</span>"; });
+			wrap.innerHTML = h; shown = true;
 		}
-		if (CFG.githubCard && CFG.github) {
-			var gh = qs("#ghcard"), u = CFG.github;
-			gh.innerHTML = '<a class="ghcard__link" href="https://github.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener">' +
-				'<img class="ghcard__avatar" src="https://github.com/' + encodeURIComponent(u) + '.png" alt="" width="56" height="56" loading="lazy">' +
-				'<span class="ghcard__meta"><strong class="ghcard__name">@' + esc(u) + '</strong><span class="ghcard__stats" id="ghstats">GitHub 프로필 →</span></span></a>' +
-				'<a class="ghcard__chart" href="https://github.com/' + encodeURIComponent(u) + '" target="_blank" rel="noopener" aria-label="contribution graph">' +
-				'<img src="https://ghchart.rshah.org/4f46e5/' + encodeURIComponent(u) + '" alt="" loading="lazy" onerror="this.parentNode.style.display=\'none\'"></a>';
-			shown = true;
-			try {
-				fetch("https://api.github.com/users/" + encodeURIComponent(u)).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
-					if (!d) return; var st = qs("#ghstats"); if (!st) return;
-					st.textContent = "레포 " + (d.public_repos || 0) + " · 팔로워 " + (d.followers || 0) + (d.bio ? " · " + d.bio : "");
-				}).catch(function () {});
-			} catch (e) {}
-		}
+		if (CFG.githubCard && CFG.github) { qs("#ghcard").innerHTML = githubCardHtml(CFG.github); fillGithubStats(CFG.github); shown = true; }
 		if (shown) section.removeAttribute("hidden");
 	}
 
@@ -401,13 +461,26 @@
 	var helpBox = null;
 	function toggleHelp() {
 		if (helpBox) { helpBox.remove(); helpBox = null; return; }
+		var rows = "";
+		if (CFG.commandPalette) rows += '<li><button type="button" class="kbd-help__open">커맨드 팔레트 열기</button><span class="keys"><kbd>⌘</kbd><kbd>K</kbd></span></li>';
+		if (CFG.shortcuts) rows +=
+			'<li><span>검색창 포커스</span><span class="keys"><kbd>/</kbd></span></li>' +
+			'<li><span>라이트 / 다크 전환</span><span class="keys"><kbd>T</kbd></span></li>' +
+			'<li><span>홈으로 이동</span><span class="keys"><kbd>G</kbd><kbd>H</kbd></span></li>' +
+			'<li><span>이전 / 다음 글·카드</span><span class="keys"><kbd>J</kbd><kbd>K</kbd></span></li>' +
+			'<li><span>이 안내 열기 / 닫기</span><span class="keys"><kbd>?</kbd></span></li>';
+		if (!rows) return;
 		helpBox = document.createElement("div"); helpBox.className = "kbd-help";
-		helpBox.innerHTML = '<strong>키보드 단축키</strong><ul>' +
-			'<li><kbd>⌘</kbd>/<kbd>Ctrl</kbd>+<kbd>K</kbd> 커맨드 팔레트</li><li><kbd>/</kbd> 검색</li>' +
-			'<li><kbd>t</kbd> 테마 전환</li><li><kbd>g</kbd> <kbd>h</kbd> 홈</li>' +
-			'<li><kbd>j</kbd>/<kbd>k</kbd> 글 이동</li><li><kbd>?</kbd> 도움말</li></ul><span class="kbd-help__close">닫기 (Esc)</span>';
+		helpBox.innerHTML = '<div class="kbd-help__head"><strong>사용법 · 단축키</strong><button type="button" class="kbd-help__x" aria-label="닫기">✕</button></div><ul>' + rows + "</ul>";
 		document.body.appendChild(helpBox);
-		helpBox.querySelector(".kbd-help__close").addEventListener("click", toggleHelp);
+		helpBox.querySelector(".kbd-help__x").addEventListener("click", toggleHelp);
+		var open = helpBox.querySelector(".kbd-help__open");
+		if (open) open.addEventListener("click", function () { toggleHelp(); openPalette(); });
+	}
+	function initHelpButton() {
+		var btn = qs("#kbdBtn"); if (!btn) return;
+		if (!CFG.shortcuts && !CFG.commandPalette) { btn.remove(); return; }
+		btn.addEventListener("click", toggleHelp);
 	}
 	document.addEventListener("keydown", function (e) { if (e.key === "Escape" && helpBox) toggleHelp(); });
 
@@ -432,9 +505,10 @@
 			run(CFG.series && CFG.series.length, initSeries);
 			run(CFG.seo, initSeo);
 		}
-		run(CFG.githubCard || CFG.techBadges, initHomeExtra);
+		run(true, initHome);
 		run(true, initToTop);
 		run(CFG.commandPalette || CFG.shortcuts, initShortcuts);
+		run(true, initHelpButton);
 	}
 	if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 })();
