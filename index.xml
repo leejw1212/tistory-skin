@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<skin>
+	<information>
+		<name>Clean Gallery</name>
+		<version>1.0</version>
+		<description>
+			<![CDATA[ DevOps 블로그를 위한 깔끔한 갤러리형 스킨입니다. 상단 검색바와 원형 카테고리 메뉴, 반응형 썸네일 그리드, 다크모드를 지원합니다. ]]>
+		</description>
+		<license>
+			<![CDATA[ MIT License ]]>
+		</license>
+	</information>
+	<author>
+		<name>leejw1212</name>
+		<homepage>https://github.com/leejw1212/tistory-skin</homepage>
+		<email>jwleekw@gmail.com</email>
+	</author>
+	<default>
+		<recentEntries>5</recentEntries>
+		<recentComments>5</recentComments>
+		<recentTrackbacks>0</recentTrackbacks>
+		<itemsOnGuestbook>10</itemsOnGuestbook>
+		<tagsInCloud>40</tagsInCloud>
+		<sortInCloud>3</sortInCloud>
+		<expandComment>1</expandComment>
+		<lengthOfRecentNotice>30</lengthOfRecentNotice>
+		<lengthOfRecentEntry>32</lengthOfRecentEntry>
+		<lengthOfRecentComment>30</lengthOfRecentComment>
+		<lengthOfRecentTrackback>30</lengthOfRecentTrackback>
+		<lengthOfLink>30</lengthOfLink>
+		<showListOnCategory>1</showListOnCategory>
+		<showListOnArchive>1</showListOnArchive>
+		<commentMessage>
+			<none>0</none>
+			<single>1</single>
+		</commentMessage>
+		<trackbackMessage>
+			<none>0</none>
+			<single>1</single>
+		</trackbackMessage>
+		<tree>
+			<color>565d6b</color>
+			<bgColor>ffffff</bgColor>
+			<activeColor>3b6ef5</activeColor>
+			<activeBgColor>eef3ff</activeBgColor>
+			<labelLength>30</labelLength>
+			<showValue>1</showValue>
+		</tree>
+		<contentWidth>1160</contentWidth>
+	</default>
+</skin>
