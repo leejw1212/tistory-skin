@@ -63,6 +63,9 @@
 		<main id="dkContent" class="content" role="main">
 			<div id="dkBody"></div>
 
+			<!-- 광고: 홈/목록 상단 (티스토리 수익 관리에서 켜면 노출) -->
+			<div class="ad ad--list-top">[##_revenue_list_upper_##]</div>
+
 			<!-- 목록/카테고리/검색/태그 제목 -->
 			<s_list>
 			<div class="list-head">
@@ -204,6 +207,9 @@
 
 						<div class="post__content area_view">[##_article_rep_desc_##]</div>
 
+						<!-- (선택) 본문 하단 광고: 아래 div 안에 애드센스 광고단위 <ins> 코드를 붙여넣으면 노출됩니다 -->
+						<div class="ad ad--content"></div>
+
 						<s_tag_label>
 						<div class="post__tags">
 							<span class="post__tags-label">TAGS</span>
@@ -301,6 +307,9 @@
 				</s_article_rep>
 
 			</div><!-- /.gallery -->
+
+			<!-- 광고: 홈/목록 하단 (티스토리 수익 관리에서 켜면 노출) -->
+			<div class="ad ad--list-bottom">[##_revenue_list_lower_##]</div>
 
 			<!-- 태그 페이지 -->
 			<s_tag>
@@ -402,6 +411,11 @@
 				<span class="site-foot__by">Powered by <em>Tistory</em></span>
 			</div>
 		</footer>
+
+		<!-- 맨 위로 -->
+		<button type="button" class="to-top" aria-label="맨 위로 이동" hidden>
+			<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+		</button>
 
 	</div>
 </s_t3>

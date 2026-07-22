@@ -485,6 +485,44 @@ body#tt-body-index .list-head { display: none; }
 }
 .paging__btn.no_more, .paging__btn[class*="no_more"] { opacity: .4; pointer-events: none; }
 
+/* ------------------------------ Ads ------------------------------ */
+.ad { margin: 24px auto; text-align: center; max-width: 100%; overflow: hidden; }
+.ad:empty { display: none; }                 /* 광고 미노출 시 빈 공간 제거 */
+.ad--list-top { margin-top: 8px; }
+.ad--content { margin: 32px auto; }
+.ad ins, .ad iframe, .ad img { max-width: 100%; }
+
+/* ------------------------------ Back to top ------------------------------ */
+.to-top {
+	position: fixed; right: 22px; bottom: 22px; z-index: 60;
+	width: 46px; height: 46px; border-radius: 50%;
+	display: grid; place-items: center;
+	background: var(--surface); color: var(--text-soft);
+	border: 1px solid var(--border); box-shadow: var(--shadow);
+	transition: transform .15s, color .15s, border-color .15s, opacity .2s;
+}
+.to-top:hover { color: var(--accent); border-color: var(--accent); transform: translateY(-3px); }
+.to-top[hidden] { display: none; }
+@supports (padding: max(0px)) {
+	.to-top { right: max(22px, env(safe-area-inset-right)); bottom: max(22px, env(safe-area-inset-bottom)); }
+}
+
+/* ------------------------------ Code copy button ------------------------------ */
+.post__content pre.has-copy { position: relative; }
+.code-copy {
+	position: absolute; top: 10px; right: 10px;
+	border: 1px solid rgba(255,255,255,.18); border-radius: 7px;
+	background: rgba(255,255,255,.08); color: #cdd6e2;
+	font-family: var(--font); font-size: 12px; font-weight: 600;
+	padding: 5px 10px; opacity: 0; transition: opacity .15s, background .15s, color .15s;
+	-webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+}
+.post__content pre.has-copy:hover .code-copy,
+.code-copy:focus-visible { opacity: 1; }
+.code-copy:hover { background: rgba(255,255,255,.16); color: #fff; }
+.code-copy.is-done { background: var(--ok); color: #fff; border-color: transparent; opacity: 1; }
+@media (hover: none) { .code-copy { opacity: 1; } }   /* 터치기기: 항상 표시 */
+
 /* ------------------------------ Footer ------------------------------ */
 .site-foot {
 	flex: none;
