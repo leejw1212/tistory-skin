@@ -663,6 +663,61 @@ body#tt-body-index .list-head { display: none; }
 /* 코드블록 하이라이트: 항상 다크 배경 유지 (github-dark 테마) */
 .post__content pre .hljs, .post__content pre code.hljs { background: transparent; padding: 0; }
 
+/* ------------------------------ 다크모드 보정 ------------------------------ */
+/* 티스토리가 자동 삽입하는 프로필/구독/댓글 관련 요소가 흰 배경으로 남는 경우 보정.
+   인라인 흰색(style="background:#fff")까지 덮기 위해 !important 사용. */
+.dark-fix {
+	background-color: var(--surface) !important;
+	color: var(--text) !important;
+	border-color: var(--border) !important;
+}
+@media (prefers-color-scheme: dark) {
+	.content [style*="background:#fff"], .content [style*="background: #fff"],
+	.content [style*="background:#FFF"], .content [style*="background: #FFF"],
+	.content [style*="background-color:#fff"], .content [style*="background-color: #fff"],
+	.content [style*="background-color:#FFF"], .content [style*="background-color: #FFF"],
+	.content [style*="background:rgb(255"], .content [style*="background-color:rgb(255"],
+	.content [style*="background: rgb(255"], .content [style*="background-color: rgb(255"] {
+		background-color: var(--surface) !important;
+		color: var(--text) !important;
+	}
+	/* 티스토리 프로필/구독 위젯 후보 */
+	.area_reply .tt_profile, .area_reply .box_profile,
+	.content .tt_profile, .content .box_profile, .content .area_profile,
+	.content [class*="_profile"]:not(.img_profile):not([class*="reply"]),
+	.content [class*="profile_"] {
+		background-color: var(--surface) !important;
+		border-color: var(--border) !important;
+		color: var(--text) !important;
+	}
+}
+:root[data-theme="dark"] .content [style*="background:#fff"],
+:root[data-theme="dark"] .content [style*="background: #fff"],
+:root[data-theme="dark"] .content [style*="background:#FFF"],
+:root[data-theme="dark"] .content [style*="background: #FFF"],
+:root[data-theme="dark"] .content [style*="background-color:#fff"],
+:root[data-theme="dark"] .content [style*="background-color: #fff"],
+:root[data-theme="dark"] .content [style*="background-color:#FFF"],
+:root[data-theme="dark"] .content [style*="background-color: #FFF"],
+:root[data-theme="dark"] .content [style*="background:rgb(255"],
+:root[data-theme="dark"] .content [style*="background-color:rgb(255"],
+:root[data-theme="dark"] .content [style*="background: rgb(255"],
+:root[data-theme="dark"] .content [style*="background-color: rgb(255"] {
+	background-color: var(--surface) !important;
+	color: var(--text) !important;
+}
+:root[data-theme="dark"] .area_reply .tt_profile,
+:root[data-theme="dark"] .area_reply .box_profile,
+:root[data-theme="dark"] .content .tt_profile,
+:root[data-theme="dark"] .content .box_profile,
+:root[data-theme="dark"] .content .area_profile,
+:root[data-theme="dark"] .content [class*="_profile"]:not(.img_profile):not([class*="reply"]),
+:root[data-theme="dark"] .content [class*="profile_"] {
+	background-color: var(--surface) !important;
+	border-color: var(--border) !important;
+	color: var(--text) !important;
+}
+
 /* ------------------------------ Responsive ------------------------------ */
 @media (max-width: 720px) {
 	.site-head__inner { padding: 12px 16px; }
