@@ -51,7 +51,7 @@ window.CLEAN_SKIN = {
 
   github: "본인_깃허브_아이디",
   techStack: ["Terraform", "Kubernetes", "OpenStack", "AWS", "Docker"],
-  certs: [ { name: "CKA", issuer: "CNCF", url: "" } ],   // 자격증 (img: 뱃지이미지URL 도 가능)
+  certs: ["CKA", "CKAD", "Terraform Associate", "AWS SAA"],  // 이름만 넣으면 발급기관 로고 자동
   series: [
     // { name: "Terraform 입문", posts: [
     //   { title: "1. 설치", url: "/1" }, { title: "2. 변수", url: "/2" } ] }
@@ -63,6 +63,8 @@ window.CLEAN_SKIN = {
 - **단축키 안내**: 화면 좌하단 **⌨ 단축키** 버튼(또는 `?`) → 사용법 패널.
 - **커맨드 팔레트**: `⌘K`(맥) / `Ctrl+K`(윈도우) → 검색·카테고리 이동.
 - **홈 프로필 공간(`homeProfile`)**: 켜면 홈이 게시글 대신 **GitHub 카드 + 자격증 + 기술스택(실제 로고 아이콘)** 을 보여줍니다. 글은 상단 **카테고리 원형 메뉴**로 봅니다. (실제 기술 아이콘은 devicon CDN 사용)
+- **자격증**: `certs` 에 **이름만** 넣으면 발급기관 로고가 자동으로 붙습니다.
+  내장 지원: `CKA` `CKAD` `CKS` `KCNA` `KCSA` · `AWS SAA/SAP/SOA/DVA/DOP/SCS/Cloud Practitioner` · `Terraform Associate` `Vault Associate` · `AZ-900/104/305/400` · `GCP ACE/PCA` · `RHCSA` `RHCE` · `LFCS` · `DCA` 등. 목록에 없어도 이름으로 표시되고, 키워드로 로고를 추정합니다.
 - **Mermaid 다이어그램**: 글에서 코드블록 언어를 `mermaid` 로 지정하고 `graph TD; A-->B;` 처럼 작성.
 - **콜아웃**: 인용문 첫 줄에 `[!NOTE]` `[!TIP]` `[!WARNING]` `[!DANGER]` 중 하나.
 - **수식(KaTeX)**: `$O(n\log n)$`(인라인), `$$ ... $$`(블록).

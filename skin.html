@@ -39,12 +39,11 @@
 		github: "jjoyling",      // GitHub 사용자명
 		techStack: ["Terraform", "Kubernetes", "OpenStack", "AWS", "Docker", "Ansible", "Linux", "Python"],
 
-		/* 자격증 — name/issuer 는 텍스트, img 는 Credly 등 뱃지 이미지 URL(선택), url 은 링크(선택) */
-		certs: [
-			// { name: "CKA", issuer: "CNCF", url: "" },
-			// { name: "AWS SAA", issuer: "Amazon", url: "" },
-			// { img: "https://images.credly.com/size/220x220/images/....png", url: "https://www.credly.com/..." }
-		],
+		/* 자격증 — 이름만 넣으면 발급기관 로고(마크)가 자동으로 붙습니다.
+		   지원 예: CKA, CKAD, CKS, KCNA, AWS SAA, AWS SAP, Terraform Associate,
+		            Vault Associate, AZ-104, GCP ACE, RHCSA, RHCE, LFCS, DCA …
+		   링크나 직접 만든 뱃지 이미지를 쓰려면 { name:"CKA", url:"", img:"" } 형태도 가능 */
+		certs: ["CKA", "CKAD", "Terraform Associate", "AWS SAA"],
 
 		/* 연재(시리즈) 묶음 — 필요 없으면 [] 로 두세요.
 		   url 은 글 주소의 경로(예: /42 또는 /entry/글제목) */

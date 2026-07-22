@@ -296,8 +296,58 @@
 		js: "javascript-plain colored", typescript: "typescript-plain colored", ts: "typescript-plain colored",
 		react: "react-original colored", nodejs: "nodejs-plain colored", node: "nodejs-plain colored",
 		kafka: "apachekafka-original colored", elasticsearch: "elasticsearch-plain colored",
-		vagrant: "vagrant-plain colored", vault: "vault-plain colored", argocd: "argocd-plain colored"
+		vagrant: "vagrant-plain colored", vault: "vault-plain colored", argocd: "argocd-plain colored",
+		redhat: "redhat-plain colored", googlecloudplatform: "googlecloud-plain colored"
 	};
+
+	/* 자격증 DB: 이름만 넣으면 발급기관 로고(mark)와 함께 표시 */
+	var CERT_DB = {
+		cka: { label: "CKA", desc: "Certified Kubernetes Administrator", issuer: "CNCF", icon: "kubernetes" },
+		ckad: { label: "CKAD", desc: "Certified Kubernetes Application Developer", issuer: "CNCF", icon: "kubernetes" },
+		cks: { label: "CKS", desc: "Certified Kubernetes Security Specialist", issuer: "CNCF", icon: "kubernetes" },
+		kcna: { label: "KCNA", desc: "Kubernetes and Cloud Native Associate", issuer: "CNCF", icon: "kubernetes" },
+		kcsa: { label: "KCSA", desc: "Kubernetes and Cloud Native Security Associate", issuer: "CNCF", icon: "kubernetes" },
+		awsclf: { label: "AWS Cloud Practitioner", issuer: "AWS", icon: "aws" },
+		awssaa: { label: "AWS SAA", desc: "Solutions Architect – Associate", issuer: "AWS", icon: "aws" },
+		awssap: { label: "AWS SAP", desc: "Solutions Architect – Professional", issuer: "AWS", icon: "aws" },
+		awssoa: { label: "AWS SOA", desc: "SysOps Administrator", issuer: "AWS", icon: "aws" },
+		awsdva: { label: "AWS DVA", desc: "Developer – Associate", issuer: "AWS", icon: "aws" },
+		awsdop: { label: "AWS DOP", desc: "DevOps Engineer – Professional", issuer: "AWS", icon: "aws" },
+		awsscs: { label: "AWS SCS", desc: "Security – Specialty", issuer: "AWS", icon: "aws" },
+		terraformassociate: { label: "Terraform Associate", issuer: "HashiCorp", icon: "terraform" },
+		vaultassociate: { label: "Vault Associate", issuer: "HashiCorp", icon: "vault" },
+		az900: { label: "AZ-900", desc: "Azure Fundamentals", issuer: "Microsoft", icon: "azure" },
+		az104: { label: "AZ-104", desc: "Azure Administrator", issuer: "Microsoft", icon: "azure" },
+		az305: { label: "AZ-305", desc: "Azure Solutions Architect", issuer: "Microsoft", icon: "azure" },
+		az400: { label: "AZ-400", desc: "Azure DevOps Engineer", issuer: "Microsoft", icon: "azure" },
+		gcpace: { label: "GCP ACE", desc: "Associate Cloud Engineer", issuer: "Google Cloud", icon: "gcp" },
+		gcppca: { label: "GCP PCA", desc: "Professional Cloud Architect", issuer: "Google Cloud", icon: "gcp" },
+		rhcsa: { label: "RHCSA", desc: "Red Hat Certified System Administrator", issuer: "Red Hat", icon: "redhat" },
+		rhce: { label: "RHCE", desc: "Red Hat Certified Engineer", issuer: "Red Hat", icon: "redhat" },
+		lfcs: { label: "LFCS", desc: "Linux Foundation Certified SysAdmin", issuer: "Linux Foundation", icon: "linux" },
+		dca: { label: "DCA", desc: "Docker Certified Associate", issuer: "Docker", icon: "docker" },
+		oscp: { label: "OSCP", desc: "Offensive Security Certified Professional", issuer: "OffSec", icon: "" }
+	};
+	function inferCertIcon(k) {
+		if (/aws|saa|sap|soa|dva|dop|scs/.test(k)) return "aws";
+		if (/kube|k8s|(^ck)|kcna|kcsa/.test(k)) return "kubernetes";
+		if (/terraform|hashi/.test(k)) return "terraform";
+		if (/vault/.test(k)) return "vault";
+		if (/^az|azure/.test(k)) return "azure";
+		if (/gcp|google/.test(k)) return "gcp";
+		if (/rhc|redhat/.test(k)) return "redhat";
+		if (/lfcs|linux/.test(k)) return "linux";
+		if (/docker|dca/.test(k)) return "docker";
+		return "";
+	}
+	function resolveCert(entry) {
+		if (typeof entry === "string") entry = { name: entry };
+		var raw = entry.name || "", key = raw.toLowerCase().replace(/[^a-z0-9]/g, ""), db = CERT_DB[key] || {};
+		var name = entry.label || db.label || raw;
+		var desc = entry.desc || db.desc || entry.issuer || db.issuer || "";
+		var icon = entry.icon || db.icon || inferCertIcon(key);
+		return { name: name, desc: desc, icon: icon, img: entry.img || "", url: entry.url || "" };
+	}
 	function techIconsHtml(list) {
 		var h = '<div class="hub-stack">';
 		list.forEach(function (t) {
@@ -309,10 +359,13 @@
 	}
 	function certsHtml(list) {
 		var h = '<div class="hub-certs">';
-		list.forEach(function (c) {
-			var inner = c.img
-				? '<img class="cert__img" src="' + esc(c.img) + '" alt="' + esc(c.name || "") + '" loading="lazy">'
-				: '<span class="cert__ic">🎖️</span><span class="cert__meta"><span class="cert__name">' + esc(c.name || "") + "</span>" + (c.issuer ? '<span class="cert__issuer">' + esc(c.issuer) + "</span>" : "") + "</span>";
+		list.forEach(function (entry) {
+			var c = resolveCert(entry), inner;
+			if (c.img) inner = '<img class="cert__img" src="' + esc(c.img) + '" alt="' + esc(c.name) + '" loading="lazy">';
+			else {
+				var cls = DEVICON[c.icon], mark = cls ? '<i class="devicon-' + cls + '"></i>' : "🎖️";
+				inner = '<span class="cert__ic">' + mark + '</span><span class="cert__meta"><span class="cert__name">' + esc(c.name) + "</span>" + (c.desc ? '<span class="cert__issuer">' + esc(c.desc) + "</span>" : "") + "</span>";
+			}
 			h += c.url ? '<a class="cert' + (c.img ? " cert--img" : "") + '" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + inner + "</a>"
 				: '<span class="cert' + (c.img ? " cert--img" : "") + '">' + inner + "</span>";
 		});
@@ -343,10 +396,12 @@
 			var lh = qs(".list-head"); if (lh) lh.style.display = "none";
 			var ex = qs(".home-extra"); if (ex) ex.setAttribute("hidden", "hidden");
 
+			var certsN = (CFG.certs && CFG.certs.length), stackN = (CFG.techStack && CFG.techStack.length);
+			if (certsN || stackN) loadCss("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css");
 			var html = "";
 			if (CFG.githubCard && CFG.github) html += '<div class="hub-github">' + githubCardHtml(CFG.github) + "</div>";
-			if (CFG.certs && CFG.certs.length) html += '<section class="hub-block"><p class="hub-title">CERTIFICATIONS</p>' + certsHtml(CFG.certs) + "</section>";
-			if (CFG.techStack && CFG.techStack.length) { loadCss("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css"); html += '<section class="hub-block"><p class="hub-title">TECH STACK</p>' + techIconsHtml(CFG.techStack) + "</section>"; }
+			if (certsN) html += '<section class="hub-block"><p class="hub-title">CERTIFICATIONS</p>' + certsHtml(CFG.certs) + "</section>";
+			if (stackN) html += '<section class="hub-block"><p class="hub-title">TECH STACK</p>' + techIconsHtml(CFG.techStack) + "</section>";
 			html += '<a class="hub-posts" href="' + (qs("#catCircles") ? qs("#catCircles").getAttribute("data-home") : "/") + '#" onclick="return false">— 글은 위쪽 카테고리에서 —</a>';
 
 			hub.innerHTML = html; hub.removeAttribute("hidden");

@@ -867,7 +867,8 @@ body#tt-body-index .list-head { display: none; }
 	transition: transform .15s, border-color .15s, box-shadow .15s;
 }
 .cert:hover { transform: translateY(-3px); border-color: var(--border-str); box-shadow: var(--shadow); }
-.cert__ic { font-size: 24px; }
+.cert__ic { font-size: 24px; line-height: 1; display: grid; place-items: center; width: 30px; }
+.cert__ic i { font-size: 28px; }
 .cert__meta { display: flex; flex-direction: column; gap: 1px; }
 .cert__name { font-size: 14px; font-weight: 700; color: var(--text); }
 .cert__issuer { font-size: 12px; color: var(--text-mute); }
