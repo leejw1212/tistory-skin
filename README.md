@@ -21,6 +21,52 @@ DevOps 블로그를 위한 **깔끔한 갤러리형 티스토리 스킨**입니�
 > highlight.js·Pretendard는 CDN에서 불러오며 차단 시 자동으로 기본 스타일로 대체됩니다.
 > 코드 문법 강조를 티스토리 내장 코드블록만 쓰고 싶다면 `skin.html` `<head>` 의 highlight.js `<link>`/`<script>` 두 줄을 지우면 됩니다.
 
+## 기능 켜고 끄기 (스킨 편집 화면에서)
+
+모든 기능은 `skin.html` **맨 위 `window.CLEAN_SKIN` 설정 블록**에서 `true`/`false` 로 켜고 끕니다.
+티스토리 관리 → **꾸미기 → 스킨 편집 → html 편집** 에서 값만 바꾸고 **적용**하면 됩니다.
+
+```js
+window.CLEAN_SKIN = {
+  darkToggle:      true,   // 라이트/다크 토글 버튼
+  commandPalette:  true,   // ⌘K / Ctrl+K 커맨드 팔레트
+  shortcuts:       true,   // 키보드 단축키 ( / , j , k , g h , t , ? )
+  terminalHeader:  true,   // 헤더 터미널풍 프롬프트
+  toc:             true,   // 본문 자동 목차
+  readingBar:      true,   // 읽는 시간 + 진행률 바
+  syntaxHighlight: true,   // 코드 문법 강조(highlight.js)
+  codeLineNumbers: true,   // 코드 줄 번호
+  codeCopy:        true,   // 코드 복사 버튼
+  mermaid:         true,   // ```mermaid 다이어그램
+  katex:           true,   // $수식$ 렌더
+  callouts:        true,   // > [!NOTE] 콜아웃 박스
+  lightbox:        true,   // 이미지 클릭 확대
+  share:           true,   // 공유 버튼
+  relatedPosts:    true,   // 관련 글
+  seo:             true,   // JSON-LD 구조화 데이터
+  backToTop:       true,   // 맨 위로 버튼
+  githubCard:      true,   // 홈 GitHub 프로필/잔디 카드
+  techBadges:      true,   // 홈 기술스택 배지
+
+  github: "본인_깃허브_아이디",
+  techStack: ["Terraform", "Kubernetes", "OpenStack", "AWS", "Docker"],
+  series: [
+    // { name: "Terraform 입문", posts: [
+    //   { title: "1. 설치", url: "/1" }, { title: "2. 변수", url: "/2" } ] }
+  ]
+};
+```
+
+### 개발자 블로그 기능 사용법
+- **커맨드 팔레트**: `⌘K`(맥) / `Ctrl+K`(윈도우) → 검색·카테고리 이동. `?` 로 단축키 도움말.
+- **Mermaid 다이어그램**: 글에서 코드블록 언어를 `mermaid` 로 지정하고 `graph TD; A-->B;` 처럼 작성.
+- **콜아웃**: 인용문 첫 줄에 `[!NOTE]` `[!TIP]` `[!WARNING]` `[!DANGER]` 중 하나.
+- **수식(KaTeX)**: `$O(n\log n)$`(인라인), `$$ ... $$`(블록).
+- **GitHub 카드/기술배지**: 홈 하단에 표시. `github` 아이디와 `techStack` 를 본인 것으로 변경.
+- **시리즈(연재)**: `series` 배열에 글 목록을 넣으면 해당 글에서 연재 네비가 뜹니다.
+
+> Mermaid·KaTeX·highlight.js 는 필요한 글에서만 CDN으로 불러오며, 차단되면 자동으로 건너뜁니다.
+
 ## 애드센스 광고
 
 스킨에 티스토리 공식 광고 치환자를 넣어 두었습니다.

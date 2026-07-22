@@ -713,8 +713,118 @@ body#tt-body-index .list-head { display: none; }
 	background-color: var(--surface) !important; color: var(--text) !important;
 }
 
+/* ------------------------------ 터미널풍 헤더 ------------------------------ */
+.cfg-terminal .brand__title::before { content: "$ "; font-family: var(--mono); color: var(--accent); font-weight: 700; }
+.cfg-terminal .brand__title::after {
+	content: "▊"; margin-left: 2px; color: var(--accent);
+	animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ------------------------------ 콜아웃 박스 ------------------------------ */
+.post__content .callout {
+	margin: 1.5em 0; padding: 14px 18px 14px 16px;
+	border: 1px solid var(--border); border-left: 4px solid var(--cl, var(--accent));
+	border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+	background: color-mix(in srgb, var(--cl, var(--accent)) 7%, var(--surface));
+	color: var(--text);
+}
+.post__content .callout > :last-child { margin-bottom: 0; }
+.callout__head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; font-weight: 700; font-size: 13px; letter-spacing: .02em; color: var(--cl, var(--accent)); }
+.callout__ic { font-size: 15px; }
+.callout--note      { --cl: #3b82f6; }
+.callout--tip       { --cl: #10b981; }
+.callout--important { --cl: #8b5cf6; }
+.callout--warning   { --cl: #f59e0b; }
+.callout--danger, .callout--caution { --cl: #ef4444; }
+
+/* ------------------------------ details 접기 ------------------------------ */
+.post__content details {
+	margin: 1.3em 0; padding: 12px 16px; border: 1px solid var(--border);
+	border-radius: var(--radius-sm); background: var(--bg-soft);
+}
+.post__content details summary { cursor: pointer; font-weight: 600; color: var(--text); }
+.post__content details[open] summary { margin-bottom: 10px; }
+
+/* ------------------------------ Mermaid ------------------------------ */
+.post__content .mermaid {
+	margin: 1.6em 0; text-align: center; overflow-x: auto;
+	background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px;
+}
+
+/* ------------------------------ 코드 줄번호 ------------------------------ */
+.post__content pre.has-ln { display: flex; gap: 14px; }
+.post__content pre.has-ln .code-gutter {
+	flex: none; text-align: right; white-space: pre; user-select: none;
+	color: #6b7688; border-right: 1px solid rgba(255,255,255,.1); padding-right: 12px;
+	font-family: var(--mono); font-size: 14px; line-height: 1.7; font-variant-numeric: tabular-nums;
+}
+.post__content pre.has-ln code { flex: 1 1 auto; min-width: 0; overflow-x: auto; }
+
+/* ------------------------------ KaTeX ------------------------------ */
+.post__content .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+
+/* ------------------------------ 시리즈(연재) ------------------------------ */
+.series { max-width: var(--readw); margin: 28px auto 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-soft); }
+.series__head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 14px; }
+.series__ic { font-size: 16px; }
+.series__count { margin-left: auto; font-size: 12.5px; color: var(--text-mute); }
+.series__list { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.series__list a { color: var(--text-soft); }
+.series__list a:hover { color: var(--accent); }
+.series__list li.is-current { color: var(--accent); font-weight: 700; list-style: none; margin-left: -20px; padding-left: 20px; position: relative; }
+.series__list li.is-current::before { content: "▸"; position: absolute; left: 4px; color: var(--accent); }
+
+/* ------------------------------ 홈 하단: GitHub 카드 · 기술배지 ------------------------------ */
+.home-extra { max-width: var(--maxw); margin: 40px auto 0; display: flex; flex-direction: column; gap: 16px; }
+.home-extra[hidden] { display: none; }
+.techbadges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.techbadges__label { font-size: 11px; font-weight: 800; letter-spacing: .08em; color: var(--text-mute); margin-right: 4px; }
+.techbadge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 13px; font-weight: 600; color: var(--text-soft); font-family: var(--mono); }
+.techbadge__ic { font-size: 14px; }
+
+.ghcard { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+.ghcard__link { display: flex; align-items: center; gap: 12px; }
+.ghcard__avatar { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--border); flex: none; }
+.ghcard__meta { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ghcard__name { font-size: 15px; font-weight: 700; color: var(--text); }
+.ghcard__stats { font-size: 12.5px; color: var(--text-mute); }
+.ghcard__chart { flex: 1 1 320px; min-width: 240px; display: block; }
+.ghcard__chart img { width: 100%; height: auto; opacity: .92; }
+
+/* ------------------------------ 갤러리 키보드 포커스 ------------------------------ */
+.card.kbd-focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ------------------------------ 커맨드 팔레트 (⌘K) ------------------------------ */
+.cmdk { position: fixed; inset: 0; z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 12vh 16px 16px; }
+.cmdk[hidden] { display: none; }
+.cmdk__backdrop { position: absolute; inset: 0; background: rgba(8,10,14,.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.cmdk__panel { position: relative; width: 100%; max-width: 560px; background: var(--surface); border: 1px solid var(--border-str); border-radius: var(--radius); box-shadow: var(--shadow-lg); overflow: hidden; animation: cmdkin .14s ease; }
+@keyframes cmdkin { from { transform: translateY(-8px); opacity: 0; } }
+.cmdk__bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.cmdk__ic { font-family: var(--mono); color: var(--text-mute); font-size: 15px; }
+.cmdk__input { flex: 1 1 auto; border: 0; outline: 0; background: transparent; font-family: inherit; font-size: 16px; color: var(--text); }
+.cmdk__input::placeholder { color: var(--text-mute); }
+.cmdk__list { list-style: none; margin: 0; padding: 6px; max-height: 52vh; overflow-y: auto; }
+.cmdk__item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 9px; font-size: 14.5px; color: var(--text-soft); cursor: pointer; }
+.cmdk__item .cmdk__i { width: 20px; text-align: center; }
+.cmdk__item.is-sel { background: var(--accent-sub); color: var(--accent); }
+.cmdk__item.is-search { color: var(--text); font-weight: 600; }
+.cmdk__empty { padding: 20px; text-align: center; color: var(--text-mute); font-size: 14px; }
+.cmdk__hint { padding: 8px 16px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-mute); }
+
+/* ------------------------------ 단축키 도움말 ------------------------------ */
+.kbd-help { position: fixed; right: 22px; bottom: 80px; z-index: 90; width: 260px; padding: 16px 18px; background: var(--surface); border: 1px solid var(--border-str); border-radius: var(--radius); box-shadow: var(--shadow-lg); font-size: 13px; }
+.kbd-help strong { display: block; margin-bottom: 10px; font-size: 13px; }
+.kbd-help ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; color: var(--text-soft); }
+.kbd-help kbd { font-family: var(--mono); font-size: 11px; background: var(--bg-soft); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; color: var(--text); }
+.kbd-help__close { display: inline-block; margin-top: 12px; font-size: 12px; color: var(--text-mute); cursor: pointer; }
+.kbd-help__close:hover { color: var(--accent); }
+
 /* ------------------------------ Responsive ------------------------------ */
 @media (max-width: 720px) {
+	.ghcard__chart { flex-basis: 100%; }
+	.kbd-help { display: none; }
 	.site-head__inner { padding: 12px 16px; }
 	.brand__desc { display: none; }
 	.hero { padding: 26px 16px 4px; }
