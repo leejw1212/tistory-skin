@@ -344,9 +344,27 @@
 		if (typeof entry === "string") entry = { name: entry };
 		var raw = entry.name || "", key = raw.toLowerCase().replace(/[^a-z0-9]/g, ""), db = CERT_DB[key] || {};
 		var name = entry.label || db.label || raw;
-		var desc = entry.desc || db.desc || entry.issuer || db.issuer || "";
+		var issuer = entry.issuer || db.issuer || "";
+		var desc = entry.desc || db.desc || issuer || "";
 		var icon = entry.icon || db.icon || inferCertIcon(key);
-		return { name: name, desc: desc, icon: icon, img: entry.img || "", url: entry.url || "" };
+		return { name: name, issuer: issuer, desc: desc, icon: icon, img: entry.img || "", url: entry.url || "" };
+	}
+	/* 발급기관별 뱃지 색/로고 (shields.io 이미지로 실제 마크 렌더) */
+	var ISSUER_BADGE = {
+		kubernetes: { logo: "kubernetes", color: "326CE5" }, aws: { logo: "amazonwebservices", color: "232F3E" },
+		terraform: { logo: "terraform", color: "844FBA" }, vault: { logo: "vault", color: "000000" },
+		azure: { logo: "microsoftazure", color: "0078D4" }, gcp: { logo: "googlecloud", color: "4285F4" },
+		redhat: { logo: "redhat", color: "EE0000" }, linux: { logo: "linux", color: "1793D1" },
+		docker: { logo: "docker", color: "2496ED" }
+	};
+	var CERT_EMOJI = { kubernetes: "☸️", aws: "☁️", terraform: "🏗️", vault: "🔒", azure: "☁️", gcp: "☁️", redhat: "🎩", linux: "🐧", docker: "🐳" };
+	function shieldFor(c) {
+		var b = ISSUER_BADGE[c.icon]; if (!b) return "";
+		var enc = function (s) { return encodeURIComponent(String(s).replace(/-/g, "--").replace(/ /g, "_")); };
+		return "https://img.shields.io/badge/" + enc(c.name) + "-" + enc(c.issuer || "Certified") + "-" + b.color + "?style=for-the-badge&logo=" + b.logo + "&logoColor=white";
+	}
+	function certFallback(c) {
+		return '<span class="cert"><span class="cert__ic">' + (CERT_EMOJI[c.icon] || "🎖️") + '</span><span class="cert__meta"><span class="cert__name">' + esc(c.name) + "</span>" + (c.desc ? '<span class="cert__issuer">' + esc(c.desc) + "</span>" : "") + "</span></span>";
 	}
 	function techIconsHtml(list) {
 		var h = '<div class="hub-stack">';
@@ -360,14 +378,19 @@
 	function certsHtml(list) {
 		var h = '<div class="hub-certs">';
 		list.forEach(function (entry) {
-			var c = resolveCert(entry), inner;
-			if (c.img) inner = '<img class="cert__img" src="' + esc(c.img) + '" alt="' + esc(c.name) + '" loading="lazy">';
-			else {
-				var cls = DEVICON[c.icon], mark = cls ? '<i class="devicon-' + cls + '"></i>' : "🎖️";
-				inner = '<span class="cert__ic">' + mark + '</span><span class="cert__meta"><span class="cert__name">' + esc(c.name) + "</span>" + (c.desc ? '<span class="cert__issuer">' + esc(c.desc) + "</span>" : "") + "</span>";
+			var c = resolveCert(entry);
+			var open = c.url ? '<a class="cert-badge" href="' + esc(c.url) + '" target="_blank" rel="noopener">' : '<span class="cert-badge">';
+			var close = c.url ? "</a>" : "</span>";
+			if (c.img) { h += open + '<img class="cert__img" src="' + esc(c.img) + '" alt="' + esc(c.name) + '" loading="lazy">' + close; return; }
+			var shield = shieldFor(c);
+			if (shield) {
+				/* 실제 뱃지 이미지 + 로드 실패 시 이모지 대체 */
+				h += open + '<img class="cert__shield" src="' + esc(shield) + '" alt="' + esc(c.name) + " " + esc(c.issuer) + '" loading="lazy" ' +
+					'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-flex\'">' +
+					'<span class="cert__fb" style="display:none"><span class="cert__ic">' + (CERT_EMOJI[c.icon] || "🎖️") + '</span><span class="cert__meta"><span class="cert__name">' + esc(c.name) + "</span>" + (c.desc ? '<span class="cert__issuer">' + esc(c.desc) + "</span>" : "") + "</span></span>" + close;
+			} else {
+				h += open + '<span class="cert__fb" style="display:inline-flex"><span class="cert__ic">🎖️</span><span class="cert__meta"><span class="cert__name">' + esc(c.name) + "</span>" + (c.desc ? '<span class="cert__issuer">' + esc(c.desc) + "</span>" : "") + "</span></span>" + close;
 			}
-			h += c.url ? '<a class="cert' + (c.img ? " cert--img" : "") + '" href="' + esc(c.url) + '" target="_blank" rel="noopener">' + inner + "</a>"
-				: '<span class="cert' + (c.img ? " cert--img" : "") + '">' + inner + "</span>";
 		});
 		return h + "</div>";
 	}
@@ -388,37 +411,28 @@
 	}
 	function initHome() {
 		if (!isHome()) return;
+		var hub = qs("#profileHub"); if (!hub) return;
 
-		/* 프로필 허브 모드: 홈에서 게시글 대신 프로필/자격증/스택 노출 */
+		var ex = qs(".home-extra"); if (ex) ex.setAttribute("hidden", "hidden");   /* 구 스트립 미사용 */
+
+		var certsN = (CFG.certs && CFG.certs.length), stackN = (CFG.techStack && CFG.techStack.length);
+		if (stackN) loadCss("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css");
+
+		var html = "";
+		if (CFG.githubCard && CFG.github) html += '<div class="hub-github">' + githubCardHtml(CFG.github) + "</div>";
+		if (certsN) html += '<section class="hub-block"><p class="hub-title">CERTIFICATIONS</p>' + certsHtml(CFG.certs) + "</section>";
+		if (stackN) html += '<section class="hub-block"><p class="hub-title">TECH STACK</p>' + techIconsHtml(CFG.techStack) + "</section>";
+		if (!html) return;
+
+		/* homeProfile: 게시글 대신 프로필만. false: 프로필을 글 목록 위에 얹기 */
 		if (CFG.homeProfile) {
-			var hub = qs("#profileHub"); if (!hub) return;
 			var g = qs(".gallery"); if (g) g.style.display = "none";
 			var lh = qs(".list-head"); if (lh) lh.style.display = "none";
-			var ex = qs(".home-extra"); if (ex) ex.setAttribute("hidden", "hidden");
-
-			var certsN = (CFG.certs && CFG.certs.length), stackN = (CFG.techStack && CFG.techStack.length);
-			if (certsN || stackN) loadCss("https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css");
-			var html = "";
-			if (CFG.githubCard && CFG.github) html += '<div class="hub-github">' + githubCardHtml(CFG.github) + "</div>";
-			if (certsN) html += '<section class="hub-block"><p class="hub-title">CERTIFICATIONS</p>' + certsHtml(CFG.certs) + "</section>";
-			if (stackN) html += '<section class="hub-block"><p class="hub-title">TECH STACK</p>' + techIconsHtml(CFG.techStack) + "</section>";
-			html += '<a class="hub-posts" href="' + (qs("#catCircles") ? qs("#catCircles").getAttribute("data-home") : "/") + '#" onclick="return false">— 글은 위쪽 카테고리에서 —</a>';
-
-			hub.innerHTML = html; hub.removeAttribute("hidden");
-			if (CFG.githubCard && CFG.github) fillGithubStats(CFG.github);
-			return;
+			html += '<p class="hub-posts">— 글은 위쪽 카테고리 메뉴에서 볼 수 있어요 —</p>';
 		}
 
-		/* 일반 모드: 갤러리 아래에 GitHub 카드 + 배지 스트립 */
-		var section = qs(".home-extra"); if (!section) return;
-		var shown = false;
-		if (CFG.techBadges && CFG.techStack && CFG.techStack.length) {
-			var wrap = qs("#techbadges"), h = '<span class="techbadges__label">STACK</span>';
-			CFG.techStack.forEach(function (t) { var ic = pickIcon(String(t)); h += '<span class="techbadge">' + (ic ? '<span class="techbadge__ic">' + ic + "</span>" : "") + esc(t) + "</span>"; });
-			wrap.innerHTML = h; shown = true;
-		}
-		if (CFG.githubCard && CFG.github) { qs("#ghcard").innerHTML = githubCardHtml(CFG.github); fillGithubStats(CFG.github); shown = true; }
-		if (shown) section.removeAttribute("hidden");
+		hub.innerHTML = html; hub.removeAttribute("hidden");
+		if (CFG.githubCard && CFG.github) fillGithubStats(CFG.github);
 	}
 
 	/* ===================================================================== 14) 맨 위로 */

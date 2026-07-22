@@ -874,6 +874,11 @@ body#tt-body-index .list-head { display: none; }
 .cert__issuer { font-size: 12px; color: var(--text-mute); }
 .cert--img { padding: 8px; }
 .cert__img { width: 84px; height: 84px; object-fit: contain; display: block; }
+/* 실제 뱃지 이미지(shields.io) */
+.cert-badge { display: inline-flex; align-items: center; text-decoration: none; transition: transform .15s; }
+.cert-badge:hover { transform: translateY(-2px); }
+.cert__shield { height: 30px; width: auto; display: block; }
+.cert__fb { display: inline-flex; align-items: center; gap: 10px; padding: 11px 15px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 
 /* ------------------------------ Responsive ------------------------------ */
 @media (max-width: 720px) {
