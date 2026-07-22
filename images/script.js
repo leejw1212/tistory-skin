@@ -61,11 +61,18 @@
 	function cleanLabel(raw) { return (raw || "").replace(/\s*\(\s*[\d,]+\s*\)\s*$/, "").replace(/\s+/g, " ").trim(); }
 	function countOf(raw) { var m = (raw || "").match(/\(\s*([\d,]+)\s*\)\s*$/); return m ? parseInt(m[1].replace(/,/g, ""), 10) : null; }
 	function initial(n) { var c = n.trim().charAt(0); return c ? c.toUpperCase() : "#"; }
+	function normPath(p) {
+		try { p = decodeURIComponent(p); } catch (e) {}
+		p = p.replace(/\/+$/, "");
+		return p === "" ? "/" : p;
+	}
 	function isActive(href) {
 		try {
 			var u = new URL(href, location.origin);
-			if (u.pathname === "/" || u.pathname === "") return false;
-			return curPath().indexOf(decodeURIComponent(u.pathname)) === 0;
+			var hp = normPath(u.pathname);
+			if (hp === "/") return false;
+			/* 부모/자식 혼동 방지: 현재 주소와 '정확히' 같을 때만 활성 */
+			return normPath(location.pathname) === hp;
 		} catch (e) { return false; }
 	}
 	function circle(href, label, active, forceIc) {
@@ -93,7 +100,7 @@
 			}
 		}
 		var frag = document.createDocumentFragment(), seen = {};
-		frag.appendChild(circle(target.getAttribute("data-home") || "/", "전체", curPath() === "/", "🏠"));
+		frag.appendChild(circle(target.getAttribute("data-home") || "/", "전체", normPath(location.pathname) === "/", "🏠"));
 		for (i = 0; i < links.length; i++) {
 			var a = links[i], href = a.getAttribute("href"), raw = a.textContent, label = cleanLabel(raw);
 			if (!label) continue;
