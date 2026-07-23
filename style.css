@@ -880,6 +880,26 @@ body#tt-body-index .list-head { display: none; }
 .cert__shield { height: 30px; width: auto; display: block; }
 .cert__fb { display: inline-flex; align-items: center; gap: 10px; padding: 11px 15px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
 
+/* ------------------------------ GitHub 저장소 카드 ------------------------------ */
+.repo-card {
+	display: flex; flex-direction: column; gap: 10px;
+	max-width: 100%; margin: 1.6em 0; padding: 18px 20px;
+	border: 1px solid var(--border); border-radius: var(--radius);
+	background: var(--surface); box-shadow: var(--shadow-sm);
+	text-decoration: none; transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.repo-card:hover { border-color: var(--accent); box-shadow: var(--shadow); transform: translateY(-2px); }
+.repo-card__head { display: flex; align-items: center; gap: 9px; color: var(--text-mute); }
+.repo-card__gh { flex: none; color: var(--text-soft); }
+.repo-card__name { font-size: 16.5px; color: var(--accent); word-break: break-all; }
+.repo-card__owner { color: var(--text-soft); font-weight: 500; }
+.repo-card__name strong { font-weight: 800; }
+.repo-card__desc { font-size: 14.5px; color: var(--text-soft); line-height: 1.5; }
+.repo-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; font-size: 13px; color: var(--text-mute); }
+.repo-card__lang { display: inline-flex; align-items: center; gap: 6px; }
+.repo-card__dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.repo-card__stat { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; }
+
 /* ------------------------------ Responsive ------------------------------ */
 @media (max-width: 720px) {
 	.ghcard__chart { flex-basis: 100%; }
