@@ -13,7 +13,7 @@
 		toc: true, readingBar: true, syntaxHighlight: true, codeLineNumbers: true, codeCopy: true,
 		mermaid: true, katex: true, callouts: true, lightbox: true, share: true,
 		relatedPosts: true, seo: true, backToTop: true, githubCard: true, techBadges: true,
-		homeProfile: false,
+		homeProfile: false, adClient: "",
 		github: "", techStack: [], series: [], certs: []
 	};
 	var CFG = {};
@@ -435,6 +435,18 @@
 		if (CFG.githubCard && CFG.github) fillGithubStats(CFG.github);
 	}
 
+	/* ===================================================================== +) 애드센스 자동광고 */
+	function initAdsense() {
+		var id = String(CFG.adClient || "").trim();
+		if (!id) return;
+		if (document.querySelector('script[src*="adsbygoogle.js"]')) return;   /* 티스토리 등에서 이미 로드 시 중복 방지 */
+		var s = document.createElement("script");
+		s.async = true;
+		s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(id);
+		s.crossOrigin = "anonymous";
+		document.head.appendChild(s);
+	}
+
 	/* ===================================================================== 14) 맨 위로 */
 	function initToTop() {
 		var btn = qs(".to-top"); if (!btn) return;
@@ -575,6 +587,7 @@
 			run(CFG.seo, initSeo);
 		}
 		run(true, initHome);
+		run(true, initAdsense);
 		run(true, initToTop);
 		run(CFG.commandPalette || CFG.shortcuts, initShortcuts);
 		run(true, initHelpButton);
