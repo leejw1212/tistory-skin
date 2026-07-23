@@ -13,7 +13,7 @@
 		toc: true, readingBar: true, syntaxHighlight: true, codeLineNumbers: true, codeCopy: true,
 		mermaid: true, katex: true, callouts: true, lightbox: true, share: true,
 		relatedPosts: true, seo: true, backToTop: true, githubCard: true, techBadges: true,
-		homeProfile: false, adClient: "", repoCard: true,
+		homeProfile: false, adClient: "", repoCard: true, readmeEmbed: true,
 		github: "", techStack: [], series: [], certs: []
 	};
 	var CFG = {};
@@ -286,6 +286,65 @@
 				.then(function (r) { return r.ok ? r.json() : null; })
 				.then(function (d) { if (d && d.full_name) { card.href = d.html_url; card.innerHTML = repoCardHtml(h.info, d); } })
 				.catch(function () {});
+		});
+	}
+
+	/* ===================================================================== 8.6) README(.md) 임베드 */
+	function mdTargetFromUrl(u) {
+		u = String(u || "").trim();
+		var m = u.match(/^https?:\/\/github\.com\/([^\/]+)\/([^\/]+)\/blob\/([^\/]+)\/(.+?\.(?:md|markdown))(?:[#?].*)?$/i);
+		if (!m) m = u.match(/^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+?\.(?:md|markdown))(?:[#?].*)?$/i);
+		if (!m) return null;
+		return { owner: m[1], repo: m[2], ref: m[3], path: m[4] };
+	}
+	function fixReadmeAssets(root, t) {
+		var rawBase = "https://raw.githubusercontent.com/" + t.owner + "/" + t.repo + "/" + t.ref + "/";
+		var dir = t.path.indexOf("/") > -1 ? t.path.replace(/[^\/]+$/, "") : "";
+		qsa("img", root).forEach(function (img) {
+			var s = img.getAttribute("src") || "";
+			img.loading = "lazy";
+			if (/^(https?:)?\/\//.test(s) || s.indexOf("data:") === 0) return;
+			img.setAttribute("src", rawBase + (s.charAt(0) === "/" ? s.slice(1) : dir + s));
+		});
+		qsa("a[href]", root).forEach(function (a) {
+			var h = a.getAttribute("href") || "";
+			if (/^(https?:)?\/\//.test(h) || h.charAt(0) === "#" || h.indexOf("mailto:") === 0) { a.target = "_blank"; a.rel = "noopener"; return; }
+			a.target = "_blank"; a.rel = "noopener";
+			a.setAttribute("href", "https://github.com/" + t.owner + "/" + t.repo + "/blob/" + t.ref + "/" + (h.charAt(0) === "/" ? h.slice(1) : dir + h));
+		});
+	}
+	function initReadmeEmbeds(content) {
+		var hosts = [], seen = [];
+		qsa('a[href*="github"]', content).forEach(function (a) {
+			var t = mdTargetFromUrl(a.getAttribute("href")); if (!t) return;
+			var block = a.closest("p,div,li") || a, tx = block.textContent.trim();
+			if (tx.length > a.textContent.trim().length + 60 && tx !== a.textContent.trim()) return;
+			hosts.push({ host: block, t: t });
+		});
+		qsa("p,div,li", content).forEach(function (p) {
+			if (p.querySelector("a")) return;
+			var t = mdTargetFromUrl(p.textContent.trim()); if (!t) return;
+			hosts.push({ host: p, t: t });
+		});
+		hosts.slice(0, 3).forEach(function (h) {
+			if (seen.indexOf(h.host) > -1 || !h.host.parentNode) return; seen.push(h.host);
+			var t = h.t, viewUrl = "https://github.com/" + t.owner + "/" + t.repo + "/blob/" + t.ref + "/" + t.path;
+			var box = document.createElement("div"); box.className = "gh-readme";
+			box.innerHTML = '<a class="gh-readme__head" href="' + esc(viewUrl) + '" target="_blank" rel="noopener">' +
+				'<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M2 1.75C2 .78 2.78 0 3.75 0h6.6c.46 0 .9.18 1.23.51l2.9 2.9c.33.33.52.78.52 1.24v9.6c0 .97-.78 1.75-1.75 1.75h-9.5A1.75 1.75 0 012 14.25V1.75zm8 .25v2.75c0 .14.11.25.25.25H13L10 2z"></path></svg>' +
+				'<strong>' + esc(t.owner) + "/" + esc(t.repo) + '</strong><span>' + esc(t.path) + "</span></a>" +
+				'<div class="gh-readme__body markdown-body">불러오는 중…</div>';
+			h.host.parentNode.replaceChild(box, h.host);
+			var body = box.querySelector(".gh-readme__body");
+			var api = "https://api.github.com/repos/" + t.owner + "/" + t.repo + "/contents/" + t.path.split("/").map(encodeURIComponent).join("/") + "?ref=" + encodeURIComponent(t.ref);
+			fetch(api, { headers: { Accept: "application/vnd.github.html" } })
+				.then(function (r) { return r.ok ? r.text() : null; })
+				.then(function (html) {
+					if (html == null) { body.innerHTML = '<p class="gh-readme__err">README를 불러오지 못했어요. <a href="' + esc(viewUrl) + '" target="_blank" rel="noopener">GitHub에서 보기 →</a></p>'; return; }
+					body.innerHTML = html;
+					fixReadmeAssets(body, t);
+				})
+				.catch(function () { body.innerHTML = '<p class="gh-readme__err">README를 불러오지 못했어요. <a href="' + esc(viewUrl) + '" target="_blank" rel="noopener">GitHub에서 보기 →</a></p>'; });
 		});
 	}
 
@@ -631,6 +690,7 @@
 			run(true, initHighlight);            /* 하이라이트 off 여도 코드 복사/줄번호 처리 위해 */
 			run(CFG.katex, function () { initKatex(content); });
 			run(CFG.callouts, function () { initCallouts(content); });
+			run(CFG.readmeEmbed, function () { initReadmeEmbeds(content); });
 			run(CFG.repoCard, function () { initRepoCards(content); });
 			run(CFG.lightbox, initLightbox);
 			run(true, initShare);

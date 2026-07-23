@@ -59,7 +59,7 @@ DevOps·개발 블로그를 위한 **깔끔한 갤러리형 티스토리 스킨*
 window.CLEAN_SKIN = {
   darkToggle: true, commandPalette: true, shortcuts: true, terminalHeader: true,
   toc: true, readingBar: true, syntaxHighlight: true, codeLineNumbers: true, codeCopy: true,
-  mermaid: true, katex: true, callouts: true, repoCard: true, lightbox: true,
+  mermaid: true, katex: true, callouts: true, repoCard: true, readmeEmbed: true, lightbox: true,
   share: true, relatedPosts: true, seo: true, backToTop: true,
   githubCard: true, techBadges: true, homeProfile: true,
 
@@ -74,6 +74,7 @@ window.CLEAN_SKIN = {
 ### 기능별 사용법
 - **커맨드 팔레트**: `⌘K`(맥) / `Ctrl+K`(윈도우). 좌하단 **⌨ 단축키** 버튼 또는 `?` 로 도움말.
 - **GitHub 저장소 카드**: 글 본문에 저장소 주소(`https://github.com/owner/repo`)를 **한 줄에 단독으로** 넣으면 카드로 바뀝니다(별·포크·언어 표시).
+- **README 임베드**: 글 본문에 `.md` 파일 주소를 한 줄에 넣으면 그 내용이 게시물에 그대로 렌더됩니다. 예: `https://github.com/owner/repo/blob/main/README.md`
 - **Mermaid**: 코드블록 언어를 `mermaid` 로 지정 후 `graph TD; A-->B;`
 - **콜아웃**: 인용문 첫 줄 `[!NOTE]` `[!TIP]` `[!WARNING]` `[!DANGER]`
 - **수식(KaTeX)**: `$O(n\log n)$`(인라인), `$$ ... $$`(블록)
