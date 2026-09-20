@@ -617,6 +617,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnRegionToggle.addEventListener('click', (e) => {
                     e.stopPropagation();
                     regionDropdown.classList.toggle('open');
+                    document.getElementById('dropdown-routes')?.classList.remove('open');
+                    document.getElementById('dropdown-restaurants')?.classList.remove('open');
                 });
                 regionDropdown.querySelectorAll('.map-region-item').forEach(btn => {
                     btn.addEventListener('click', () => {
@@ -638,6 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dRest = document.getElementById('dropdown-restaurants');
                 dRoutes?.classList.toggle('open');
                 dRest?.classList.remove('open');
+                regionDropdown?.classList.remove('open');
             });
             
             document.getElementById('btn-stat-restaurants')?.addEventListener('click', (e) => {
@@ -646,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dRest = document.getElementById('dropdown-restaurants');
                 dRest?.classList.toggle('open');
                 dRoutes?.classList.remove('open');
+                regionDropdown?.classList.remove('open');
             });
 
             document.addEventListener('click', () => {

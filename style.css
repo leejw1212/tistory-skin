@@ -1594,8 +1594,9 @@ img {
     }
     
     .map-controls {
+        top: auto; /* Required to override desktop top: 16px */
         bottom: 12px; 
-        left: 12px; /* moved to bottom left */
+        left: 12px;
         right: auto;
     }
     .map-zoom-controls {
