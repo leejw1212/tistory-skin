@@ -357,18 +357,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Update stats
+            // Update stats & dropdowns
             const elRoutes = document.getElementById('stat-routes');
             const elRest = document.getElementById('stat-restaurants');
             if (elRoutes) elRoutes.textContent = validRoutes.length;
             if (elRest && window.MAP_DATA.restaurants) elRest.textContent = window.MAP_DATA.restaurants.length;
+
+            const dropdownRoutes = document.getElementById('dropdown-routes');
+            const dropdownRest = document.getElementById('dropdown-restaurants');
+
+            if (dropdownRoutes) {
+                dropdownRoutes.innerHTML = validRoutes.map((r, i) => 
+                    `<button class="stat-item" data-idx="${i}">📍 ${r.title}</button>`
+                ).join('');
+            }
+            if (dropdownRest && window.MAP_DATA.restaurants) {
+                dropdownRest.innerHTML = window.MAP_DATA.restaurants.map((r, i) => 
+                    `<button class="stat-item" data-idx="${i}">🍽️ ${r.title}</button>`
+                ).join('');
+            }
+
+            // Region counts
+            const regionCounts = {};
+            Object.keys(REGIONS).forEach(key => {
+                if (key === 'all') return;
+                let count = 0;
+                const b = REGIONS[key];
+                validRoutes.forEach(r => {
+                    if (r.points.some(p => p.lat >= b.minLat && p.lat <= b.maxLat && p.lon >= b.minLon && p.lon <= b.maxLon)) count++;
+                });
+                if (window.MAP_DATA.restaurants) {
+                    window.MAP_DATA.restaurants.forEach(r => {
+                        if (r.lat >= b.minLat && r.lat <= b.maxLat && r.lon >= b.minLon && r.lon <= b.maxLon) count++;
+                    });
+                }
+                regionCounts[key] = count;
+            });
+
+            document.querySelectorAll('.map-region-item').forEach(btn => {
+                const key = btn.dataset.region;
+                if (key !== 'all' && regionCounts[key] !== undefined && regionCounts[key] > 0) {
+                    btn.innerHTML += ` <span class="region-count">(${regionCounts[key]})</span>`;
+                }
+            });
 
             // Initial render
             render();
 
             // ──── Zoom / Pan state ────
             const ZOOM_FACTOR = 0.3;
-            const MIN_SPAN = 0.005; // prevent over-zoom
+            const MIN_SPAN = 0.005;
 
             function zoomAt(cx, cy, factor) {
                 const center = getLatLon(cx, cy);
@@ -385,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 viewport.minLon = center.lon - newLonSpan * ratioX;
                 viewport.maxLon = center.lon + newLonSpan * (1 - ratioX);
                 viewport.minLat = center.lat - newLatSpan * ratioY;
-                viewport.maxLat = center.lat + newLatSpan * (1 - ratioY);
+                viewport.maxLat = center.lat + newLonSpan * (1 - ratioY);
                 render();
             }
 
@@ -408,6 +446,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
                 fitBounds(bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon, 0.15);
+                render();
+            }
+
+            function goToLatLon(lat, lon, targetSpan = 0.03) {
+                viewport.minLat = lat - targetSpan / 2;
+                viewport.maxLat = lat + targetSpan / 2;
+                
+                const avgLat = lat;
+                const cosLat = Math.cos(avgLat * Math.PI / 180);
+                const canR = W / H;
+                const lonD = (targetSpan * canR) / cosLat;
+                
+                viewport.minLon = lon - lonD / 2;
+                viewport.maxLon = lon + lonD / 2;
                 render();
             }
 
@@ -454,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // ──── Touch gestures (pan + pinch zoom) ────
+            // ──── Touch gestures ────
             let lastTouches = null;
 
             canvas.addEventListener('touchstart', (e) => {
@@ -480,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     viewport.maxLat = dragStartViewport.maxLat + dy * latPerPx;
                     render();
                 } else if (e.touches.length === 2 && lastTouches && lastTouches.length === 2) {
-                    // Pinch zoom
                     const prevDist = Math.hypot(
                         lastTouches[0].clientX - lastTouches[1].clientX,
                         lastTouches[0].clientY - lastTouches[1].clientY
@@ -569,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 hoveredItem = null;
             });
 
-            // ──── Control buttons ────
+            // ──── Control buttons & Dropdowns ────
             const btnZoomIn = document.getElementById('map-zoom-in');
             const btnZoomOut = document.getElementById('map-zoom-out');
             const btnReset = document.getElementById('map-reset');
@@ -580,7 +631,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnZoomOut) btnZoomOut.addEventListener('click', () => zoomCenter(1 + ZOOM_FACTOR));
             if (btnReset) btnReset.addEventListener('click', () => {
                 resetView();
-                // Reset active region
                 if (regionDropdown) {
                     regionDropdown.querySelectorAll('.map-region-item').forEach(b => b.classList.remove('active'));
                     const allBtn = regionDropdown.querySelector('[data-region="all"]');
@@ -588,34 +638,111 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Region selector
             if (btnRegionToggle && regionDropdown) {
                 btnRegionToggle.addEventListener('click', (e) => {
                     e.stopPropagation();
                     regionDropdown.classList.toggle('open');
                 });
-
                 regionDropdown.querySelectorAll('.map-region-item').forEach(btn => {
                     btn.addEventListener('click', () => {
                         const region = btn.dataset.region;
                         goToRegion(region);
                         regionDropdown.classList.remove('open');
-                        // Update active state
                         regionDropdown.querySelectorAll('.map-region-item').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
                     });
                 });
+            }
 
-                // Close dropdown on outside click
-                document.addEventListener('click', () => {
-                    regionDropdown.classList.remove('open');
+            // Stat Dropdowns
+            document.getElementById('btn-stat-routes')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownRoutes?.classList.toggle('open');
+                dropdownRest?.classList.remove('open');
+            });
+            
+            document.getElementById('btn-stat-restaurants')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownRest?.classList.toggle('open');
+                dropdownRoutes?.classList.remove('open');
+            });
+
+            document.addEventListener('click', () => {
+                regionDropdown?.classList.remove('open');
+                dropdownRoutes?.classList.remove('open');
+                dropdownRest?.classList.remove('open');
+            });
+
+            if (dropdownRoutes) {
+                dropdownRoutes.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.stat-item');
+                    if (!btn) return;
+                    const r = validRoutes[btn.dataset.idx];
+                    if (r && r.points.length > 0) {
+                        const mid = r.points[Math.floor(r.points.length / 2)];
+                        goToLatLon(mid.lat, mid.lon, 0.05); // slightly wider for route
+                    }
+                });
+            }
+
+            if (dropdownRest) {
+                dropdownRest.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.stat-item');
+                    if (!btn) return;
+                    const r = window.MAP_DATA.restaurants[btn.dataset.idx];
+                    if (r) goToLatLon(r.lat, r.lon, 0.015); // close zoom for pin
                 });
             }
         });
     }
 
     // ===========================
-    // 6. Nearby Restaurants Widget
+    // 6. Homepage Sidebar Tabs (AJAX load)
+    // ===========================
+    if (document.body.id === 'tt-body-index') {
+        const categories = {
+            'running': '/category/러닝코스',
+            'food': '/category/맛집',
+            'review': '/category/제품리뷰'
+        };
+
+        const loadCategory = async (key, url) => {
+            const panel = document.getElementById(`panel-${key}`);
+            if (!panel) return;
+            try {
+                const res = await fetch(url);
+                const html = await res.text();
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const posts = Array.from(doc.querySelectorAll('.original-list .post-item')).slice(0, 3);
+                
+                if (posts.length > 0) {
+                    panel.innerHTML = '';
+                    posts.forEach((post, index) => {
+                        post.style.animationDelay = `${index * 0.08}s`;
+                        panel.appendChild(post);
+                    });
+                } else {
+                    panel.innerHTML = '<div class="loading-spinner">등록된 글이 없습니다.</div>';
+                }
+            } catch (e) {
+                panel.innerHTML = '<div class="loading-spinner">불러오기 실패</div>';
+            }
+        };
+
+        Object.entries(categories).forEach(([key, url]) => loadCategory(key, url));
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+            });
+        });
+    }
+
+    // ===========================
+    // 7. Nearby Restaurants Widget
     // ===========================
     const isPostPage = document.body.id === 'tt-body-page';
     const categoryEl = document.querySelector('.post-header .category');

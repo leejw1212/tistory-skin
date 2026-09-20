@@ -552,6 +552,80 @@ img {
 }
 
 /* ===========================
+   Stat Dropdowns & Counts
+   =========================== */
+.stat-group {
+    position: relative;
+}
+
+.map-stat-badge {
+    cursor: pointer;
+    border: 1px solid rgba(238,232,224,0.5);
+    background: rgba(255,255,255,0.85);
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.map-stat-badge:hover {
+    background: #fff;
+    border-color: var(--primary);
+}
+
+.stat-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    width: 200px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 20;
+    padding: 6px 0;
+}
+
+.stat-dropdown.open {
+    display: block;
+    animation: fadeIn 0.15s;
+}
+
+.stat-item {
+    display: block;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+    transition: all 0.2s ease;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-item:hover {
+    background: var(--border-light);
+    color: var(--primary);
+}
+
+.region-count {
+    color: var(--text-faint);
+    font-size: 0.8em;
+    margin-left: 4px;
+}
+
+/* ===========================
    Homepage 2-Column Layout
    =========================== */
 #tt-body-index #main .inner {
@@ -577,25 +651,72 @@ img {
     top: 88px;
 }
 
-#tt-body-index .content-wrap::before {
-    content: '📌 최신 글';
+/* Sidebar Tabs */
+#index-sidebar {
+    display: none;
+}
+
+#tt-body-index #index-sidebar {
     display: block;
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: var(--text-primary);
+}
+
+#tt-body-index .original-list,
+#tt-body-index .pagination {
+    display: none !important;
+}
+
+.sidebar-tabs {
+    display: flex;
+    gap: 8px;
     margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--border);
+    border-bottom: 2px solid var(--border-light);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px 0;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.tab-panel {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tab-panel.active {
+    display: flex;
+    animation: fadeIn 0.3s ease;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 40px 20px;
+    font-size: 0.85rem;
+    color: var(--text-faint);
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--border-light);
 }
 
 /* Sidebar compact cards */
-#tt-body-index .article-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
 #tt-body-index .post-item {
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-sm);
@@ -647,16 +768,6 @@ img {
 #tt-body-index .post-item:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
-}
-
-#tt-body-index .pagination {
-    margin-top: 16px;
-}
-
-#tt-body-index .pagination a {
-    min-width: 32px;
-    height: 32px;
-    font-size: 0.8rem;
 }
 
 /* ===========================

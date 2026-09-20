@@ -63,14 +63,20 @@
                     <div class="map-overlay">
                         <div class="map-title">🗺️ 나의 러닝 맵</div>
                         <div class="map-stats">
-                            <span class="map-stat-badge">
-                                <span class="stat-icon">🏃</span>
-                                <span id="stat-routes">0</span> 코스
-                            </span>
-                            <span class="map-stat-badge">
-                                <span class="stat-icon">🍽️</span>
-                                <span id="stat-restaurants">0</span> 맛집
-                            </span>
+                            <div class="stat-group">
+                                <button class="map-stat-badge" id="btn-stat-routes" aria-label="코스 목록 보기">
+                                    <span class="stat-icon">🏃</span>
+                                    <span id="stat-routes">0</span> 코스 ▾
+                                </button>
+                                <div class="stat-dropdown" id="dropdown-routes"></div>
+                            </div>
+                            <div class="stat-group">
+                                <button class="map-stat-badge" id="btn-stat-restaurants" aria-label="맛집 목록 보기">
+                                    <span class="stat-icon">🍽️</span>
+                                    <span id="stat-restaurants">0</span> 맛집 ▾
+                                </button>
+                                <div class="stat-dropdown" id="dropdown-restaurants"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -111,8 +117,28 @@
                         </div>
                     </s_list>
 
+                    <!-- Homepage Sidebar Tabs (JS injected content) -->
+                    <div id="index-sidebar" class="index-sidebar">
+                        <div class="sidebar-tabs">
+                            <button class="tab-btn active" data-tab="running">🏃 코스</button>
+                            <button class="tab-btn" data-tab="food">🍽️ 맛집</button>
+                            <button class="tab-btn" data-tab="review">📦 리뷰</button>
+                        </div>
+                        <div class="tab-content-wrap">
+                            <div class="tab-panel active" id="panel-running">
+                                <div class="loading-spinner">불러오는 중...</div>
+                            </div>
+                            <div class="tab-panel" id="panel-food">
+                                <div class="loading-spinner">불러오는 중...</div>
+                            </div>
+                            <div class="tab-panel" id="panel-review">
+                                <div class="loading-spinner">불러오는 중...</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Article List (Grid Layout) -->
-                    <div class="article-wrap">
+                    <div class="article-wrap original-list">
                         <s_article_rep>
                             <s_index_article_rep>
                                 <article class="post-item">
