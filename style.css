@@ -404,3 +404,51 @@ img {
         font-size: 1.8rem;
     }
 }
+
+/* Home Map */
+#home-map {
+    display: none;
+    width: 100%;
+    height: 600px;
+    border-radius: 12px;
+    background-color: #eee;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+#tt-body-index .content-wrap {
+    display: none;
+}
+#tt-body-index #home-map {
+    display: block;
+}
+
+/* Nearby Restaurants Widget */
+.nearby-restaurants {
+    margin-top: 40px;
+    padding: 30px;
+    background-color: #fff9f5;
+    border-radius: 12px;
+    border: 1px solid #ffdecb;
+}
+.nearby-restaurants h3 {
+    font-size: 1.2rem;
+    color: #ff7e67;
+    margin-bottom: 15px;
+}
+.nearby-list {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.nearby-item {
+    background: #fff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    font-weight: 500;
+    transition: transform 0.2s;
+}
+.nearby-item:hover {
+    transform: translateY(-3px);
+    color: #ff7e67;
+}

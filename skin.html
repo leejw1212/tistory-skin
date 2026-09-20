@@ -18,7 +18,11 @@
                     <a href="[##_blog_link_##]">[##_title_##]</a>
                 </h1>
                 <nav class="gnb">
-                    [##_category_list_##]
+                    <ul>
+                        <li><a href="/category/러닝코스">러닝코스</a></li>
+                        <li><a href="/category/맛집">맛집</a></li>
+                        <li><a href="/category/제품리뷰">제품리뷰</a></li>
+                    </ul>
                 </nav>
             </div>
         </header>
@@ -37,6 +41,9 @@
                     </div>
                 </s_notice_rep>
                 
+                <!-- Home Map Container -->
+                <div id="home-map"></div>
+
                 <!-- Article / List Container -->
                 <div class="content-wrap">
                     
@@ -165,6 +172,8 @@
         </footer>
     </div>
 </s_t3>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_APP_KEY_HERE"></script>
+<script src="./images/mapData.js"></script>
 <script src="./images/script.js"></script>
 </body>
 </html>
