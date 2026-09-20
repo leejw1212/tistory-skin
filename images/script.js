@@ -11,11 +11,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Custom GPX Heatmap Renderer
     const canvas = document.getElementById('route-canvas');
-    if (canvas && document.body.id === 'tt-body-index') {
+    console.log("Canvas element:", canvas);
+
+    if (canvas && canvas.offsetWidth > 0) {
         const ctx = canvas.getContext('2d');
         
         // Resize canvas to physical pixels for crisp rendering
         const rect = canvas.parentElement.getBoundingClientRect();
+        console.log("Canvas parent rect:", rect);
+        
+        if (rect.width === 0 || rect.height === 0) {
+            console.error("Canvas container has 0 width or height! Check CSS.");
+        }
+
         canvas.width = rect.width * window.devicePixelRatio;
         canvas.height = rect.height * window.devicePixelRatio;
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -32,11 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             }
         }
+        console.log("Detected skin images path:", skinImagesPath);
+        console.log("MAP_DATA:", window.MAP_DATA);
 
         // Fetch and parse all GPX files
         if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
             Promise.all(window.MAP_DATA.gpxFiles.map(file => {
                 const fetchUrl = file.url || (skinImagesPath + file.filename);
+                console.log("Fetching GPX from:", fetchUrl);
                 return fetch(fetchUrl)
                     .then(res => res.text())
                     .then(xmlString => {
