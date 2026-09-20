@@ -57,29 +57,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         Promise.all([fetchGeo, Promise.all(gpxPromises)]).then(([geoData, routes]) => {
-            // Find global bounding box from GeoJSON
+            // Find bounding box from GPX ROUTES, not the whole country
             let minLat = Infinity, maxLat = -Infinity;
             let minLon = Infinity, maxLon = -Infinity;
             
-            const processCoord = (coord) => {
-                const lon = coord[0], lat = coord[1];
-                if (lat < minLat) minLat = lat;
-                if (lat > maxLat) maxLat = lat;
-                if (lon < minLon) minLon = lon;
-                if (lon > maxLon) maxLon = lon;
-            };
+            const validRoutes = routes.filter(r => r && r.points.length > 0);
+            
+            if (validRoutes.length > 0) {
+                validRoutes.forEach(route => {
+                    route.points.forEach(p => {
+                        if (p.lat < minLat) minLat = p.lat;
+                        if (p.lat > maxLat) maxLat = p.lat;
+                        if (p.lon < minLon) minLon = p.lon;
+                        if (p.lon > maxLon) maxLon = p.lon;
+                    });
+                });
+            } else {
+                // Fallback to Seoul if no routes
+                minLat = 37.4; maxLat = 37.7;
+                minLon = 126.8; maxLon = 127.2;
+            }
 
-            geoData.features.forEach(feature => {
-                if (feature.geometry.type === 'Polygon') {
-                    feature.geometry.coordinates.forEach(ring => ring.forEach(processCoord));
-                } else if (feature.geometry.type === 'MultiPolygon') {
-                    feature.geometry.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(processCoord)));
-                }
-            });
-
-            // Add padding (5%)
-            const latDiff = maxLat - minLat || 0.01;
-            const lonDiff = maxLon - minLon || 0.01;
+            // Add generous padding (e.g., 50%) so we see the surrounding local geography
+            const latDiff = maxLat - minLat || 0.05;
+            const lonDiff = maxLon - minLon || 0.05;
             
             // Adjust aspect ratio based on average latitude (Mercator-ish approximation)
             const avgLat = (minLat + maxLat) / 2;
@@ -106,9 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 drawMaxLon += lonPad;
             }
 
-            // Apply 5% visual padding
-            const pLat = (drawMaxLat - drawMinLat) * 0.05;
-            const pLon = (drawMaxLon - drawMinLon) * 0.05;
+            // Apply 40% visual padding so the map shows the surrounding neighborhood/city
+            const pLat = (drawMaxLat - drawMinLat) * 0.4;
+            const pLon = (drawMaxLon - drawMinLon) * 0.4;
             drawMinLat -= pLat; drawMaxLat += pLat;
             drawMinLon -= pLon; drawMaxLon += pLon;
 
