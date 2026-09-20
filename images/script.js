@@ -1,15 +1,82 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Header shadow on scroll
+    // ===========================
+    // 1. Header scroll effect
+    // ===========================
     const header = document.getElementById('header');
+    const backToTopBtn = document.querySelector('.back-to-top');
+
     window.addEventListener('scroll', () => {
+        // Header shadow
         if (window.scrollY > 10) {
-            header.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
+            header.classList.add('scrolled');
         } else {
-            header.style.boxShadow = 'none';
+            header.classList.remove('scrolled');
+        }
+
+        // Back to top visibility
+        if (backToTopBtn) {
+            if (window.scrollY > 400) {
+                backToTopBtn.classList.add('visible');
+            } else {
+                backToTopBtn.classList.remove('visible');
+            }
         }
     });
 
-    // 2. Custom GPX Heatmap Renderer
+    // Back to top click
+    if (backToTopBtn) {
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // ===========================
+    // 2. Mobile menu toggle
+    // ===========================
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const mobileNav = document.querySelector('.mobile-nav');
+
+    if (mobileMenuBtn && mobileNav) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileNav.classList.toggle('open');
+            document.body.style.overflow = mobileNav.classList.contains('open') ? 'hidden' : '';
+        });
+
+        // Close on link click
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                mobileNav.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+
+    // ===========================
+    // 3. Category color auto-mapping
+    // ===========================
+    document.querySelectorAll('.post-item .category, .post-header .category').forEach(el => {
+        const text = el.textContent.trim();
+        if (text.includes('러닝') || text.includes('코스') || text.includes('running')) {
+            el.setAttribute('data-cat', 'running');
+        } else if (text.includes('맛집') || text.includes('음식') || text.includes('food')) {
+            el.setAttribute('data-cat', 'food');
+        } else if (text.includes('리뷰') || text.includes('제품') || text.includes('review')) {
+            el.setAttribute('data-cat', 'review');
+        }
+    });
+
+    // ===========================
+    // 4. Card entry animation stagger
+    // ===========================
+    document.querySelectorAll('.post-item').forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.08}s`;
+    });
+
+    // ===========================
+    // 5. Custom GPX Heatmap Renderer
+    // ===========================
     const canvas = document.getElementById('route-canvas');
     const tooltip = document.getElementById('map-tooltip');
 
@@ -25,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const width = rect.width;
         const height = rect.height;
 
-        // Extract skin images path safely using the script tag processed by Tistory
+        // Extract skin images path
         let skinImagesPath = '';
         const helperScript = document.getElementById('skin-path-helper');
         if (helperScript && helperScript.src) {
@@ -86,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 minLon = 126.8; maxLon = 127.2;
             }
 
-            // Apply 40% visual padding
+            // Apply visual padding
             const latDiff = maxLat - minLat || 0.05;
             const lonDiff = maxLon - minLon || 0.05;
             
@@ -122,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { x, y };
             };
 
-            // Map data projection for interaction
+            // Project routes & restaurants
             validRoutes.forEach(route => {
                 route.projected = route.points.map(p => getXY(p.lat, p.lon));
             });
@@ -133,32 +200,46 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // 1. Draw Map Background & Grid
-            ctx.fillStyle = '#fdfaf6';
+            // ===== Update Map Stats =====
+            const statRoutes = document.getElementById('stat-routes');
+            const statRestaurants = document.getElementById('stat-restaurants');
+            if (statRoutes) statRoutes.textContent = validRoutes.length;
+            if (statRestaurants && window.MAP_DATA.restaurants) {
+                statRestaurants.textContent = window.MAP_DATA.restaurants.length;
+            }
+
+            // ===== DRAW =====
+            
+            // 1. Background
+            const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+            bgGrad.addColorStop(0, '#fdfaf6');
+            bgGrad.addColorStop(1, '#f5ede0');
+            ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, width, height);
 
-            ctx.fillStyle = '#ebdcc6';
-            for (let x = 0; x < width; x += 20) {
-                for (let y = 0; y < height; y += 20) {
+            // Subtle dot grid
+            ctx.fillStyle = 'rgba(200, 185, 165, 0.25)';
+            for (let x = 0; x < width; x += 24) {
+                for (let y = 0; y < height; y += 24) {
                     ctx.beginPath();
-                    ctx.arc(x, y, 1, 0, Math.PI * 2);
+                    ctx.arc(x, y, 0.8, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
 
-            // 2. Draw Map Outline (South Korea)
-            ctx.shadowColor = 'rgba(150, 130, 110, 0.15)';
-            ctx.shadowBlur = 15;
-            ctx.shadowOffsetX = 4;
-            ctx.shadowOffsetY = 8;
+            // 2. South Korea map outline
+            ctx.shadowColor = 'rgba(150, 130, 110, 0.12)';
+            ctx.shadowBlur = 18;
+            ctx.shadowOffsetX = 3;
+            ctx.shadowOffsetY = 6;
             
             const landGradient = ctx.createLinearGradient(0, 0, 0, height);
-            landGradient.addColorStop(0, '#f9f3e6');
-            landGradient.addColorStop(1, '#f0e6d2');
+            landGradient.addColorStop(0, '#f6eed9');
+            landGradient.addColorStop(1, '#ece2cc');
 
             ctx.fillStyle = landGradient;
-            ctx.strokeStyle = '#e6d5c1';
-            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#ddd0ba';
+            ctx.lineWidth = 1.2;
             
             const drawRings = (rings) => {
                 rings.forEach(ring => {
@@ -199,60 +280,99 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
 
-            // 3. Draw GPX Routes
-            const drawRoutes = () => {
-                ctx.lineWidth = 4;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                
-                ctx.shadowColor = 'rgba(255, 126, 103, 0.6)';
-                ctx.shadowBlur = 8;
-                ctx.strokeStyle = '#ff7e67'; 
-                ctx.globalCompositeOperation = 'source-over';
+            // 3. GPX Routes — gradient stroke
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.globalCompositeOperation = 'source-over';
 
-                validRoutes.forEach(route => {
-                    ctx.beginPath();
-                    route.projected.forEach((p, idx) => {
-                        if (idx === 0) ctx.moveTo(p.x, p.y);
-                        else ctx.lineTo(p.x, p.y);
-                    });
-                    ctx.stroke();
-                });
-            };
-            drawRoutes();
+            validRoutes.forEach(route => {
+                if (route.projected.length < 2) return;
 
-            // 4. Draw Restaurants (Sleek Map Pins)
-            const drawPin = (x, y) => {
+                // Glow effect
+                ctx.save();
+                ctx.shadowColor = 'rgba(255, 107, 74, 0.5)';
+                ctx.shadowBlur = 12;
+                ctx.lineWidth = 5;
+                ctx.strokeStyle = 'rgba(255, 107, 74, 0.35)';
                 ctx.beginPath();
-                ctx.arc(x, y - 10, 8, 0, Math.PI * 2);
-                ctx.fillStyle = '#ff7e67';
+                route.projected.forEach((p, idx) => {
+                    if (idx === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                });
+                ctx.stroke();
+                ctx.restore();
+
+                // Main line with gradient
+                const startP = route.projected[0];
+                const endP = route.projected[route.projected.length - 1];
+                const grad = ctx.createLinearGradient(startP.x, startP.y, endP.x, endP.y);
+                grad.addColorStop(0, '#ff6b4a');
+                grad.addColorStop(1, '#ff9a76');
+
+                ctx.lineWidth = 3.5;
+                ctx.strokeStyle = grad;
+                ctx.beginPath();
+                route.projected.forEach((p, idx) => {
+                    if (idx === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                });
+                ctx.stroke();
+
+                // Start/end dots
+                ctx.beginPath();
+                ctx.arc(startP.x, startP.y, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff6b4a';
                 ctx.fill();
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 2;
                 ctx.stroke();
+            });
+
+            // 4. Restaurant Pins — modern style
+            const drawPin = (x, y) => {
+                // Pin shadow
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 6;
+                ctx.shadowOffsetY = 3;
+
+                // Pin body
                 ctx.beginPath();
-                ctx.moveTo(x - 8, y - 10);
+                ctx.arc(x, y - 12, 9, Math.PI, 0, false);
                 ctx.lineTo(x, y + 2);
-                ctx.lineTo(x + 8, y - 10);
+                ctx.closePath();
+                
+                const pinGrad = ctx.createLinearGradient(x, y - 21, x, y + 2);
+                pinGrad.addColorStop(0, '#ff9a76');
+                pinGrad.addColorStop(1, '#ff6b4a');
+                ctx.fillStyle = pinGrad;
                 ctx.fill();
+                
+                ctx.restore();
+
+                // White border
                 ctx.beginPath();
-                ctx.arc(x, y - 10, 3, 0, Math.PI * 2);
+                ctx.arc(x, y - 12, 9, Math.PI, 0, false);
+                ctx.lineTo(x, y + 2);
+                ctx.closePath();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Inner circle
+                ctx.beginPath();
+                ctx.arc(x, y - 12, 3.5, 0, Math.PI * 2);
                 ctx.fillStyle = '#fff';
                 ctx.fill();
             };
 
             if (window.MAP_DATA.restaurants) {
-                ctx.shadowColor = 'rgba(0,0,0,0.15)';
-                ctx.shadowBlur = 5;
-                ctx.shadowOffsetY = 3;
-                ctx.globalCompositeOperation = 'source-over';
-                
                 window.MAP_DATA.restaurants.forEach(rest => {
-                    if(rest.projected) drawPin(rest.projected.x, rest.projected.y);
+                    if (rest.projected) drawPin(rest.projected.x, rest.projected.y);
                 });
             }
 
-            // --- INTERACTION LOGIC ---
+            // ===== INTERACTION =====
             function dist2(v, w) { return Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2); }
             function distToSegmentSquared(p, v, w) {
                 let l2 = dist2(v, w);
@@ -265,17 +385,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const getHit = (mx, my) => {
                 const mousePt = { x: mx, y: my };
                 
-                // Check restaurants first (higher priority on click)
+                // Check restaurants first
                 if (window.MAP_DATA.restaurants) {
                     for (let rest of window.MAP_DATA.restaurants) {
-                        if (rest.projected && dist2(mousePt, {x: rest.projected.x, y: rest.projected.y - 8}) < 150) {
+                        if (rest.projected && dist2(mousePt, {x: rest.projected.x, y: rest.projected.y - 8}) < 200) {
                             return { type: 'restaurant', data: rest };
                         }
                     }
                 }
                 
                 // Check routes
-                const HIT_RADIUS_SQ = 64; // 8px radius
+                const HIT_RADIUS_SQ = 100;
                 for (let route of validRoutes) {
                     for (let i = 0; i < route.projected.length - 1; i++) {
                         let d2 = distToSegmentSquared(mousePt, route.projected[i], route.projected[i+1]);
@@ -327,7 +447,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 3. Nearby Restaurants Widget (Tag based link)
+    // ===========================
+    // 6. Nearby Restaurants Widget
+    // ===========================
     const isPostPage = document.body.id === 'tt-body-page';
     const categoryEl = document.querySelector('.post-header .category');
     

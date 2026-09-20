@@ -39,10 +39,10 @@
 			<single>1</single>
 		</trackbackMessage>
 		<tree>
-			<color>777777</color>
-			<bgColor>ffffff</bgColor>
-			<activeColor>ff7e67</activeColor>
-			<activeBgColor>fdfaf6</activeBgColor>
+			<color>666666</color>
+			<bgColor>faf9f7</bgColor>
+			<activeColor>ff6b4a</activeColor>
+			<activeBgColor>fff5f2</activeBgColor>
 			<labelLength>30</labelLength>
 			<showValue>1</showValue>
 		</tree>

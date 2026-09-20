@@ -1,111 +1,545 @@
-# Clean Gallery — 티스토리 갤러리형 스킨
+# 🏃‍♂️🍽️ 러닝 맛집 — Tistory Blog Skin
 
-DevOps·개발 블로그를 위한 **깔끔한 갤러리형 티스토리 스킨**입니다.
-상단 검색바와 원형 카테고리 메뉴, 썸네일 갤러리, 개발자 친화 기능(코드 하이라이트·목차·다이어그램·커맨드 팔레트 등)을 담았고, **모든 기능을 스킨 편집 화면에서 켜고 끌 수 있습니다.**
+> **달리고, 먹고, 기록하자!**
+> 러닝 코스와 주변 맛집을 지도 위에 함께 표시하는 티스토리 블로그 스킨
 
-![preview](preview560.jpg)
+![preview](preview256.jpg)
 
-## ✨ 주요 기능
+---
 
-**레이아웃 / 탐색**
-- 🔍 상단 **검색바** + ⭕ **원형 카테고리 메뉴**(카테고리별 아이콘 자동 매핑)
-- 🖼️ 반응형 **썸네일 갤러리 그리드**, 🌙 **다크모드**(OS 자동 + 수동 토글)
-- ⌘K **커맨드 팔레트** · 키보드 단축키(`/ j k g h t ?`) · 좌하단 **단축키 안내 버튼**
+## 📌 스킨 소개
 
-**글 읽기**
-- 🎨 **코드 문법 강조**(highlight.js · HCL/YAML/Bash 등) + 복사 버튼 + 줄 번호
-- 📑 **자동 목차(TOC)** + 제목 앵커 + 스크롤 추적, ⏱️ 읽는 시간·진행률 바
-- 📊 **Mermaid 다이어그램**, ∑ **KaTeX 수식**, 💬 **콜아웃**(`[!NOTE]` 등)
-- 🐙 본문의 **GitHub 저장소 링크를 카드로** 예쁘게 표시, 🖼️ 이미지 라이트박스
-- 🔗 공유 버튼 · 🧩 관련 글 · 📚 시리즈(연재) 네비 · 🔎 JSON-LD SEO
+**러닝 맛집**은 러너를 위한 티스토리 블로그 스킨입니다.
 
-**홈 프로필 모드**
-- 🧑‍💻 홈을 **프로필 공간**으로: GitHub 카드(잔디 포함) + **자격증**(이름만 넣으면 로고 자동) + **기술스택 실제 로고 아이콘**
+직접 뛴 러닝 코스를 **GPX 파일**로 업로드하면 Canvas 기반 한국 지도 위에 경로가 그려지고, 코스 주변의 맛집 핀도 함께 표시됩니다. 블로그 글과 지도가 자연스럽게 연결되어, 독자들이 **"어디서 뛰고, 어디서 먹을지"** 한눈에 파악할 수 있습니다.
 
-**수익**
-- 💰 애드센스 광고 영역(`[##_revenue_list_*_##]`) 내장 + **자동광고** 삽입(`adClient`)
+| 항목 | 내용 |
+|------|------|
+| 스킨 이름 | 러닝 맛집 (Running Matzip) |
+| 플랫폼 | 티스토리 (Tistory) |
+| 지도 방식 | Canvas 렌더링 (외부 API 불필요) |
+| 반응형 | ✅ 모바일 / 태블릿 / 데스크탑 |
+| 라이선스 | MIT |
+
+---
+
+## ⭐ 주요 기능
+
+### 🗺️ Canvas 기반 지도
+- 외부 지도 API 없이 **한국 지도 GeoJSON**을 Canvas에 직접 렌더링
+- GPX 파일을 파싱하여 **러닝 경로를 지도 위에 표시**
+- 맛집 위치를 **핀(📍)으로 표시** — 클릭 시 해당 블로그 글로 이동
+
+### 🃏 카드형 그리드 레이아웃
+- 블로그 글을 **카드 UI**로 깔끔하게 배치
+- 썸네일 이미지, 카테고리 뱃지, 태그가 카드에 표시
+- 마우스 호버 시 부드러운 애니메이션 효과
+
+### 📱 반응형 디자인
+- 모바일에서도 지도와 카드가 자연스럽게 재배치
+- 터치 환경에서도 지도 인터랙션 지원
+
+### 🎨 카테고리별 컬러 시스템
+| 카테고리 | 색상 | 용도 |
+|----------|------|------|
+| 🏃 러닝코스 | 🟢 그린 | 러닝 코스 기록, 대회 후기 |
+| 🍽️ 맛집 | 🟠 오렌지 | 러닝 후 맛집, 카페 리뷰 |
+| 👟 제품리뷰 | 🔵 블루 | 러닝화, 장비 리뷰 |
+
+---
 
 ## 📁 파일 구성
 
 ```
 .
-├── index.xml          # 스킨 정보 파일 (필수)
-├── skin.html          # 스킨 템플릿 (필수, 상단에 기능 on/off 설정 내장)
-├── style.css          # 스타일 (필수)
+├── index.xml          # 스킨 정보 (이름, 버전, 설명)
+├── skin.html          # HTML 템플릿 (티스토리 치환자 포함)
+├── style.css          # 스타일시트 (CSS 변수 기반)
 ├── images/
-│   └── script.js      # 인터랙션 스크립트
-├── preview256.jpg     # 미리보기 (사용 중 스킨, 256×192)
-├── preview560.jpg     # 미리보기 (스킨 목록, 560×420)
-├── preview1600.jpg    # 미리보기 (상세, 1600×1200)
-└── preview.gif        # 미리보기 폴백 (112×84)
+│   ├── script.js      # 지도 렌더링 & 인터랙션 스크립트
+│   ├── mapData.js     # 러닝코스 / 맛집 데이터 설정 파일
+│   ├── korea.json     # 한국 지도 GeoJSON 데이터
+│   └── sample.gpx     # 샘플 GPX 파일
+├── preview256.jpg     # 미리보기 이미지 (256×256)
+├── preview560.jpg     # 미리보기 이미지 (560×)
+├── preview1600.jpg    # 미리보기 이미지 (1600×)
+└── preview.gif        # 미리보기 GIF 애니메이션
 ```
 
-## 🚀 설치
+> [!NOTE]
+> 티스토리 스킨의 JS/이미지/데이터 파일은 모두 `images/` 폴더 안에 위치해야 합니다.
+> 이는 티스토리 플랫폼의 규칙입니다.
 
-### 방법 A. HTML 편집으로 붙여넣기
-1. 티스토리 관리 → **꾸미기 → 스킨 편집 → html 편집**
-2. **HTML 탭** ← `skin.html`, **CSS 탭** ← `style.css` 붙여넣기
-3. **파일 업로드**에서 `images/script.js` 업로드 → **적용**
+---
 
-### 방법 B. 스킨 파일(zip) 등록
-1. `index.xml`, `skin.html`, `style.css`, `images/script.js`, `preview*.jpg`, `preview.gif` 를 한 폴더에 넣고 zip 압축
-2. 티스토리 관리 → **꾸미기 → 스킨 → 스킨 등록** 에서 zip 업로드
+## 🔧 설치 방법
 
-## ⚙️ 기능 켜고 끄기 (스킨 편집 화면에서)
+### 방법 1: HTML 편집으로 직접 붙여넣기
 
-`skin.html` 맨 위 **`window.CLEAN_SKIN`** 설정 블록에서 `true`/`false` 로 제어합니다.
+1. **티스토리 관리** 페이지 접속 → 좌측 메뉴에서 **꾸미기 → 스킨 편집** 클릭
+2. 우측 상단의 **`html 편집`** 버튼 클릭
+3. 각 탭에 파일 내용 붙여넣기:
+   - **HTML** 탭 → `skin.html` 내용 붙여넣기
+   - **CSS** 탭 → `style.css` 내용 붙여넣기
+4. **파일 업로드** 탭에서 `images/` 폴더의 파일들 업로드:
+   - `script.js`, `mapData.js`, `korea.json`, `sample.gpx`
+5. **적용** 버튼 클릭
+
+### 방법 2: ZIP 파일 업로드
+
+1. 이 저장소를 ZIP으로 다운로드
+2. **티스토리 관리** → **꾸미기** → **스킨 변경** → **스킨 등록**
+3. ZIP 파일을 업로드
+4. 업로드된 스킨 선택 후 **적용**
+
+> [!TIP]
+> 처음 설치하시는 분은 **방법 1**을 추천합니다. 파일 하나하나 확인하며 적용할 수 있어 안전합니다.
+
+---
+
+## 🏃 GPX 파일 업로드 & 글쓰기 가이드
+
+> **이 섹션이 가장 중요합니다!**
+> 러닝 맛집 스킨의 핵심은 GPX 파일을 지도에 표시하는 것입니다.
+> 아래 단계를 하나씩 따라해 보세요.
+
+---
+
+### 📥 Step 1 — GPX 파일 얻는 법
+
+GPX(GPS Exchange Format)는 GPS 경로 데이터를 저장하는 표준 파일 형식입니다. 대부분의 러닝 앱에서 내보낼 수 있습니다.
+
+#### 1-1. 가민 커넥트 (Garmin Connect)
+
+1. [Garmin Connect](https://connect.garmin.com/) 웹사이트 로그인
+2. 좌측 메뉴에서 **활동** 클릭
+3. 내보내고 싶은 러닝 활동 선택
+4. 우측 상단의 **⚙️ 톱니바퀴 아이콘** 클릭
+5. **"GPX로 내보내기"** 선택
+6. `.gpx` 파일이 다운로드됩니다
+
+```
+Garmin Connect → 활동 → [활동 선택] → ⚙️ → GPX로 내보내기
+```
+
+#### 1-2. 스트라바 (Strava)
+
+1. [Strava](https://www.strava.com/) 웹사이트 로그인 (앱에서는 불가, **웹에서만 가능**)
+2. 내보내고 싶은 활동 페이지로 이동
+3. 좌측의 **`···` (점 세 개)** 버튼 클릭
+4. **"GPX 내보내기"** 선택
+5. `.gpx` 파일이 다운로드됩니다
+
+```
+Strava 웹 → 활동 → ··· → GPX 내보내기
+```
+
+> [!IMPORTANT]
+> Strava에서 GPX 내보내기는 **웹 브라우저에서만** 가능합니다. 모바일 앱에서는 지원하지 않으니 PC나 모바일 브라우저의 데스크탑 모드를 사용하세요.
+
+#### 1-3. 나이키 런 클럽 (Nike Run Club)
+
+나이키 런 클럽은 **직접적인 GPX 내보내기를 지원하지 않습니다.** 서드파티 도구를 활용해야 합니다.
+
+| 도구 | 플랫폼 | 설명 |
+|------|--------|------|
+| [RunGap](https://www.rungap.com/) | iOS | NRC 데이터를 GPX로 변환·내보내기 |
+| [nrc-exporter](https://github.com/yasoob/nrc-exporter) | PC (Python) | NRC API에서 활동 데이터를 일괄 다운로드 |
+
+**RunGap 사용 방법:**
+1. App Store에서 RunGap 설치
+2. RunGap 열기 → Nike Run Club 계정 연동
+3. 내보내고 싶은 활동 선택
+4. **내보내기 형식: GPX** 선택 후 저장
+
+#### 1-4. Apple Watch 건강 앱
+
+1. iPhone의 **건강** 앱 실행
+2. 우측 상단 프로필 사진 탭
+3. **"모든 건강 데이터 내보내기"** 선택
+4. 내보낸 ZIP 파일에서 `workout-routes/` 폴더 내의 `.gpx` 파일 확인
+
+> [!NOTE]
+> Apple Health에서 내보낸 전체 데이터는 용량이 클 수 있습니다. `workout-routes/` 폴더 안에 각 운동별 GPX 파일이 있으니 필요한 파일만 골라 사용하세요.
+
+#### 1-5. 기타 앱
+
+| 앱 | GPX 내보내기 방법 |
+|----|-------------------|
+| **삼성 헬스** | 삼성 헬스 앱 → 운동 기록 → 상세 → `···` → GPX로 내보내기 |
+| **COROS** | COROS 앱 → 운동 기록 → 상세 → 공유 → GPX 파일로 내보내기 |
+| **Suunto** | Suunto 앱 → 운동 → 상세 → 공유 → GPX |
+| **Polar Flow** | [Polar Flow 웹](https://flow.polar.com/) → 훈련 → 활동 선택 → 내보내기 → GPX |
+
+---
+
+### ⬆️ Step 2 — GPX 파일을 스킨에 올리기
+
+1. **티스토리 관리** 페이지 접속
+2. **꾸미기 → 스킨 편집** 클릭
+3. 우측 상단의 **`html 편집`** 버튼 클릭
+4. **파일 업로드** 탭 선택
+5. **`+ 추가`** 버튼을 클릭하여 `.gpx` 파일 업로드
+6. 업로드 완료!
+
+```
+티스토리 관리 → 꾸미기 → 스킨 편집 → html 편집 → 파일 업로드 → + 추가
+```
+
+> [!IMPORTANT]
+> 업로드된 파일은 자동으로 `images/` 폴더에 저장됩니다.
+> 파일명에 **한글이나 공백**이 있으면 문제가 생길 수 있으니, 영문·숫자·하이픈 조합으로 파일명을 지어주세요.
+>
+> ✅ `yeouido-hangang-10k.gpx`
+> ❌ `여의도 한강 10km 코스.gpx`
+
+---
+
+### 📝 Step 3 — mapData.js에 코스 등록하기
+
+GPX 파일을 업로드했다면, `mapData.js` 파일에 코스 정보를 등록해야 지도에 표시됩니다.
+
+**티스토리 관리 → 스킨 편집 → html 편집 → 파일 업로드** 탭에서 `mapData.js`를 클릭하면 편집할 수 있습니다.
 
 ```js
-window.CLEAN_SKIN = {
-  darkToggle: true, commandPalette: true, shortcuts: true, terminalHeader: true,
-  toc: true, readingBar: true, syntaxHighlight: true, codeLineNumbers: true, codeCopy: true,
-  mermaid: true, katex: true, callouts: true, repoCard: true, readmeEmbed: true, lightbox: true,
-  share: true, relatedPosts: true, seo: true, backToTop: true,
-  githubCard: true, techBadges: true, homeProfile: true,
+window.MAP_DATA = {
 
-  adClient: "",                 // 애드센스 게시자 ID "ca-pub-XXXX" (자동광고)
-  github: "",                   // GitHub 사용자명 (프로필 카드/잔디)
-  techStack: ["Terraform", "Kubernetes", "OpenStack", "AWS", "Docker", "Ansible", "Linux", "Python"],
-  certs: ["CKA", "CKAD", "Terraform Associate", "AWS SAA"],  // 이름만 → 발급기관 로고 자동
-  series: [ /* { name:"연재명", posts:[ {title:"1편", url:"/1"} ] } */ ]
+    // ─────────────────────────────────────
+    // 🏃 러닝 코스 (GPX 파일 기반)
+    // ─────────────────────────────────────
+    gpxFiles: [
+        {
+            filename: "yeouido-hangang-10k.gpx",   // 업로드한 GPX 파일명
+            title: "여의도 한강 10km",                // 지도에 표시될 코스 이름
+            link: "/entry/여의도-한강-러닝"            // 클릭 시 이동할 블로그 글 주소
+        },
+        {
+            filename: "olympic-park-5k.gpx",
+            title: "올림픽공원 둘레길 5km",
+            link: "/entry/올림픽공원-러닝"
+        },
+        {
+            filename: "bukhansan-trail.gpx",
+            title: "북한산 둘레길 트레일런",
+            link: "/entry/북한산-트레일런"
+        }
+        // ↑ 코스를 더 추가하려면 같은 형식으로 객체를 추가하세요
+    ],
+
+    // ─────────────────────────────────────
+    // 🍽️ 맛집 핀 (위도/경도 기반)
+    // ─────────────────────────────────────
+    restaurants: [
+        {
+            title: "여의도 수제버거 맛집",              // 맛집 이름
+            url: "/entry/여의도-수제버거",              // 클릭 시 이동할 글 주소
+            lat: 37.5265,                             // 위도 (latitude)
+            lon: 126.9315                             // 경도 (longitude)
+        },
+        {
+            title: "올림픽공원 브런치 카페",
+            url: "/entry/올림픽공원-브런치카페",
+            lat: 37.5209,
+            lon: 127.1223
+        },
+        {
+            title: "북한산 입구 칼국수",
+            url: "/entry/북한산-칼국수",
+            lat: 37.6584,
+            lon: 126.9784
+        }
+        // ↑ 맛집을 더 추가하려면 같은 형식으로 객체를 추가하세요
+    ]
+
 };
 ```
 
-### 기능별 사용법
-- **커맨드 팔레트**: `⌘K`(맥) / `Ctrl+K`(윈도우). 좌하단 **⌨ 단축키** 버튼 또는 `?` 로 도움말.
-- **GitHub 저장소 카드**: 글 본문에 저장소 주소(`https://github.com/owner/repo`)를 **한 줄에 단독으로** 넣으면 카드로 바뀝니다(별·포크·언어 표시).
-- **README 임베드**: 글 본문에 `.md` 파일 주소를 한 줄에 넣으면 그 내용이 게시물에 그대로 렌더됩니다. 예: `https://github.com/owner/repo/blob/main/README.md`
-- **Mermaid**: 코드블록 언어를 `mermaid` 로 지정 후 `graph TD; A-->B;`
-- **콜아웃**: 인용문 첫 줄 `[!NOTE]` `[!TIP]` `[!WARNING]` `[!DANGER]`
-- **수식(KaTeX)**: `$O(n\log n)$`(인라인), `$$ ... $$`(블록)
-- **자격증**: `certs` 에 이름만 (CKA·CKAD·CKS·KCNA / AWS SAA·SAP·… / Terraform·Vault Associate / AZ-* / GCP ACE·PCA / RHCSA·RHCE / LFCS·DCA …)
-- **홈 프로필 모드**: `homeProfile: true` 면 홈이 게시글 대신 프로필/자격증/스택. 글은 상단 카테고리로.
+#### 각 필드 설명
 
-### 색상/폭 커스터마이징
-`style.css` 상단 `:root` 변수만 바꾸면 전체 톤이 바뀝니다.
-```css
-:root { --accent:#3b6ef5; --accent-sub:#eef3ff; --radius:16px; --maxw:1160px; }
+**🏃 gpxFiles (러닝 코스)**
+
+| 필드 | 타입 | 필수 | 설명 | 예시 |
+|------|------|------|------|------|
+| `filename` | string | ✅ | 업로드한 GPX 파일명 | `"my-route.gpx"` |
+| `title` | string | ✅ | 지도 위에 표시될 코스 이름 | `"여의도 한강 10km"` |
+| `link` | string | ✅ | 클릭 시 이동할 블로그 글 경로 | `"/entry/여의도-한강-러닝"` |
+
+**🍽️ restaurants (맛집)**
+
+| 필드 | 타입 | 필수 | 설명 | 예시 |
+|------|------|------|------|------|
+| `title` | string | ✅ | 맛집 이름 | `"여의도 수제버거 맛집"` |
+| `url` | string | ✅ | 클릭 시 이동할 글 경로 | `"/entry/여의도-수제버거"` |
+| `lat` | number | ✅ | 위도 (소수점 4자리) | `37.5265` |
+| `lon` | number | ✅ | 경도 (소수점 4자리) | `126.9315` |
+
+> [!TIP]
+> `link`와 `url`에는 블로그 글의 **상대 경로**를 사용합니다.
+> 글 주소가 `https://myblog.tistory.com/entry/여의도-한강-러닝` 이라면
+> → `/entry/여의도-한강-러닝` 만 입력하면 됩니다.
+
+---
+
+### ✍️ Step 4 — 블로그 글 작성 가이드
+
+#### 4-1. 카테고리 설정
+
+글을 작성할 때 반드시 아래 3개 카테고리 중 하나를 선택하세요:
+
+| 카테고리 | 용도 | 예시 |
+|----------|------|------|
+| 🏃 **러닝코스** | 러닝 코스 기록, 대회 후기 | "여의도 한강 벚꽃 10km 러닝" |
+| 🍽️ **맛집** | 러닝 후 맛집, 카페 리뷰 | "여의도 한강뷰 수제버거 맛집" |
+| 👟 **제품리뷰** | 러닝화, 장비, 웨어러블 리뷰 | "나이키 페가수스 41 리뷰" |
+
+#### 4-2. 태그 활용법 ⭐
+
+> **첫 번째 태그에 지역명을 넣으세요!**
+
+태그의 **첫 번째 항목**에 지역명을 입력하면, 해당 러닝코스 글에 **근처 맛집 위젯**이 자동으로 연결됩니다.
+
+```
+✅ 좋은 예시
+태그: 여의도, 러닝, 한강, 10km, 벚꽃러닝
+      ↑ 첫 번째 태그 = 지역명
+
+✅ 좋은 예시
+태그: 올림픽공원, 트랙러닝, 5km
+      ↑ 첫 번째 태그 = 지역명
+
+❌ 나쁜 예시
+태그: 러닝, 여의도, 한강
+      ↑ 첫 번째 태그가 지역명이 아님 → 맛집 위젯 연결 안 됨
 ```
 
-## 💰 애드센스
+#### 4-3. 썸네일 이미지
 
-| 위치 | 방식 |
-|---|---|
-| 홈/목록 상·하단 | `[##_revenue_list_upper_##]` / `[##_revenue_list_lower_##]` (티스토리 수익 관리) |
-| 본문 | 티스토리 수익 관리 자동 삽입, 또는 `.ad--content` 에 광고단위 직접 삽입 |
-| 전체 자동 | `adClient` 에 `ca-pub-...` 입력 → PC·모바일 자동광고 (AdSense에서 자동광고 ON 필요) |
+- 글 작성 시 **대표 이미지를 설정**하면 메인 페이지 카드에 썸네일로 표시됩니다
+- 이미지가 없으면 기본 플레이스홀더가 표시됩니다
+- **권장 비율**: 16:9 (가로 1200px 이상 권장)
 
-> PC에서만 광고가 안 보이면 대개 브라우저 **광고 차단 확장** 또는 **ads.txt 미설정**이 원인입니다.
+#### 4-4. 러닝코스 글 작성 팁
 
-## 📜 라이선스 / 크레딧
+효과적인 러닝코스 글 작성을 위한 체크리스트:
 
-- 이 스킨(HTML/CSS/JS)은 직접 작성한 창작물이며 **MIT License**(`LICENSE`)로 자유롭게 사용·수정·재배포할 수 있습니다.
-- 골격은 티스토리 공식 스킨 [`tistory-theme-ray`](https://github.com/tistory/tistory-theme-ray)(MIT)의 치환자 구조를 참고했습니다.
-- CDN으로 불러오는 오픈소스(스킨에 포함/재배포하지 않음):
-  [Pretendard](https://github.com/orioncactus/pretendard)(OFL) ·
-  [highlight.js](https://github.com/highlightjs/highlight.js)(BSD-3) ·
-  [Mermaid](https://github.com/mermaid-js/mermaid)(MIT) ·
-  [KaTeX](https://github.com/KaTeX/KaTeX)(MIT) ·
-  [Devicon](https://github.com/devicons/devicon)(MIT) ·
-  [Shields.io](https://shields.io)/[Simple Icons](https://github.com/simple-icons/simple-icons)(CC0)
-- 브랜드 로고·자격증 명칭은 각 소유자의 상표입니다. 본인이 사용하는 기술/취득한 자격을 표시하는 용도로만 사용하세요.
+```markdown
+## 📍 코스 정보
+- 📏 거리: 10.2km
+- ⏱️ 시간: 58분 32초
+- 🏔️ 누적 고도: 45m
+- ⭐ 난이도: ★★★☆☆ (중급)
+- 🚇 출발점: 여의나루역 2번 출구
+
+## 🏃 코스 설명
+여의나루역에서 출발하여 한강 둔치를 따라...
+
+## 📸 코스 사진
+(러닝 중 촬영한 사진들)
+
+## 🍽️ 러닝 후 맛집
+러닝 후에 들른 맛집 정보...
+```
+
+> [!TIP]
+> 글 마지막에 **러닝 후 맛집** 섹션을 추가하면 자연스럽게 맛집 글과 연결됩니다.
+> 맛집 글의 링크를 본문에 넣어두면 독자 동선이 좋아져요!
+
+---
+
+### 📍 Step 5 — 위도/경도 찾는 팁
+
+맛집의 위도·경도 좌표가 필요할 때 아래 방법을 활용하세요.
+
+#### 방법 1: 구글 지도 (Google Maps)
+
+1. [Google Maps](https://maps.google.com) 접속
+2. 원하는 장소를 찾아 **지도 위에서 마우스 우클릭**
+3. 맨 위에 표시되는 **좌표 숫자를 클릭**하면 자동 복사됩니다
+4. 복사된 값 예시: `37.5265, 126.9315`
+   - 앞의 숫자 = **위도 (lat)**
+   - 뒤의 숫자 = **경도 (lon)**
+
+```
+구글 지도 → 장소 우클릭 → 좌표 클릭 (자동 복사)
+                              ↓
+                    37.5265, 126.9315
+                    lat(위도)  lon(경도)
+```
+
+#### 방법 2: 네이버 지도 URL
+
+1. [네이버 지도](https://map.naver.com) 접속
+2. 원하는 장소를 검색하거나 지도를 클릭
+3. 브라우저 **주소창(URL)**을 확인
+4. URL에 포함된 좌표 확인:
+   ```
+   https://map.naver.com/v5/search/.../@126.9315,37.5265,15z
+                                       ↑ lon     ↑ lat
+   ```
+
+> [!WARNING]
+> 네이버 지도 URL에서는 **경도(lon)가 먼저, 위도(lat)가 나중에** 나옵니다.
+> `mapData.js`에 입력할 때는 `lat`(위도)에 뒤의 숫자를, `lon`(경도)에 앞의 숫자를 넣어야 합니다. 순서를 헷갈리지 마세요!
+
+---
+
+## 📂 카테고리 설정
+
+스킨이 정상적으로 작동하려면 **3개의 카테고리를 반드시 생성**해야 합니다.
+
+### 설정 방법
+
+1. **티스토리 관리** 페이지 접속
+2. 좌측 메뉴에서 **콘텐츠 → 카테고리 관리** 클릭
+3. 아래 3개 카테고리를 **정확한 이름으로** 추가:
+
+| 순서 | 카테고리명 | 비고 |
+|------|-----------|------|
+| 1 | `러닝코스` | 띄어쓰기 없이 붙여서 |
+| 2 | `맛집` | |
+| 3 | `제품리뷰` | 띄어쓰기 없이 붙여서 |
+
+4. **저장** 클릭
+
+> [!CAUTION]
+> 카테고리명이 정확히 일치해야 컬러 시스템과 필터가 동작합니다.
+> `러닝 코스` (✖) → `러닝코스` (✔), `제품 리뷰` (✖) → `제품리뷰` (✔)
+
+---
+
+## 🎨 커스터마이징
+
+### CSS 변수로 색상 변경하기
+
+`style.css` 상단의 `:root` 블록에서 CSS 변수를 수정하면 전체 색상 테마를 쉽게 변경할 수 있습니다.
+
+```css
+:root {
+    /* ── 메인 컬러 ── */
+    --color-primary: #2ecc71;        /* 기본 강조색 (그린) */
+    --color-secondary: #27ae60;      /* 보조 강조색 */
+
+    /* ── 카테고리 컬러 ── */
+    --color-running: #2ecc71;        /* 🏃 러닝코스 — 그린 */
+    --color-food: #e67e22;           /* 🍽️ 맛집 — 오렌지 */
+    --color-review: #3498db;         /* 👟 제품리뷰 — 블루 */
+
+    /* ── 배경 & 텍스트 ── */
+    --color-bg: #f5f5f5;             /* 페이지 배경색 */
+    --color-card-bg: #ffffff;        /* 카드 배경색 */
+    --color-text: #2c3e50;           /* 기본 텍스트 색상 */
+    --color-text-light: #7f8c8d;     /* 보조 텍스트 색상 */
+
+    /* ── 지도 ── */
+    --color-map-bg: #f0f4f1;         /* 지도 배경색 */
+    --color-map-land: #e8e8e8;       /* 지도 육지 색상 */
+    --color-map-route: #e74c3c;      /* GPX 경로 선 색상 */
+    --color-map-pin: #e67e22;        /* 맛집 핀 색상 */
+}
+```
+
+### 변경 예시
+
+**다크 모드 느낌으로 바꾸기:**
+
+```css
+:root {
+    --color-bg: #1a1a2e;
+    --color-card-bg: #16213e;
+    --color-text: #eaeaea;
+    --color-text-light: #a0a0a0;
+}
+```
+
+**러닝 경로를 파란색으로 바꾸기:**
+
+```css
+:root {
+    --color-map-route: #3498db;
+}
+```
+
+> [!TIP]
+> 색상 변경 후 **스킨 편집 미리보기**에서 바로 확인할 수 있습니다.
+> 마음에 들면 **적용** 버튼을 눌러 저장하세요.
+
+---
+
+## 🗺️ 전체 흐름 요약
+
+```
+1. GPX 파일 준비        가민/스트라바 등에서 GPX 내보내기
+        ↓
+2. 파일 업로드          티스토리 스킨 편집 → 파일 업로드
+        ↓
+3. mapData.js 수정      코스 파일명·제목·링크 등록
+        ↓
+4. 블로그 글 작성       카테고리 선택 + 첫 태그에 지역명
+        ↓
+5. 지도에 자동 표시!    코스 경로 + 맛집 핀이 지도에 렌더링
+```
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><b>Q. GPX 파일이 지도에 표시되지 않아요</b></summary>
+
+- `mapData.js`에 등록한 `filename`이 실제 업로드한 파일명과 정확히 일치하는지 확인하세요.
+- 파일명에 한글·공백·특수문자가 포함되어 있다면 영문으로 변경 후 다시 업로드하세요.
+- 브라우저 개발자 도구(F12) → Console 탭에서 에러 메시지를 확인하세요.
+
+</details>
+
+<details>
+<summary><b>Q. 맛집 핀이 엉뚱한 위치에 표시돼요</b></summary>
+
+- 위도(lat)와 경도(lon) 값이 올바른지 확인하세요.
+- 네이버 지도에서 좌표를 가져왔다면 **경도·위도 순서가 반대**일 수 있습니다. (위 가이드 참고)
+- 한국 범위: 위도 약 33~39, 경도 약 124~132
+
+</details>
+
+<details>
+<summary><b>Q. 카테고리 컬러가 적용되지 않아요</b></summary>
+
+- 카테고리명이 정확히 `러닝코스`, `맛집`, `제품리뷰`인지 확인하세요. (띄어쓰기 주의!)
+- 카테고리를 새로 만든 뒤 기존 글의 카테고리를 변경했다면 캐시를 새로고침(Ctrl+Shift+R)해 보세요.
+
+</details>
+
+---
+
+## 📜 라이선스
+
+이 프로젝트는 [MIT 라이선스](LICENSE)로 배포됩니다.
+
+자유롭게 사용, 수정, 배포할 수 있습니다. 단, 원저작자 표기를 유지해 주세요.
+
+```
+MIT License
+
+Copyright (c) 2026 러닝 맛집
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+```
+
+---
+
+<p align="center">
+  <b>🏃‍♂️ 달리고 🍽️ 먹고 📝 기록하자!</b><br>
+  Made with ❤️ for runners who love food
+</p>

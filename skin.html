@@ -15,17 +15,34 @@
         <header id="header">
             <div class="inner">
                 <h1 class="logo">
-                    <a href="[##_blog_link_##]">[##_title_##]</a>
+                    <a href="[##_blog_link_##]">
+                        <span class="logo-icon">🏃</span>
+                        [##_title_##]
+                    </a>
                 </h1>
                 <nav class="gnb">
                     <ul>
-                        <li><a href="/category/러닝코스">러닝코스</a></li>
-                        <li><a href="/category/맛집">맛집</a></li>
-                        <li><a href="/category/제품리뷰">제품리뷰</a></li>
+                        <li><a href="/category/러닝코스"><span class="nav-icon">🗺️</span> 러닝코스</a></li>
+                        <li><a href="/category/맛집"><span class="nav-icon">🍽️</span> 맛집</a></li>
+                        <li><a href="/category/제품리뷰"><span class="nav-icon">📦</span> 제품리뷰</a></li>
                     </ul>
                 </nav>
+                <button class="mobile-menu-btn" aria-label="메뉴 열기">
+                    <div class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </button>
             </div>
         </header>
+
+        <!-- Mobile Navigation Drawer -->
+        <div class="mobile-nav">
+            <a href="/category/러닝코스"><span class="nav-icon">🗺️</span> 러닝코스</a>
+            <a href="/category/맛집"><span class="nav-icon">🍽️</span> 맛집</a>
+            <a href="/category/제품리뷰"><span class="nav-icon">📦</span> 제품리뷰</a>
+        </div>
 
         <!-- Main Content -->
         <main id="main">
@@ -43,6 +60,19 @@
                 
                 <!-- Home Map Container (Canvas) -->
                 <div class="heatmap-container">
+                    <div class="map-overlay">
+                        <div class="map-title">🗺️ 나의 러닝 맵</div>
+                        <div class="map-stats">
+                            <span class="map-stat-badge">
+                                <span class="stat-icon">🏃</span>
+                                <span id="stat-routes">0</span> 코스
+                            </span>
+                            <span class="map-stat-badge">
+                                <span class="stat-icon">🍽️</span>
+                                <span id="stat-restaurants">0</span> 맛집
+                            </span>
+                        </div>
+                    </div>
                     <canvas id="route-canvas"></canvas>
                     <div id="map-tooltip" class="map-tooltip"></div>
                 </div>
@@ -88,8 +118,8 @@
                                         <span class="category">[##_article_rep_category_##]</span>
                                         <h2>[##_article_rep_title_##]</h2>
                                         <div class="meta">
-                                            <span class="author">[##_article_rep_author_##]</span>
-                                            <span class="date">[##_article_rep_date_##]</span>
+                                            <span class="author">✍️ [##_article_rep_author_##]</span>
+                                            <span class="date">📅 [##_article_rep_date_##]</span>
                                         </div>
                                     </div>
                                     
@@ -137,7 +167,7 @@
                                                             </div>
                                                         </s_rp_guest>
                                                     </s_rp_member>
-                                                    <textarea name="[##_rp_input_comment_##]" rows="4" placeholder="댓글을 남겨보세요."></textarea>
+                                                    <textarea name="[##_rp_input_comment_##]" rows="4" placeholder="댓글을 남겨보세요 💬"></textarea>
                                                     <div class="submit-wrap">
                                                         <button type="submit" onclick="[##_rp_onclick_submit_##]">등록</button>
                                                     </div>
@@ -153,29 +183,40 @@
                     <!-- Pagination -->
                     <s_paging>
                         <div class="pagination">
-                            <a [##_prev_page_##] class="[##_no_more_prev_##] prev">이전</a>
+                            <a [##_prev_page_##] class="[##_no_more_prev_##] prev">← 이전</a>
                             <s_paging_rep>
                                 <a [##_paging_rep_link_##] class="num">[##_paging_rep_link_num_##]</a>
                             </s_paging_rep>
-                            <a [##_next_page_##] class="[##_no_more_next_##] next">다음</a>
+                            <a [##_next_page_##] class="[##_no_more_next_##] next">다음 →</a>
                         </div>
                     </s_paging>
                 </div>
             </div>
         </main>
 
+        <!-- Footer Wave Divider -->
+        <div class="footer-wave">
+            <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,0 C300,60 900,0 1200,60 L1200,60 L0,60 Z" fill="#2d2d2d"/>
+            </svg>
+        </div>
+
         <!-- Footer -->
         <footer id="footer">
             <div class="inner">
+                <div class="footer-running">🏃‍♂️ 🏃‍♀️ 🏃</div>
                 <p class="copyright">
                     &copy; [##_title_##]. All rights reserved. <br/>
-                    Designed by Warm Life Skin
+                    Designed with ❤️ by Warm Life Skin
                 </p>
             </div>
         </footer>
     </div>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" aria-label="맨 위로">↑</button>
 </s_t3>
-<script src="./images/mapData.js?v=5"></script>
-<script id="skin-path-helper" src="./images/script.js?v=5"></script>
+<script src="./images/mapData.js?v=6"></script>
+<script id="skin-path-helper" src="./images/script.js?v=6"></script>
 </body>
 </html>
