@@ -503,127 +503,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 render();
             }
 
-            // ──── Wheel zoom ────
-            canvas.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                const rect = canvas.getBoundingClientRect();
-                const mx = e.clientX - rect.left;
-                const my = e.clientY - rect.top;
-                const factor = e.deltaY > 0 ? (1 + ZOOM_FACTOR) : (1 - ZOOM_FACTOR);
-                zoomAt(mx, my, factor);
-            }, { passive: false });
-
-            // ──── Drag pan ────
-            let isDragging = false;
-            let dragStartX = 0, dragStartY = 0;
-            let dragStartViewport = {};
-
-            canvas.addEventListener('mousedown', (e) => {
-                isDragging = true;
-                dragStartX = e.clientX;
-                dragStartY = e.clientY;
-                dragStartViewport = { ...viewport };
-                canvas.style.cursor = 'grabbing';
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - dragStartX;
-                const dy = e.clientY - dragStartY;
-                const lonPerPx = (dragStartViewport.maxLon - dragStartViewport.minLon) / W;
-                const latPerPx = (dragStartViewport.maxLat - dragStartViewport.minLat) / H;
-                viewport.minLon = dragStartViewport.minLon - dx * lonPerPx;
-                viewport.maxLon = dragStartViewport.maxLon - dx * lonPerPx;
-                viewport.minLat = dragStartViewport.minLat + dy * latPerPx;
-                viewport.maxLat = dragStartViewport.maxLat + dy * latPerPx;
-                render();
-            });
-
-            window.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    canvas.style.cursor = 'grab';
-                }
-            });
-
-            // ──── Touch gestures ────
-            let lastTouches = null;
-            const touchOverlay = document.getElementById('map-touch-overlay');
-            let overlayTimeout;
-
-            function showOverlay() {
-                if (!touchOverlay) return;
-                touchOverlay.classList.add('show');
-                clearTimeout(overlayTimeout);
-                overlayTimeout = setTimeout(() => {
-                    touchOverlay.classList.remove('show');
-                }, 1500);
-            }
+            // ──── Touch scroll detection (prevent tap if scrolled) ────
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let hasTouchScrolled = false;
 
             canvas.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 1) {
-                    isDragging = false; // Don't drag with 1 finger on touch
-                } else if (e.touches.length === 2) {
-                    isDragging = true;
-                    if (touchOverlay) touchOverlay.classList.remove('show');
-                    dragStartViewport = { ...viewport };
-                    const rect = canvas.getBoundingClientRect();
-                    dragStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-                    dragStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                    touchStartX = e.touches[0].clientX;
+                    touchStartY = e.touches[0].clientY;
+                    hasTouchScrolled = false;
                 }
-                lastTouches = Array.from(e.touches);
             }, { passive: true });
 
             canvas.addEventListener('touchmove', (e) => {
                 if (e.touches.length === 1) {
-                    // Let the browser scroll the page, just show the warning
-                    showOverlay();
-                    return; 
-                }
-                
-                if (e.touches.length === 2 && lastTouches && lastTouches.length === 2) {
-                    e.preventDefault(); // Stop page from scrolling
-                    
-                    const rect = canvas.getBoundingClientRect();
-                    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-                    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-                    
-                    // Pan
-                    if (isDragging) {
-                        const dx = cx - dragStartX;
-                        const dy = cy - dragStartY;
-                        const lonPerPx = (dragStartViewport.maxLon - dragStartViewport.minLon) / W;
-                        const latPerPx = (dragStartViewport.maxLat - dragStartViewport.minLat) / H;
-                        viewport.minLon = dragStartViewport.minLon - dx * lonPerPx;
-                        viewport.maxLon = dragStartViewport.maxLon - dx * lonPerPx;
-                        viewport.minLat = dragStartViewport.minLat + dy * latPerPx;
-                        viewport.maxLat = dragStartViewport.maxLat + dy * latPerPx;
-                    }
-
-                    // Pinch Zoom
-                    const prevDist = Math.hypot(
-                        lastTouches[0].clientX - lastTouches[1].clientX,
-                        lastTouches[0].clientY - lastTouches[1].clientY
-                    );
-                    const curDist = Math.hypot(
-                        e.touches[0].clientX - e.touches[1].clientX,
-                        e.touches[0].clientY - e.touches[1].clientY
-                    );
-                    
-                    if (prevDist > 0 && Math.abs(curDist - prevDist) > 2) {
-                        const factor = prevDist / curDist;
-                        zoomAt(cx, cy, factor);
-                    } else {
-                        render();
+                    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+                    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+                    if (dx > 10 || dy > 10) {
+                        hasTouchScrolled = true;
                     }
                 }
-                lastTouches = Array.from(e.touches);
-            }, { passive: false });
-
-            canvas.addEventListener('touchend', () => {
-                isDragging = false;
-                lastTouches = null;
-            });
+            }, { passive: true });
 
             // ──── Hover / Click interaction ────
             function dist2(v, w) { return (v.x - w.x) ** 2 + (v.y - w.y) ** 2; }
@@ -657,7 +558,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let hoveredItem = null;
 
             canvas.addEventListener('mousemove', (e) => {
-                if (isDragging) return;
                 const rect = canvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
@@ -671,16 +571,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     tooltip.style.top = y + 'px';
                     tooltip.textContent = hit.type === 'restaurant' ? `🍽️ ${hit.data.title}` : `🏃 ${hit.data.title}`;
                 } else {
-                    canvas.style.cursor = 'grab';
+                    canvas.style.cursor = 'default';
                     hoveredItem = null;
                     tooltip.style.display = 'none';
                 }
             });
 
             canvas.addEventListener('click', (e) => {
-                if (isDragging) return;
-                if (hoveredItem && (hoveredItem.data.link || hoveredItem.data.url)) {
-                    window.location.href = hoveredItem.data.link || hoveredItem.data.url;
+                if (hasTouchScrolled) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                // Calculate directly on click to ensure it works accurately on mobile taps
+                const hit = getHit(x, y) || hoveredItem; 
+                if (hit && (hit.data.link || hit.data.url)) {
+                    window.location.href = hit.data.link || hit.data.url;
                 }
             });
 
