@@ -23,10 +23,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const width = rect.width;
         const height = rect.height;
 
+        // Extract skin images path from script tag
+        let skinImagesPath = '';
+        const scripts = document.getElementsByTagName('script');
+        for (let s of scripts) {
+            if (s.src.includes('script.js')) {
+                skinImagesPath = s.src.split('script.js')[0];
+                break;
+            }
+        }
+
         // Fetch and parse all GPX files
         if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
-            Promise.all(window.MAP_DATA.gpxFiles.map(file => 
-                fetch(file.url)
+            Promise.all(window.MAP_DATA.gpxFiles.map(file => {
+                const fetchUrl = file.url || (skinImagesPath + file.filename);
+                return fetch(fetchUrl)
                     .then(res => res.text())
                     .then(xmlString => {
                         const parser = new DOMParser();
@@ -42,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         return { points, link: file.link };
                     })
                     .catch(e => { console.error("Error loading GPX:", e); return null; })
-            )).then(routes => {
+            })).then(routes => {
                 const validRoutes = routes.filter(r => r && r.points.length > 0);
                 if (validRoutes.length === 0) return;
 

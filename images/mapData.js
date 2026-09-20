@@ -2,7 +2,7 @@
 window.MAP_DATA = {
     gpxFiles: [
         { 
-            url: "./images/sample.gpx", 
+            filename: "sample.gpx", 
             link: "/category/러닝코스/1" 
         }
         // 새 GPX 파일을 스킨에 업로드하고 여기에 추가하세요.
