@@ -107,8 +107,25 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // Fetch data
+        // Distance calculation (Haversine)
+        function calcDistance(pts) {
+            let dist = 0;
+            const R = 6371; // Earth's radius in km
+            for (let i = 0; i < pts.length - 1; i++) {
+                const dLat = (pts[i+1].lat - pts[i].lat) * Math.PI / 180;
+                const dLon = (pts[i+1].lon - pts[i].lon) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(pts[i].lat * Math.PI / 180) * Math.cos(pts[i+1].lat * Math.PI / 180) *
+                        Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                dist += R * c;
+            }
+            return dist; // in km
+        }
+
         const fetchGeo = fetch(skinImagesPath + 'korea.json').then(r => r.json());
         const fetchRivers = fetch(skinImagesPath + 'rivers.json').then(r => r.json()).catch(() => null);
+        const fetchParks = fetch(skinImagesPath + 'parks.json').then(r => r.json()).catch(() => null);
         let gpxPromises = [];
         if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
             gpxPromises = window.MAP_DATA.gpxFiles.map(file => {
@@ -130,13 +147,24 @@ document.addEventListener('DOMContentLoaded', () => {
                                 lon: parseFloat(pts[i].getAttribute('lon'))
                             });
                         }
-                        return { points, link: file.link, title };
+                        const dist = calcDistance(points);
+                        // Color coding based on distance
+                        let color = 'rgba(255, 107, 74, 0.8)'; // Red/Orange for >=10km
+                        let glow = 'rgba(255, 107, 74, 0.5)';
+                        if (dist < 5) {
+                            color = 'rgba(74, 219, 145, 0.8)'; // Green
+                            glow = 'rgba(74, 219, 145, 0.5)';
+                        } else if (dist < 10) {
+                            color = 'rgba(74, 153, 255, 0.8)'; // Blue
+                            glow = 'rgba(74, 153, 255, 0.5)';
+                        }
+                        return { points, link: file.link, title, dist: dist.toFixed(1), color, glow };
                     })
                     .catch(() => null);
             });
         }
 
-        Promise.all([fetchGeo, fetchRivers, Promise.all(gpxPromises)]).then(([geoData, riverData, routes]) => {
+        Promise.all([fetchGeo, fetchRivers, fetchParks, Promise.all(gpxPromises)]).then(([geoData, riverData, parkData, routes]) => {
             const validRoutes = routes.filter(r => r && r.points.length > 0);
 
             // Compute route bounds
@@ -303,6 +331,56 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.restore();
                 }
 
+                // 2.7 Parks and Lakes
+                if (parkData && parkData.features) {
+                    ctx.save();
+                    parkData.features.forEach(f => {
+                        ctx.beginPath();
+                        if (f.geometry.type === 'Polygon') {
+                            f.geometry.coordinates.forEach(ring => {
+                                ring.forEach((c, i) => {
+                                    const p = getXY(c[1], c[0]); // GeoJSON is [lon,lat]
+                                    i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+                                });
+                            });
+                        }
+                        ctx.fillStyle = f.properties.type === 'water' ? 'rgba(178, 205, 222, 0.6)' : 'rgba(164, 214, 158, 0.6)';
+                        ctx.fill();
+                        ctx.strokeStyle = f.properties.type === 'water' ? 'rgba(178, 205, 222, 0.9)' : 'rgba(164, 214, 158, 0.9)';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                        
+                        // Faint label for major parks if zoomed in enough (scale check could be added, but let's just add faint text)
+                        // To avoid clutter, we only label if the park is reasonably large, or just don't label text here to keep it clean.
+                    });
+                    ctx.restore();
+                }
+                
+                // 2.8 Region Labels
+                ctx.save();
+                ctx.font = '600 14px "Pretendard", sans-serif';
+                ctx.fillStyle = 'rgba(160, 145, 125, 0.4)';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const labels = {
+                    '서울': [37.566, 126.978],
+                    '경기': [37.275, 127.009],
+                    '제주': [33.388, 126.521],
+                    '부산': [35.179, 129.075],
+                    '강원': [37.822, 128.155],
+                    '충남': [36.658, 126.673],
+                    '경북': [36.491, 128.888],
+                    '전남': [34.816, 126.462]
+                };
+                Object.keys(labels).forEach(name => {
+                    const p = getXY(labels[name][0], labels[name][1]);
+                    // Only draw if within current viewport
+                    if (p.x > 0 && p.x < W && p.y > 0 && p.y < H) {
+                        ctx.fillText(name, p.x, p.y);
+                    }
+                });
+                ctx.restore();
+
                 // 3. GPX Routes
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
@@ -375,6 +453,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.MAP_DATA.restaurants.forEach(r => {
                         if (r.projected) drawPin(r.projected.x, r.projected.y);
                     });
+                }
+
+                // 4. User Location
+                if (userLoc) {
+                    const p = getXY(userLoc.lat, userLoc.lon);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 14, 0, Math.PI*2);
+                    ctx.fillStyle = 'rgba(74, 144, 226, 0.3)';
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
+                    ctx.fillStyle = '#4a90e2';
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#fff';
+                    ctx.stroke();
                 }
             }
 
@@ -590,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tooltip.style.opacity = '1';
                     tooltip.style.left = x + 'px';
                     tooltip.style.top = y + 'px';
-                    tooltip.textContent = hit.type === 'restaurant' ? `🍽️ ${hit.data.title}` : `🏃 ${hit.data.title}`;
+                    tooltip.textContent = hit.type === 'restaurant' ? `🍽️ ${hit.data.title}` : `🏃 ${hit.data.title} (${hit.data.dist}km)`;
                 } else {
                     canvas.style.cursor = 'default';
                     hoveredItem = null;
@@ -616,6 +711,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // ──── Control buttons & Dropdowns ────
+            let userLoc = null;
+            const btnGps = document.getElementById('map-gps');
+            if (btnGps) {
+                btnGps.addEventListener('click', () => {
+                    if (navigator.geolocation) {
+                        btnGps.innerHTML = '⏳';
+                        navigator.geolocation.getCurrentPosition(pos => {
+                            btnGps.innerHTML = '🎯';
+                            userLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+                            goToLatLon(userLoc.lat, userLoc.lon, 0.05);
+                        }, () => {
+                            btnGps.innerHTML = '🎯';
+                            alert('위치 정보를 가져올 수 없거나 권한이 차단되었습니다.');
+                        });
+                    }
+                });
+            }
             const btnZoomIn = document.getElementById('map-zoom-in');
             const btnZoomOut = document.getElementById('map-zoom-out');
             const btnReset = document.getElementById('map-reset');
@@ -686,6 +798,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!btn || !btn.dataset.idx) return;
                     const r = validRoutes[btn.dataset.idx];
                     if (r && r.points.length > 0) {
+                        // Start animation!
+                        r.animProgress = 0;
+                        let lastTime = performance.now();
+                        const animateRoute = (time) => {
+                            const dt = time - lastTime;
+                            lastTime = time;
+                            r.animProgress += dt / 1000; // 1.0 second to draw
+                            if (r.animProgress < 1) {
+                                render();
+                                requestAnimationFrame(animateRoute);
+                            } else {
+                                r.animProgress = 1;
+                                render();
+                            }
+                        };
+                        requestAnimationFrame(animateRoute);
+
                         let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
                         r.points.forEach(p => {
                             if (p.lat < minLat) minLat = p.lat;
