@@ -357,49 +357,89 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Update stats & dropdowns
-            const elRoutes = document.getElementById('stat-routes');
-            const elRest = document.getElementById('stat-restaurants');
-            if (elRoutes) elRoutes.textContent = validRoutes.length;
-            if (elRest && window.MAP_DATA.restaurants) elRest.textContent = window.MAP_DATA.restaurants.length;
-
-            const dropdownRoutes = document.getElementById('dropdown-routes');
-            const dropdownRest = document.getElementById('dropdown-restaurants');
-
-            if (dropdownRoutes) {
-                dropdownRoutes.innerHTML = validRoutes.map((r, i) => 
-                    `<button class="stat-item" data-idx="${i}">📍 ${r.title}</button>`
-                ).join('');
+            // ──── Region Helper ────
+            function getRegionOfPoint(lat, lon) {
+                const check = (k) => lat >= REGIONS[k].minLat && lat <= REGIONS[k].maxLat && lon >= REGIONS[k].minLon && lon <= REGIONS[k].maxLon;
+                
+                // Check smaller/specific regions first so they aren't swallowed by Gyeonggi
+                if (check('seoul')) return 'seoul';
+                if (check('incheon')) return 'incheon';
+                if (check('busan')) return 'busan';
+                if (check('daegu')) return 'daegu';
+                if (check('gwangju')) return 'gwangju';
+                if (check('daejeon')) return 'daejeon';
+                if (check('jeju')) return 'jeju';
+                // Check broader region last
+                if (check('gyeonggi')) return 'gyeonggi';
+                return 'other';
             }
-            if (dropdownRest && window.MAP_DATA.restaurants) {
-                dropdownRest.innerHTML = window.MAP_DATA.restaurants.map((r, i) => 
-                    `<button class="stat-item" data-idx="${i}">🍽️ ${r.title}</button>`
-                ).join('');
+
+            // Assign region to items
+            validRoutes.forEach(r => {
+                const mid = r.points[Math.floor(r.points.length / 2)];
+                r.region = getRegionOfPoint(mid.lat, mid.lon);
+            });
+            if (window.MAP_DATA.restaurants) {
+                window.MAP_DATA.restaurants.forEach(r => {
+                    r.region = getRegionOfPoint(r.lat, r.lon);
+                });
             }
 
             // Region counts
             const regionCounts = {};
-            Object.keys(REGIONS).forEach(key => {
-                if (key === 'all') return;
-                let count = 0;
-                const b = REGIONS[key];
-                validRoutes.forEach(r => {
-                    if (r.points.some(p => p.lat >= b.minLat && p.lat <= b.maxLat && p.lon >= b.minLon && p.lon <= b.maxLon)) count++;
-                });
-                if (window.MAP_DATA.restaurants) {
-                    window.MAP_DATA.restaurants.forEach(r => {
-                        if (r.lat >= b.minLat && r.lat <= b.maxLat && r.lon >= b.minLon && r.lon <= b.maxLon) count++;
-                    });
-                }
-                regionCounts[key] = count;
-            });
+            Object.keys(REGIONS).forEach(key => { if(key !== 'all') regionCounts[key] = 0; });
+            
+            validRoutes.forEach(r => { if(regionCounts[r.region] !== undefined) regionCounts[r.region]++; });
+            if (window.MAP_DATA.restaurants) {
+                window.MAP_DATA.restaurants.forEach(r => { if(regionCounts[r.region] !== undefined) regionCounts[r.region]++; });
+            }
 
             document.querySelectorAll('.map-region-item').forEach(btn => {
                 const key = btn.dataset.region;
-                if (key !== 'all' && regionCounts[key] !== undefined && regionCounts[key] > 0) {
+                if (key !== 'all' && regionCounts[key] > 0) {
                     btn.innerHTML += ` <span class="region-count">(${regionCounts[key]})</span>`;
                 }
             });
+
+            // Update stats & dropdowns based on current region
+            function updateStatsUI(regionKey) {
+                const isAll = (regionKey === 'all');
+                const filteredRoutes = isAll ? validRoutes : validRoutes.filter(r => r.region === regionKey);
+                const filteredRest = isAll ? (window.MAP_DATA.restaurants || []) : (window.MAP_DATA.restaurants || []).filter(r => r.region === regionKey);
+
+                const elRoutes = document.getElementById('stat-routes');
+                const elRest = document.getElementById('stat-restaurants');
+                if (elRoutes) elRoutes.textContent = filteredRoutes.length;
+                if (elRest) elRest.textContent = filteredRest.length;
+
+                const dropdownRoutes = document.getElementById('dropdown-routes');
+                const dropdownRest = document.getElementById('dropdown-restaurants');
+
+                if (dropdownRoutes) {
+                    if (filteredRoutes.length > 0) {
+                        dropdownRoutes.innerHTML = filteredRoutes.map(r => {
+                            const globalIdx = validRoutes.indexOf(r);
+                            return `<button class="stat-item" data-idx="${globalIdx}">📍 ${r.title}</button>`;
+                        }).join('');
+                    } else {
+                        dropdownRoutes.innerHTML = `<div class="stat-item" style="color:var(--text-faint); cursor:default;">해당 지역 코스가 없습니다</div>`;
+                    }
+                }
+
+                if (dropdownRest) {
+                    if (filteredRest.length > 0) {
+                        dropdownRest.innerHTML = filteredRest.map(r => {
+                            const globalIdx = window.MAP_DATA.restaurants.indexOf(r);
+                            return `<button class="stat-item" data-idx="${globalIdx}">🍽️ ${r.title}</button>`;
+                        }).join('');
+                    } else {
+                        dropdownRest.innerHTML = `<div class="stat-item" style="color:var(--text-faint); cursor:default;">해당 지역 맛집이 없습니다</div>`;
+                    }
+                }
+            }
+
+            // Init stats
+            updateStatsUI('all');
 
             // Initial render
             render();
@@ -423,7 +463,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 viewport.minLon = center.lon - newLonSpan * ratioX;
                 viewport.maxLon = center.lon + newLonSpan * (1 - ratioX);
                 viewport.minLat = center.lat - newLatSpan * ratioY;
-                viewport.maxLat = center.lat + newLonSpan * (1 - ratioY);
+                viewport.maxLat = center.lat + newLatSpan * (1 - ratioY);
                 render();
             }
 
@@ -631,6 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (btnZoomOut) btnZoomOut.addEventListener('click', () => zoomCenter(1 + ZOOM_FACTOR));
             if (btnReset) btnReset.addEventListener('click', () => {
                 resetView();
+                updateStatsUI('all');
                 if (regionDropdown) {
                     regionDropdown.querySelectorAll('.map-region-item').forEach(b => b.classList.remove('active'));
                     const allBtn = regionDropdown.querySelector('[data-region="all"]');
@@ -647,6 +688,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.addEventListener('click', () => {
                         const region = btn.dataset.region;
                         goToRegion(region);
+                        updateStatsUI(region);
+                        
                         regionDropdown.classList.remove('open');
                         regionDropdown.querySelectorAll('.map-region-item').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
@@ -676,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dropdownRoutes) {
                 dropdownRoutes.addEventListener('click', (e) => {
                     const btn = e.target.closest('.stat-item');
-                    if (!btn) return;
+                    if (!btn || !btn.dataset.idx) return;
                     const r = validRoutes[btn.dataset.idx];
                     if (r && r.points.length > 0) {
                         const mid = r.points[Math.floor(r.points.length / 2)];
@@ -688,7 +731,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (dropdownRest) {
                 dropdownRest.addEventListener('click', (e) => {
                     const btn = e.target.closest('.stat-item');
-                    if (!btn) return;
+                    if (!btn || !btn.dataset.idx) return;
                     const r = window.MAP_DATA.restaurants[btn.dataset.idx];
                     if (r) goToLatLon(r.lat, r.lon, 0.015); // close zoom for pin
                 });
