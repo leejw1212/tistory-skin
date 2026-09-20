@@ -119,10 +119,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { x, y };
             };
 
-            // 1. Draw Map Outline (South Korea)
-            ctx.fillStyle = '#f0e6d2'; // Warm land color
-            ctx.strokeStyle = '#dfd3c0';
-            ctx.lineWidth = 1;
+            // 1. Draw Map Background & Grid
+            ctx.fillStyle = '#fdfaf6';
+            ctx.fillRect(0, 0, width, height);
+
+            // Subtle dot grid for the ocean
+            ctx.fillStyle = '#ebdcc6';
+            for (let x = 0; x < width; x += 20) {
+                for (let y = 0; y < height; y += 20) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 1, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            // 2. Draw Map Outline (South Korea) with Drop Shadow
+            ctx.shadowColor = 'rgba(150, 130, 110, 0.15)';
+            ctx.shadowBlur = 15;
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 8;
+            
+            // Create a subtle warm gradient for the land
+            const landGradient = ctx.createLinearGradient(0, 0, 0, height);
+            landGradient.addColorStop(0, '#f9f3e6');
+            landGradient.addColorStop(1, '#f0e6d2');
+
+            ctx.fillStyle = landGradient;
+            ctx.strokeStyle = '#e6d5c1';
+            ctx.lineWidth = 1.5;
             
             const drawRings = (rings) => {
                 rings.forEach(ring => {
@@ -134,6 +158,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                     ctx.closePath();
                     ctx.fill();
+                });
+                
+                // Stroke separately to avoid shadow overlap issues on stroke
+                ctx.shadowColor = 'transparent'; 
+                rings.forEach(ring => {
+                    ctx.beginPath();
+                    ring.forEach((coord, idx) => {
+                        const { x, y } = getXY(coord[1], coord[0]);
+                        if (idx === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    });
+                    ctx.closePath();
                     ctx.stroke();
                 });
             };
@@ -146,13 +182,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // 2. Draw GPX Routes
-            
+            // Reset shadow for routes
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            // 3. Draw GPX Routes with Neon/Glow effect
             ctx.lineWidth = 4;
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.strokeStyle = 'rgba(255, 126, 103, 0.8)'; 
-            ctx.globalCompositeOperation = 'multiply';
+            
+            // Subtle glow for the route
+            ctx.shadowColor = 'rgba(255, 126, 103, 0.6)';
+            ctx.shadowBlur = 8;
+            ctx.strokeStyle = '#ff7e67'; 
+
+            // We do not use multiply blend mode here to keep the glowing neon effect solid and bright
+            ctx.globalCompositeOperation = 'source-over';
 
             validRoutes.forEach(route => {
                 ctx.beginPath();
@@ -164,8 +211,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 ctx.stroke();
             });
 
-            // 3. Draw Restaurants
+            // 4. Draw Restaurants
             if (window.MAP_DATA.restaurants) {
+                // Reset shadow for text
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                
                 ctx.globalCompositeOperation = 'source-over';
                 ctx.font = '24px sans-serif';
                 ctx.textAlign = 'center';
