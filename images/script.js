@@ -700,24 +700,29 @@ document.addEventListener('DOMContentLoaded', () => {
             // Stat Dropdowns
             document.getElementById('btn-stat-routes')?.addEventListener('click', (e) => {
                 e.stopPropagation();
-                dropdownRoutes?.classList.toggle('open');
-                dropdownRest?.classList.remove('open');
+                const dRoutes = document.getElementById('dropdown-routes');
+                const dRest = document.getElementById('dropdown-restaurants');
+                dRoutes?.classList.toggle('open');
+                dRest?.classList.remove('open');
             });
             
             document.getElementById('btn-stat-restaurants')?.addEventListener('click', (e) => {
                 e.stopPropagation();
-                dropdownRest?.classList.toggle('open');
-                dropdownRoutes?.classList.remove('open');
+                const dRoutes = document.getElementById('dropdown-routes');
+                const dRest = document.getElementById('dropdown-restaurants');
+                dRest?.classList.toggle('open');
+                dRoutes?.classList.remove('open');
             });
 
             document.addEventListener('click', () => {
                 regionDropdown?.classList.remove('open');
-                dropdownRoutes?.classList.remove('open');
-                dropdownRest?.classList.remove('open');
+                document.getElementById('dropdown-routes')?.classList.remove('open');
+                document.getElementById('dropdown-restaurants')?.classList.remove('open');
             });
 
-            if (dropdownRoutes) {
-                dropdownRoutes.addEventListener('click', (e) => {
+            const dRoutesContainer = document.getElementById('dropdown-routes');
+            if (dRoutesContainer) {
+                dRoutesContainer.addEventListener('click', (e) => {
                     const btn = e.target.closest('.stat-item');
                     if (!btn || !btn.dataset.idx) return;
                     const r = validRoutes[btn.dataset.idx];
@@ -728,8 +733,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            if (dropdownRest) {
-                dropdownRest.addEventListener('click', (e) => {
+            const dRestContainer = document.getElementById('dropdown-restaurants');
+            if (dRestContainer) {
+                dRestContainer.addEventListener('click', (e) => {
                     const btn = e.target.closest('.stat-item');
                     if (!btn || !btn.dataset.idx) return;
                     const r = window.MAP_DATA.restaurants[btn.dataset.idx];
