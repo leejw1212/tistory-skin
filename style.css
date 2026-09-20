@@ -587,6 +587,9 @@ img {
     width: 200px;
     max-height: 250px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
     z-index: 20;
     padding: 6px 0;
 }
@@ -608,6 +611,7 @@ img {
     text-align: left;
     border-bottom: 1px solid var(--border-light);
     transition: all 0.2s ease;
+    touch-action: pan-y;
 }
 
 .stat-item:last-child {

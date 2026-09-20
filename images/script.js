@@ -661,8 +661,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!btn || !btn.dataset.idx) return;
                     const r = validRoutes[btn.dataset.idx];
                     if (r && r.points.length > 0) {
-                        const mid = r.points[Math.floor(r.points.length / 2)];
-                        goToLatLon(mid.lat, mid.lon, 0.05); // slightly wider for route
+                        let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+                        r.points.forEach(p => {
+                            if (p.lat < minLat) minLat = p.lat;
+                            if (p.lat > maxLat) maxLat = p.lat;
+                            if (p.lon < minLon) minLon = p.lon;
+                            if (p.lon > maxLon) maxLon = p.lon;
+                        });
+                        // 프레이밍 15% 여백
+                        fitBounds(minLat, maxLat, minLon, maxLon, 0.15);
+                        render();
                     }
                 });
             }
@@ -673,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const btn = e.target.closest('.stat-item');
                     if (!btn || !btn.dataset.idx) return;
                     const r = window.MAP_DATA.restaurants[btn.dataset.idx];
-                    if (r) goToLatLon(r.lat, r.lon, 0.015); // close zoom for pin
+                    if (r) goToLatLon(r.lat, r.lon, 0.02); // 맛집은 단일 지점이므로 가까이 줌
                 });
             }
         });
