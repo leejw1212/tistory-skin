@@ -504,51 +504,12 @@ img {
     white-space: nowrap;
 }
 
-.map-region-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    min-width: 150px;
-    background: rgba(255,255,255,0.96);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
-    padding: 6px;
-    z-index: 10;
-    animation: fadeIn 0.15s var(--ease);
-}
-
-.map-region-dropdown.open {
-    display: block;
-}
-
-.map-region-item {
-    display: block;
-    width: 100%;
-    padding: 9px 14px;
-    border: none;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-primary);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: left;
-    font-family: inherit;
-    transition: all var(--transition);
-}
-
-.map-region-item:hover {
-    background: var(--border-light);
-    color: var(--primary);
-}
-
-.map-region-item.active {
-    background: var(--gradient-primary);
-    color: #fff;
+.map-stats {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 /* ===========================
@@ -621,6 +582,11 @@ img {
 .stat-item:hover {
     background: var(--border-light);
     color: var(--primary);
+}
+
+.stat-item.active {
+    background: var(--gradient-primary);
+    color: #fff;
 }
 
 .region-count {
@@ -1621,42 +1587,47 @@ img {
 
     /* Map mobile sizing & buttons */
     #tt-body-index .heatmap-container {
-        height: 400px; /* Reduced height for easier scrolling */
+        height: 400px;
     }
     #tt-body-index .content-wrap {
         height: auto;
         overflow-y: visible;
         padding-right: 0;
     }
-    
-    .map-ctrl-btn {
-        width: 44px;
-        height: 44px;
-        font-size: 1.2rem;
+
+    .map-overlay {
+        top: 12px; left: 12px; right: 12px;
     }
-    .map-region-toggle {
-        padding: 0 16px;
-        width: auto;
-        height: 44px;
-        font-size: 1.05rem;
+    .map-stats {
+        gap: 6px;
+        flex-wrap: wrap; /* allow wrapping if too tight */
     }
     .map-stat-badge {
-        padding: 10px 16px;
-        font-size: 1rem;
-        height: 44px;
+        padding: 8px 10px;
+        font-size: 0.85rem;
+        height: 38px;
     }
+    
+    .map-controls {
+        bottom: 12px; 
+        left: 12px; /* moved to bottom left */
+        right: auto;
+    }
+    .map-zoom-controls {
+        flex-direction: row; /* Horizontal */
+    }
+    .map-ctrl-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1.1rem;
+    }
+
     .stat-dropdown, .map-region-dropdown {
-        width: 250px;
+        width: 180px; /* slightly smaller to fit screen */
     }
     .stat-item, .map-region-item {
-        padding: 14px 20px;
-        font-size: 1.05rem;
-    }
-    .map-overlay {
-        top: 16px; left: 16px;
-    }
-    .map-controls {
-        bottom: 16px; right: 16px;
+        padding: 12px 14px;
+        font-size: 0.95rem;
     }
 
     .post-item .thumb {
