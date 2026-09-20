@@ -31,14 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const width = rect.width;
         const height = rect.height;
 
-        // Extract skin images path from script tag
+        // Extract skin images path safely using a hidden image tag processed by Tistory
         let skinImagesPath = '';
-        const scripts = document.getElementsByTagName('script');
-        for (let s of scripts) {
-            if (s.src.includes('script.js')) {
-                skinImagesPath = s.src.split('script.js')[0];
-                break;
-            }
+        const helperImg = document.getElementById('skin-path-helper');
+        if (helperImg && helperImg.src) {
+            skinImagesPath = helperImg.src.split('helper.png')[0];
         }
         console.log("Detected skin images path:", skinImagesPath);
         console.log("MAP_DATA:", window.MAP_DATA);
