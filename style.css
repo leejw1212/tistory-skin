@@ -114,7 +114,11 @@ img {
 }
 
 /* Post Grid (Home/Category) */
-.post-grid {
+#tt-body-index .article-wrap,
+#tt-body-category .article-wrap,
+#tt-body-archive .article-wrap,
+#tt-body-search .article-wrap,
+#tt-body-tag .article-wrap {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 30px;
