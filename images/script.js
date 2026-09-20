@@ -407,10 +407,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const filteredRoutes = isAll ? validRoutes : validRoutes.filter(r => r.region === regionKey);
                 const filteredRest = isAll ? (window.MAP_DATA.restaurants || []) : (window.MAP_DATA.restaurants || []).filter(r => r.region === regionKey);
 
-                const elRoutes = document.getElementById('stat-routes');
-                const elRest = document.getElementById('stat-restaurants');
-                if (elRoutes) elRoutes.textContent = filteredRoutes.length;
-                if (elRest) elRest.textContent = filteredRest.length;
+                const elRoutes = document.getElementById('count-routes');
+                const elRest = document.getElementById('count-restaurants');
+                if (elRoutes) elRoutes.textContent = `(${filteredRoutes.length})`;
+                if (elRest) elRest.textContent = `(${filteredRest.length})`;
 
                 const dropdownRoutes = document.getElementById('dropdown-routes');
                 const dropdownRest = document.getElementById('dropdown-restaurants');

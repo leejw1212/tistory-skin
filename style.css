@@ -489,21 +489,6 @@ img {
     position: relative;
 }
 
-.map-region-toggle {
-    width: auto;
-    padding: 0 14px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    background: rgba(255,255,255,0.9);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-md);
-    border: 1px solid rgba(238,232,224,0.5);
-    border-radius: 100px;
-    gap: 4px;
-    white-space: nowrap;
-}
-
 .map-stats {
     display: flex;
     flex-direction: row;
