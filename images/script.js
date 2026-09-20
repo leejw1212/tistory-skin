@@ -147,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // 2. Draw GPX Routes
-            const validRoutes = routes.filter(r => r && r.points.length > 0);
             
             ctx.lineWidth = 4;
             ctx.lineCap = 'round';
