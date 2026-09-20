@@ -11,19 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Custom GPX Heatmap Renderer
     const canvas = document.getElementById('route-canvas');
-    console.log("Canvas element:", canvas);
-
     if (canvas && canvas.offsetWidth > 0) {
         const ctx = canvas.getContext('2d');
         
         // Resize canvas to physical pixels for crisp rendering
         const rect = canvas.parentElement.getBoundingClientRect();
-        console.log("Canvas parent rect:", rect);
-        
-        if (rect.width === 0 || rect.height === 0) {
-            console.error("Canvas container has 0 width or height! Check CSS.");
-        }
-
         canvas.width = rect.width * window.devicePixelRatio;
         canvas.height = rect.height * window.devicePixelRatio;
         ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
@@ -37,14 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (helperScript && helperScript.src) {
             skinImagesPath = helperScript.src.split('script.js')[0];
         }
-        console.log("Detected skin images path:", skinImagesPath);
-        console.log("MAP_DATA:", window.MAP_DATA);
 
-        // Fetch and parse all GPX files
+        // Fetch Korea GeoJSON and GPX files
+        const fetchGeo = fetch(skinImagesPath + 'korea.json').then(res => res.json());
+        
+        let gpxPromises = [];
         if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
-            Promise.all(window.MAP_DATA.gpxFiles.map(file => {
+            gpxPromises = window.MAP_DATA.gpxFiles.map(file => {
                 const fetchUrl = file.url || (skinImagesPath + file.filename);
-                console.log("Fetching GPX from:", fetchUrl);
                 return fetch(fetchUrl)
                     .then(res => res.text())
                     .then(xmlString => {
@@ -60,77 +52,134 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                         return { points, link: file.link };
                     })
-                    .catch(e => { console.error("Error loading GPX:", e); return null; })
-            })).then(routes => {
-                const validRoutes = routes.filter(r => r && r.points.length > 0);
-                if (validRoutes.length === 0) return;
+                    .catch(e => { console.error("Error loading GPX:", e); return null; });
+            });
+        }
 
-                // Find global bounding box
-                let minLat = Infinity, maxLat = -Infinity;
-                let minLon = Infinity, maxLon = -Infinity;
-                
-                validRoutes.forEach(route => {
-                    route.points.forEach(p => {
-                        if (p.lat < minLat) minLat = p.lat;
-                        if (p.lat > maxLat) maxLat = p.lat;
-                        if (p.lon < minLon) minLon = p.lon;
-                        if (p.lon > maxLon) maxLon = p.lon;
-                    });
-                });
+        Promise.all([fetchGeo, Promise.all(gpxPromises)]).then(([geoData, routes]) => {
+            // Find global bounding box from GeoJSON
+            let minLat = Infinity, maxLat = -Infinity;
+            let minLon = Infinity, maxLon = -Infinity;
+            
+            const processCoord = (coord) => {
+                const lon = coord[0], lat = coord[1];
+                if (lat < minLat) minLat = lat;
+                if (lat > maxLat) maxLat = lat;
+                if (lon < minLon) minLon = lon;
+                if (lon > maxLon) maxLon = lon;
+            };
 
-                // Add padding (10%)
-                const latDiff = maxLat - minLat || 0.01;
-                const lonDiff = maxLon - minLon || 0.01;
-                minLat -= latDiff * 0.1;
-                maxLat += latDiff * 0.1;
-                minLon -= lonDiff * 0.1;
-                maxLon += lonDiff * 0.1;
+            geoData.features.forEach(feature => {
+                if (feature.geometry.type === 'Polygon') {
+                    feature.geometry.coordinates.forEach(ring => ring.forEach(processCoord));
+                } else if (feature.geometry.type === 'MultiPolygon') {
+                    feature.geometry.coordinates.forEach(poly => poly.forEach(ring => ring.forEach(processCoord)));
+                }
+            });
 
-                // Helper to map lat/lon to canvas x/y
-                const getXY = (lat, lon) => {
-                    const x = ((lon - minLon) / (maxLon - minLon)) * width;
-                    const y = height - (((lat - minLat) / (maxLat - minLat)) * height); // Invert Y
-                    return { x, y };
-                };
+            // Add padding (5%)
+            const latDiff = maxLat - minLat || 0.01;
+            const lonDiff = maxLon - minLon || 0.01;
+            
+            // Adjust aspect ratio based on average latitude (Mercator-ish approximation)
+            const avgLat = (minLat + maxLat) / 2;
+            const cosLat = Math.cos(avgLat * Math.PI / 180);
+            
+            // We want the logical box to fit inside the physical canvas
+            const mapRatio = (lonDiff * cosLat) / latDiff;
+            const canvasRatio = width / height;
+            
+            let drawMinLat = minLat, drawMaxLat = maxLat;
+            let drawMinLon = minLon, drawMaxLon = maxLon;
 
-                // Draw configuration
-                ctx.lineWidth = 4;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.strokeStyle = 'rgba(255, 126, 103, 0.6)'; // Soft coral with opacity for heatmap effect
-                ctx.globalCompositeOperation = 'multiply';
+            if (mapRatio > canvasRatio) {
+                // Map is wider than canvas, add vertical padding
+                const newLatDiff = (lonDiff * cosLat) / canvasRatio;
+                const latPad = (newLatDiff - latDiff) / 2;
+                drawMinLat -= latPad;
+                drawMaxLat += latPad;
+            } else {
+                // Map is taller than canvas, add horizontal padding
+                const newLonDiff = (latDiff * canvasRatio) / cosLat;
+                const lonPad = (newLonDiff - lonDiff) / 2;
+                drawMinLon -= lonPad;
+                drawMaxLon += lonPad;
+            }
 
-                // Draw each route
-                validRoutes.forEach(route => {
+            // Apply 5% visual padding
+            const pLat = (drawMaxLat - drawMinLat) * 0.05;
+            const pLon = (drawMaxLon - drawMinLon) * 0.05;
+            drawMinLat -= pLat; drawMaxLat += pLat;
+            drawMinLon -= pLon; drawMaxLon += pLon;
+
+            const getXY = (lat, lon) => {
+                const x = ((lon - drawMinLon) / (drawMaxLon - drawMinLon)) * width;
+                const y = height - (((lat - drawMinLat) / (drawMaxLat - drawMinLat)) * height);
+                return { x, y };
+            };
+
+            // 1. Draw Map Outline (South Korea)
+            ctx.fillStyle = '#f0e6d2'; // Warm land color
+            ctx.strokeStyle = '#dfd3c0';
+            ctx.lineWidth = 1;
+            
+            const drawRings = (rings) => {
+                rings.forEach(ring => {
                     ctx.beginPath();
-                    route.points.forEach((p, idx) => {
-                        const { x, y } = getXY(p.lat, p.lon);
+                    ring.forEach((coord, idx) => {
+                        const { x, y } = getXY(coord[1], coord[0]); // GeoJSON is [lon, lat]
                         if (idx === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
                     });
+                    ctx.closePath();
+                    ctx.fill();
                     ctx.stroke();
                 });
+            };
 
-                // Draw Restaurants
-                if (window.MAP_DATA.restaurants) {
-                    ctx.globalCompositeOperation = 'source-over'; // Reset blend mode for icons
-                    ctx.font = '24px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    window.MAP_DATA.restaurants.forEach(rest => {
-                        // Only draw if within bounds
-                        if (rest.lat >= minLat && rest.lat <= maxLat && rest.lon >= minLon && rest.lon <= maxLon) {
-                            const { x, y } = getXY(rest.lat, rest.lon);
-                            ctx.fillText('🍔', x, y);
-                        }
-                    });
+            geoData.features.forEach(feature => {
+                if (feature.geometry.type === 'Polygon') {
+                    drawRings(feature.geometry.coordinates);
+                } else if (feature.geometry.type === 'MultiPolygon') {
+                    feature.geometry.coordinates.forEach(poly => drawRings(poly));
                 }
             });
-        }
+
+            // 2. Draw GPX Routes
+            const validRoutes = routes.filter(r => r && r.points.length > 0);
+            
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = 'rgba(255, 126, 103, 0.8)'; 
+            ctx.globalCompositeOperation = 'multiply';
+
+            validRoutes.forEach(route => {
+                ctx.beginPath();
+                route.points.forEach((p, idx) => {
+                    const { x, y } = getXY(p.lat, p.lon);
+                    if (idx === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+                ctx.stroke();
+            });
+
+            // 3. Draw Restaurants
+            if (window.MAP_DATA.restaurants) {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.font = '24px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                window.MAP_DATA.restaurants.forEach(rest => {
+                    const { x, y } = getXY(rest.lat, rest.lon);
+                    ctx.fillText('🍔', x, y);
+                });
+            }
+        });
     }
 
-    // 3. Nearby Restaurants Widget (Tag based link)
+    // 3. Nearby Restaurants Widget
     const isPostPage = document.body.id === 'tt-body-page';
     const categoryEl = document.querySelector('.post-header .category');
     
