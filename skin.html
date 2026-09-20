@@ -73,6 +73,30 @@
                             </span>
                         </div>
                     </div>
+
+                    <!-- Map Controls -->
+                    <div class="map-controls">
+                        <div class="map-zoom-controls">
+                            <button class="map-ctrl-btn" id="map-zoom-in" aria-label="확대">+</button>
+                            <button class="map-ctrl-btn" id="map-zoom-out" aria-label="축소">−</button>
+                            <button class="map-ctrl-btn map-ctrl-reset" id="map-reset" aria-label="전체보기">⟳</button>
+                        </div>
+                        <div class="map-region-selector">
+                            <button class="map-ctrl-btn map-region-toggle" id="map-region-toggle">📍 지역</button>
+                            <div class="map-region-dropdown" id="map-region-dropdown">
+                                <button class="map-region-item" data-region="all">🗺️ 전체보기</button>
+                                <button class="map-region-item" data-region="seoul">🏙️ 서울</button>
+                                <button class="map-region-item" data-region="gyeonggi">🌳 경기</button>
+                                <button class="map-region-item" data-region="incheon">🚢 인천</button>
+                                <button class="map-region-item" data-region="busan">🌊 부산</button>
+                                <button class="map-region-item" data-region="daegu">🏔️ 대구</button>
+                                <button class="map-region-item" data-region="gwangju">🌾 광주</button>
+                                <button class="map-region-item" data-region="daejeon">🔬 대전</button>
+                                <button class="map-region-item" data-region="jeju">🍊 제주</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <canvas id="route-canvas"></canvas>
                     <div id="map-tooltip" class="map-tooltip"></div>
                 </div>

@@ -426,12 +426,237 @@ img {
     border-color: rgba(30, 30, 40, 0.92) transparent transparent transparent;
 }
 
-#tt-body-index .content-wrap {
+/* ===========================
+   Map Controls
+   =========================== */
+.map-controls {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.map-zoom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--radius-sm);
+    padding: 4px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(238,232,224,0.5);
+}
+
+.map-ctrl-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition);
+    font-family: inherit;
+}
+
+.map-ctrl-btn:hover {
+    background: var(--border-light);
+    color: var(--primary);
+}
+
+.map-ctrl-btn:active {
+    transform: scale(0.92);
+}
+
+.map-ctrl-reset {
+    border-top: 1px solid var(--border-light);
+    font-size: 1.1rem;
+}
+
+/* Region Selector */
+.map-region-selector {
+    position: relative;
+}
+
+.map-region-toggle {
+    width: auto;
+    padding: 0 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(238,232,224,0.5);
+    border-radius: 100px;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.map-region-dropdown {
     display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 150px;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    padding: 6px;
+    z-index: 10;
+    animation: fadeIn 0.15s var(--ease);
+}
+
+.map-region-dropdown.open {
+    display: block;
+}
+
+.map-region-item {
+    display: block;
+    width: 100%;
+    padding: 9px 14px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: all var(--transition);
+}
+
+.map-region-item:hover {
+    background: var(--border-light);
+    color: var(--primary);
+}
+
+.map-region-item.active {
+    background: var(--gradient-primary);
+    color: #fff;
+}
+
+/* ===========================
+   Homepage 2-Column Layout
+   =========================== */
+#tt-body-index #main .inner {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 28px;
+    align-items: start;
+}
+
+#tt-body-index .notice-wrap {
+    grid-column: 1 / -1;
 }
 
 #tt-body-index .heatmap-container {
     display: block;
+    grid-column: 1;
+    height: 600px;
+}
+
+#tt-body-index .content-wrap {
+    grid-column: 2;
+    position: sticky;
+    top: 88px;
+}
+
+#tt-body-index .content-wrap::before {
+    content: '📌 최신 글';
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+}
+
+/* Sidebar compact cards */
+#tt-body-index .article-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+#tt-body-index .post-item {
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+#tt-body-index .post-item a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#tt-body-index .post-item .thumb {
+    width: 80px;
+    min-width: 80px;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+#tt-body-index .post-item .info {
+    padding: 12px 14px;
+    flex: 1;
+    min-width: 0;
+}
+
+#tt-body-index .post-item .category {
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    margin-bottom: 4px;
+}
+
+#tt-body-index .post-item h3 {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 1;
+    margin-bottom: 4px;
+}
+
+#tt-body-index .post-item .summary {
+    display: none;
+}
+
+#tt-body-index .post-item .date {
+    font-size: 0.72rem;
+}
+
+#tt-body-index .post-item .date::before {
+    content: '';
+}
+
+#tt-body-index .post-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+#tt-body-index .pagination {
+    margin-top: 16px;
+}
+
+#tt-body-index .pagination a {
+    min-width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
 }
 
 /* ===========================
@@ -452,7 +677,6 @@ img {
 /* ===========================
    Post Grid (Card Layout)
    =========================== */
-#tt-body-index .article-wrap,
 #tt-body-category .article-wrap,
 #tt-body-archive .article-wrap,
 #tt-body-search .article-wrap,
@@ -1168,6 +1392,27 @@ img {
 /* ===========================
    Mobile Responsive
    =========================== */
+@media (max-width: 1024px) {
+    /* Homepage: 2-col → 1-col on tablet */
+    #tt-body-index #main .inner {
+        grid-template-columns: 1fr;
+    }
+
+    #tt-body-index .heatmap-container {
+        grid-column: 1;
+        height: 450px;
+    }
+
+    #tt-body-index .content-wrap {
+        grid-column: 1;
+        position: static;
+    }
+
+    #tt-body-index .post-item a {
+        flex-direction: row;
+    }
+}
+
 @media (max-width: 768px) {
     .inner {
         padding: 0 16px;
@@ -1193,9 +1438,13 @@ img {
 
     /* Map */
     .heatmap-container {
-        height: 400px;
+        height: 380px;
         margin-bottom: 32px;
         border-radius: var(--radius-sm);
+    }
+
+    #tt-body-index .heatmap-container {
+        height: 380px;
     }
 
     .map-title {
@@ -1211,8 +1460,24 @@ img {
         padding: 4px 8px;
     }
 
+    /* Map Controls Mobile */
+    .map-zoom-controls {
+        padding: 3px;
+    }
+
+    .map-ctrl-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .map-region-toggle {
+        font-size: 0.75rem;
+        padding: 0 10px;
+        height: 32px;
+    }
+
     /* Card Grid */
-    #tt-body-index .article-wrap,
     #tt-body-category .article-wrap,
     #tt-body-archive .article-wrap,
     #tt-body-search .article-wrap,
