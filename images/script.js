@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Fetch data
         const fetchGeo = fetch(skinImagesPath + 'korea.json').then(r => r.json());
+        const fetchRivers = fetch(skinImagesPath + 'rivers.json').then(r => r.json()).catch(() => null);
         let gpxPromises = [];
         if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
             gpxPromises = window.MAP_DATA.gpxFiles.map(file => {
@@ -135,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        Promise.all([fetchGeo, Promise.all(gpxPromises)]).then(([geoData, routes]) => {
+        Promise.all([fetchGeo, fetchRivers, Promise.all(gpxPromises)]).then(([geoData, riverData, routes]) => {
             const validRoutes = routes.filter(r => r && r.points.length > 0);
 
             // Compute route bounds
@@ -281,6 +282,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(p => drawRings(p));
                 });
                 ctx.restore();
+
+                // 2.5 Rivers
+                if (riverData && riverData.features) {
+                    ctx.save();
+                    ctx.strokeStyle = '#b2cdde'; // 강 색상
+                    ctx.lineWidth = 1.5;
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    riverData.features.forEach(f => {
+                        if (f.geometry.type === 'LineString') {
+                            ctx.beginPath();
+                            f.geometry.coordinates.forEach((c, i) => {
+                                const p = getXY(c[1], c[0]); // [lat, lon] -> getXY requires lat, lon. Wait: GeoJSON is [lon, lat]!
+                                i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+                            });
+                            ctx.stroke();
+                        }
+                    });
+                    ctx.restore();
+                }
 
                 // 3. GPX Routes
                 ctx.lineCap = 'round';
