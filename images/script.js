@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // ──── Render function ────
-            function render() {
+            let userLoc = null; function render() {
                 // Re-project
                 validRoutes.forEach(route => {
                     route.projected = route.points.map(p => getXY(p.lat, p.lon));
@@ -711,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // ──── Control buttons & Dropdowns ────
-            let userLoc = null;
+            
             const btnGps = document.getElementById('map-gps');
             if (btnGps) {
                 btnGps.addEventListener('click', () => {
