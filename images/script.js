@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Custom GPX Heatmap Renderer
     const canvas = document.getElementById('route-canvas');
+    const tooltip = document.getElementById('map-tooltip');
+
     if (canvas && canvas.offsetWidth > 0) {
         const ctx = canvas.getContext('2d');
         
@@ -42,6 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     .then(xmlString => {
                         const parser = new DOMParser();
                         const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+                        
+                        let title = file.title;
+                        if (!title) {
+                            const nameNode = xmlDoc.getElementsByTagName('name')[0];
+                            title = nameNode ? nameNode.textContent : "러닝 코스";
+                        }
+
                         const trkpts = xmlDoc.getElementsByTagName('trkpt');
                         const points = [];
                         for (let i = 0; i < trkpts.length; i++) {
@@ -50,14 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 lon: parseFloat(trkpts[i].getAttribute('lon'))
                             });
                         }
-                        return { points, link: file.link };
+                        return { points, link: file.link, title };
                     })
                     .catch(e => { console.error("Error loading GPX:", e); return null; });
             });
         }
 
         Promise.all([fetchGeo, Promise.all(gpxPromises)]).then(([geoData, routes]) => {
-            // Find bounding box from GPX ROUTES, not the whole country
+            // Find bounding box from GPX ROUTES
             let minLat = Infinity, maxLat = -Infinity;
             let minLon = Infinity, maxLon = -Infinity;
             
@@ -73,20 +82,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 });
             } else {
-                // Fallback to Seoul if no routes
                 minLat = 37.4; maxLat = 37.7;
                 minLon = 126.8; maxLon = 127.2;
             }
 
-            // Add generous padding (e.g., 50%) so we see the surrounding local geography
+            // Apply 40% visual padding
             const latDiff = maxLat - minLat || 0.05;
             const lonDiff = maxLon - minLon || 0.05;
             
-            // Adjust aspect ratio based on average latitude (Mercator-ish approximation)
             const avgLat = (minLat + maxLat) / 2;
             const cosLat = Math.cos(avgLat * Math.PI / 180);
             
-            // We want the logical box to fit inside the physical canvas
             const mapRatio = (lonDiff * cosLat) / latDiff;
             const canvasRatio = width / height;
             
@@ -94,20 +100,17 @@ document.addEventListener('DOMContentLoaded', () => {
             let drawMinLon = minLon, drawMaxLon = maxLon;
 
             if (mapRatio > canvasRatio) {
-                // Map is wider than canvas, add vertical padding
                 const newLatDiff = (lonDiff * cosLat) / canvasRatio;
                 const latPad = (newLatDiff - latDiff) / 2;
                 drawMinLat -= latPad;
                 drawMaxLat += latPad;
             } else {
-                // Map is taller than canvas, add horizontal padding
                 const newLonDiff = (latDiff * canvasRatio) / cosLat;
                 const lonPad = (newLonDiff - lonDiff) / 2;
                 drawMinLon -= lonPad;
                 drawMaxLon += lonPad;
             }
 
-            // Apply 40% visual padding so the map shows the surrounding neighborhood/city
             const pLat = (drawMaxLat - drawMinLat) * 0.4;
             const pLon = (drawMaxLon - drawMinLon) * 0.4;
             drawMinLat -= pLat; drawMaxLat += pLat;
@@ -119,11 +122,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return { x, y };
             };
 
+            // Map data projection for interaction
+            validRoutes.forEach(route => {
+                route.projected = route.points.map(p => getXY(p.lat, p.lon));
+            });
+
+            if (window.MAP_DATA.restaurants) {
+                window.MAP_DATA.restaurants.forEach(rest => {
+                    rest.projected = getXY(rest.lat, rest.lon);
+                });
+            }
+
             // 1. Draw Map Background & Grid
             ctx.fillStyle = '#fdfaf6';
             ctx.fillRect(0, 0, width, height);
 
-            // Subtle dot grid for the ocean
             ctx.fillStyle = '#ebdcc6';
             for (let x = 0; x < width; x += 20) {
                 for (let y = 0; y < height; y += 20) {
@@ -133,13 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // 2. Draw Map Outline (South Korea) with Drop Shadow
+            // 2. Draw Map Outline (South Korea)
             ctx.shadowColor = 'rgba(150, 130, 110, 0.15)';
             ctx.shadowBlur = 15;
             ctx.shadowOffsetX = 4;
             ctx.shadowOffsetY = 8;
             
-            // Create a subtle warm gradient for the land
             const landGradient = ctx.createLinearGradient(0, 0, 0, height);
             landGradient.addColorStop(0, '#f9f3e6');
             landGradient.addColorStop(1, '#f0e6d2');
@@ -152,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 rings.forEach(ring => {
                     ctx.beginPath();
                     ring.forEach((coord, idx) => {
-                        const { x, y } = getXY(coord[1], coord[0]); // GeoJSON is [lon, lat]
+                        const { x, y } = getXY(coord[1], coord[0]);
                         if (idx === 0) ctx.moveTo(x, y);
                         else ctx.lineTo(x, y);
                     });
@@ -160,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ctx.fill();
                 });
                 
-                // Stroke separately to avoid shadow overlap issues on stroke
                 ctx.shadowColor = 'transparent'; 
                 rings.forEach(ring => {
                     ctx.beginPath();
@@ -182,55 +193,141 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            // Reset shadow for routes
+            // Reset shadows
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
 
-            // 3. Draw GPX Routes with Neon/Glow effect
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            
-            // Subtle glow for the route
-            ctx.shadowColor = 'rgba(255, 126, 103, 0.6)';
-            ctx.shadowBlur = 8;
-            ctx.strokeStyle = '#ff7e67'; 
-
-            // We do not use multiply blend mode here to keep the glowing neon effect solid and bright
-            ctx.globalCompositeOperation = 'source-over';
-
-            validRoutes.forEach(route => {
-                ctx.beginPath();
-                route.points.forEach((p, idx) => {
-                    const { x, y } = getXY(p.lat, p.lon);
-                    if (idx === 0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                });
-                ctx.stroke();
-            });
-
-            // 4. Draw Restaurants
-            if (window.MAP_DATA.restaurants) {
-                // Reset shadow for text
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
+            // 3. Draw GPX Routes
+            const drawRoutes = () => {
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
                 
+                ctx.shadowColor = 'rgba(255, 126, 103, 0.6)';
+                ctx.shadowBlur = 8;
+                ctx.strokeStyle = '#ff7e67'; 
                 ctx.globalCompositeOperation = 'source-over';
-                ctx.font = '24px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+
+                validRoutes.forEach(route => {
+                    ctx.beginPath();
+                    route.projected.forEach((p, idx) => {
+                        if (idx === 0) ctx.moveTo(p.x, p.y);
+                        else ctx.lineTo(p.x, p.y);
+                    });
+                    ctx.stroke();
+                });
+            };
+            drawRoutes();
+
+            // 4. Draw Restaurants (Sleek Map Pins)
+            const drawPin = (x, y) => {
+                ctx.beginPath();
+                ctx.arc(x, y - 10, 8, 0, Math.PI * 2);
+                ctx.fillStyle = '#ff7e67';
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x - 8, y - 10);
+                ctx.lineTo(x, y + 2);
+                ctx.lineTo(x + 8, y - 10);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(x, y - 10, 3, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+            };
+
+            if (window.MAP_DATA.restaurants) {
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 5;
+                ctx.shadowOffsetY = 3;
+                ctx.globalCompositeOperation = 'source-over';
                 
                 window.MAP_DATA.restaurants.forEach(rest => {
-                    const { x, y } = getXY(rest.lat, rest.lon);
-                    ctx.fillText('🍔', x, y);
+                    if(rest.projected) drawPin(rest.projected.x, rest.projected.y);
                 });
             }
+
+            // --- INTERACTION LOGIC ---
+            function dist2(v, w) { return Math.pow(v.x - w.x, 2) + Math.pow(v.y - w.y, 2); }
+            function distToSegmentSquared(p, v, w) {
+                let l2 = dist2(v, w);
+                if (l2 === 0) return dist2(p, v);
+                let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+                t = Math.max(0, Math.min(1, t));
+                return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
+            }
+
+            const getHit = (mx, my) => {
+                const mousePt = { x: mx, y: my };
+                
+                // Check restaurants first (higher priority on click)
+                if (window.MAP_DATA.restaurants) {
+                    for (let rest of window.MAP_DATA.restaurants) {
+                        if (rest.projected && dist2(mousePt, {x: rest.projected.x, y: rest.projected.y - 8}) < 150) {
+                            return { type: 'restaurant', data: rest };
+                        }
+                    }
+                }
+                
+                // Check routes
+                const HIT_RADIUS_SQ = 64; // 8px radius
+                for (let route of validRoutes) {
+                    for (let i = 0; i < route.projected.length - 1; i++) {
+                        let d2 = distToSegmentSquared(mousePt, route.projected[i], route.projected[i+1]);
+                        if (d2 < HIT_RADIUS_SQ) {
+                            return { type: 'route', data: route };
+                        }
+                    }
+                }
+                return null;
+            };
+
+            let hoveredItem = null;
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const hit = getHit(x, y);
+                if (hit) {
+                    canvas.style.cursor = 'pointer';
+                    hoveredItem = hit;
+                    tooltip.style.display = 'block';
+                    tooltip.style.opacity = '1';
+                    tooltip.style.left = x + 'px';
+                    tooltip.style.top = y + 'px';
+                    tooltip.textContent = hit.type === 'restaurant' ? `🍽️ ${hit.data.title}` : `🏃 ${hit.data.title}`;
+                } else {
+                    canvas.style.cursor = 'grab';
+                    hoveredItem = null;
+                    tooltip.style.display = 'none';
+                    tooltip.style.opacity = '0';
+                }
+            });
+
+            canvas.addEventListener('click', () => {
+                if (hoveredItem && hoveredItem.data.link) {
+                    window.location.href = hoveredItem.data.link;
+                } else if (hoveredItem && hoveredItem.data.url) {
+                    window.location.href = hoveredItem.data.url;
+                }
+            });
+            
+            canvas.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+                tooltip.style.opacity = '0';
+                hoveredItem = null;
+            });
         });
     }
 
-    // 3. Nearby Restaurants Widget
+    // 3. Nearby Restaurants Widget (Tag based link)
     const isPostPage = document.body.id === 'tt-body-page';
     const categoryEl = document.querySelector('.post-header .category');
     
@@ -257,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         const directLink = document.createElement('a');
                         directLink.className = 'nearby-item';
                         directLink.href = rest.url;
-                        directLink.innerHTML = `🍔 ${rest.title}`;
+                        directLink.innerHTML = `🍽️ ${rest.title}`;
                         listContainer.appendChild(directLink);
                     }
                 });
