@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="WarmLifeSkin" xmlns="http://www.topografix.com/GPX/1/1">
+  <trk>
+    <name>Sample Running Course</name>
+    <trkseg>
+      <trkpt lat="37.5271" lon="126.9324"></trkpt>
+      <trkpt lat="37.5285" lon="126.9340"></trkpt>
+      <trkpt lat="37.5300" lon="126.9360"></trkpt>
+      <trkpt lat="37.5290" lon="126.9380"></trkpt>
+      <trkpt lat="37.5275" lon="126.9370"></trkpt>
+      <trkpt lat="37.5260" lon="126.9350"></trkpt>
+      <trkpt lat="37.5271" lon="126.9324"></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

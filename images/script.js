@@ -9,59 +9,106 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 2. Render Kakao Map on Home Screen
-    const mapContainer = document.getElementById('home-map');
-    // Check if we are on the home screen and kakao maps SDK is loaded
-    if (mapContainer && window.kakao && window.kakao.maps && document.body.id === 'tt-body-index') {
-        kakao.maps.load(() => {
-            const options = {
-                center: new kakao.maps.LatLng(37.5271, 126.9324), // Default center
-                level: 7
-            };
-            const map = new kakao.maps.Map(mapContainer, options);
+    // 2. Custom GPX Heatmap Renderer
+    const canvas = document.getElementById('route-canvas');
+    if (canvas && document.body.id === 'tt-body-index') {
+        const ctx = canvas.getContext('2d');
+        
+        // Resize canvas to physical pixels for crisp rendering
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width * window.devicePixelRatio;
+        canvas.height = rect.height * window.devicePixelRatio;
+        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        
+        const width = rect.width;
+        const height = rect.height;
 
-            // Draw Running Courses (Polylines)
-            if (window.MAP_DATA && window.MAP_DATA.runningCourses) {
-                window.MAP_DATA.runningCourses.forEach(course => {
-                    const linePath = course.path.map(p => new kakao.maps.LatLng(p.lat, p.lng));
-                    const polyline = new kakao.maps.Polyline({
-                        path: linePath,
-                        strokeWeight: 5,
-                        strokeColor: '#ff7e67',
-                        strokeOpacity: 0.8,
-                        strokeStyle: 'solid'
-                    });
-                    polyline.setMap(map);
+        // Fetch and parse all GPX files
+        if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
+            Promise.all(window.MAP_DATA.gpxFiles.map(file => 
+                fetch(file.url)
+                    .then(res => res.text())
+                    .then(xmlString => {
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+                        const trkpts = xmlDoc.getElementsByTagName('trkpt');
+                        const points = [];
+                        for (let i = 0; i < trkpts.length; i++) {
+                            points.push({
+                                lat: parseFloat(trkpts[i].getAttribute('lat')),
+                                lon: parseFloat(trkpts[i].getAttribute('lon'))
+                            });
+                        }
+                        return { points, link: file.link };
+                    })
+                    .catch(e => { console.error("Error loading GPX:", e); return null; })
+            )).then(routes => {
+                const validRoutes = routes.filter(r => r && r.points.length > 0);
+                if (validRoutes.length === 0) return;
 
-                    // Add click event to polyline
-                    kakao.maps.event.addListener(polyline, 'click', () => {
-                        window.location.href = course.url;
-                    });
-                });
-            }
-
-            // Draw Restaurants (Markers)
-            if (window.MAP_DATA && window.MAP_DATA.restaurants) {
-                // Custom Marker Image (🍔)
-                const imageSrc = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"><text x="0" y="20" font-size="20">🍔</text></svg>';
-                const imageSize = new kakao.maps.Size(30, 30);
-                const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
-
-                window.MAP_DATA.restaurants.forEach(rest => {
-                    const marker = new kakao.maps.Marker({
-                        map: map,
-                        position: new kakao.maps.LatLng(rest.lat, rest.lng),
-                        image: markerImage,
-                        title: rest.title
-                    });
-
-                    // Add click event to marker
-                    kakao.maps.event.addListener(marker, 'click', () => {
-                        window.location.href = rest.url;
+                // Find global bounding box
+                let minLat = Infinity, maxLat = -Infinity;
+                let minLon = Infinity, maxLon = -Infinity;
+                
+                validRoutes.forEach(route => {
+                    route.points.forEach(p => {
+                        if (p.lat < minLat) minLat = p.lat;
+                        if (p.lat > maxLat) maxLat = p.lat;
+                        if (p.lon < minLon) minLon = p.lon;
+                        if (p.lon > maxLon) maxLon = p.lon;
                     });
                 });
-            }
-        });
+
+                // Add padding (10%)
+                const latDiff = maxLat - minLat || 0.01;
+                const lonDiff = maxLon - minLon || 0.01;
+                minLat -= latDiff * 0.1;
+                maxLat += latDiff * 0.1;
+                minLon -= lonDiff * 0.1;
+                maxLon += lonDiff * 0.1;
+
+                // Helper to map lat/lon to canvas x/y
+                const getXY = (lat, lon) => {
+                    const x = ((lon - minLon) / (maxLon - minLon)) * width;
+                    const y = height - (((lat - minLat) / (maxLat - minLat)) * height); // Invert Y
+                    return { x, y };
+                };
+
+                // Draw configuration
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = 'rgba(255, 126, 103, 0.6)'; // Soft coral with opacity for heatmap effect
+                ctx.globalCompositeOperation = 'multiply';
+
+                // Draw each route
+                validRoutes.forEach(route => {
+                    ctx.beginPath();
+                    route.points.forEach((p, idx) => {
+                        const { x, y } = getXY(p.lat, p.lon);
+                        if (idx === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    });
+                    ctx.stroke();
+                });
+
+                // Draw Restaurants
+                if (window.MAP_DATA.restaurants) {
+                    ctx.globalCompositeOperation = 'source-over'; // Reset blend mode for icons
+                    ctx.font = '24px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    window.MAP_DATA.restaurants.forEach(rest => {
+                        // Only draw if within bounds
+                        if (rest.lat >= minLat && rest.lat <= maxLat && rest.lon >= minLon && rest.lon <= maxLon) {
+                            const { x, y } = getXY(rest.lat, rest.lon);
+                            ctx.fillText('🍔', x, y);
+                        }
+                    });
+                }
+            });
+        }
     }
 
     // 3. Nearby Restaurants Widget (Tag based link)
@@ -69,32 +116,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const categoryEl = document.querySelector('.post-header .category');
     
     if (isPostPage && categoryEl && categoryEl.textContent.includes('러닝코스')) {
-        // Find the first location tag
         const tagEls = document.querySelectorAll('.post-tags a');
         if (tagEls.length > 0) {
-            // Assume the first tag is the location, e.g. "여의도"
             const locationTag = tagEls[0].textContent.replace('#', '').trim();
-            
-            // In a real Tistory blog, you would fetch RSS or search API.
-            // Since Tistory lacks a direct tag+category API, we'll simulate fetching from MAP_DATA
-            // if we have matching text, or just link to the search page.
-            
             const postContent = document.querySelector('.post-content');
+            
             const widget = document.createElement('div');
             widget.className = 'nearby-restaurants';
             widget.innerHTML = `<h3>🏃 '${locationTag}' 근처 추천 맛집</h3><div class="nearby-list"></div>`;
             
             const listContainer = widget.querySelector('.nearby-list');
-            
-            // For this functional mockup, we link to a search query for this location tag
             const searchLink = document.createElement('a');
             searchLink.className = 'nearby-item';
             searchLink.href = `/search/${encodeURIComponent(locationTag + " 맛집")}`;
             searchLink.innerHTML = `🍽️ <strong>${locationTag}</strong> 맛집 검색 결과 보기`;
-            
             listContainer.appendChild(searchLink);
             
-            // Check MAP_DATA for explicitly matched restaurants by title keyword
             if (window.MAP_DATA && window.MAP_DATA.restaurants) {
                 window.MAP_DATA.restaurants.forEach(rest => {
                     if (rest.title.includes(locationTag)) {
