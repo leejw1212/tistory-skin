@@ -548,30 +548,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // ──── Touch gestures ────
             let lastTouches = null;
+            const touchOverlay = document.getElementById('map-touch-overlay');
+            let overlayTimeout;
+
+            function showOverlay() {
+                if (!touchOverlay) return;
+                touchOverlay.classList.add('show');
+                clearTimeout(overlayTimeout);
+                overlayTimeout = setTimeout(() => {
+                    touchOverlay.classList.remove('show');
+                }, 1500);
+            }
 
             canvas.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 1) {
+                    isDragging = false; // Don't drag with 1 finger on touch
+                } else if (e.touches.length === 2) {
                     isDragging = true;
-                    dragStartX = e.touches[0].clientX;
-                    dragStartY = e.touches[0].clientY;
+                    if (touchOverlay) touchOverlay.classList.remove('show');
                     dragStartViewport = { ...viewport };
+                    const rect = canvas.getBoundingClientRect();
+                    dragStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                    dragStartY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
                 }
                 lastTouches = Array.from(e.touches);
             }, { passive: true });
 
             canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (e.touches.length === 1 && isDragging) {
-                    const dx = e.touches[0].clientX - dragStartX;
-                    const dy = e.touches[0].clientY - dragStartY;
-                    const lonPerPx = (dragStartViewport.maxLon - dragStartViewport.minLon) / W;
-                    const latPerPx = (dragStartViewport.maxLat - dragStartViewport.minLat) / H;
-                    viewport.minLon = dragStartViewport.minLon - dx * lonPerPx;
-                    viewport.maxLon = dragStartViewport.maxLon - dx * lonPerPx;
-                    viewport.minLat = dragStartViewport.minLat + dy * latPerPx;
-                    viewport.maxLat = dragStartViewport.maxLat + dy * latPerPx;
-                    render();
-                } else if (e.touches.length === 2 && lastTouches && lastTouches.length === 2) {
+                if (e.touches.length === 1) {
+                    // Let the browser scroll the page, just show the warning
+                    showOverlay();
+                    return; 
+                }
+                
+                if (e.touches.length === 2 && lastTouches && lastTouches.length === 2) {
+                    e.preventDefault(); // Stop page from scrolling
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+                    const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                    
+                    // Pan
+                    if (isDragging) {
+                        const dx = cx - dragStartX;
+                        const dy = cy - dragStartY;
+                        const lonPerPx = (dragStartViewport.maxLon - dragStartViewport.minLon) / W;
+                        const latPerPx = (dragStartViewport.maxLat - dragStartViewport.minLat) / H;
+                        viewport.minLon = dragStartViewport.minLon - dx * lonPerPx;
+                        viewport.maxLon = dragStartViewport.maxLon - dx * lonPerPx;
+                        viewport.minLat = dragStartViewport.minLat + dy * latPerPx;
+                        viewport.maxLat = dragStartViewport.maxLat + dy * latPerPx;
+                    }
+
+                    // Pinch Zoom
                     const prevDist = Math.hypot(
                         lastTouches[0].clientX - lastTouches[1].clientX,
                         lastTouches[0].clientY - lastTouches[1].clientY
@@ -580,12 +609,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         e.touches[0].clientX - e.touches[1].clientX,
                         e.touches[0].clientY - e.touches[1].clientY
                     );
-                    if (prevDist > 0) {
-                        const rect = canvas.getBoundingClientRect();
-                        const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-                        const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+                    
+                    if (prevDist > 0 && Math.abs(curDist - prevDist) > 2) {
                         const factor = prevDist / curDist;
                         zoomAt(cx, cy, factor);
+                    } else {
+                        render();
                     }
                 }
                 lastTouches = Array.from(e.touches);
