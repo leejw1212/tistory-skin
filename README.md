@@ -43,7 +43,7 @@ tools/
   ├─ gpx-core.mjs      변환 공용 로직 (거리 · 페이스 · 스플릿 · 폴리라인)
   ├─ photo-prep.mjs    사진 리사이즈 · EXIF 제거 · 커버 후보 선정
   ├─ exif.mjs          최소 EXIF 리더 (촬영 시각 · 회전 · GPS)
-  ├─ drive-import.mjs  구글 드라이브에서 받은 사진 → 러닝 폴더 (날짜로 거르기)
+  ├─ drive-import.mjs  구글 드라이브에서 받은 사진·TCX → 러닝 폴더 (날짜로 거르기)
   ├─ build-studio.mjs  gpx-core 를 스튜디오에 인라인
   └─ preview.mjs       업로드 전 로컬 미리보기 생성
 templates/             글 양식 (러닝코스 · 맛집 · 제품리뷰)
