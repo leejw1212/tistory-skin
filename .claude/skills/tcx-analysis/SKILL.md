@@ -136,8 +136,19 @@ Dropbox 커넥터로 **목록과 메타데이터는 정상 조회**됩니다. �
 2. **구글 드라이브에 올려두고 커넥터로 받는다** — 사진과 같은 경로로 합칠 수 있습니다.
    `download_file_content` 가 `{id, title, mimeType, content}` JSON(base64)을 주고,
    `tools/drive-import.mjs` 가 사진이든 TCX 든 원래 파일로 되돌립니다.
-3. **환경의 네트워크 정책에 `dl.dropboxusercontent.com` 을 허용한다** — 근본 해결이지만 사용자가
-   환경 설정을 바꿔야 합니다. ([문서](https://code.claude.com/docs/en/claude-code-on-the-web))
+3. **환경의 네트워크 정책에 Dropbox CDN 을 허용한다** — 근본 해결이지만 사용자가 환경 설정을
+   바꿔야 합니다. claude.ai/code 의 환경 선택기에서 **Network access** 를 **Custom** 으로 두고
+   **Allowed domains** 에 아래를 넣습니다. `download_link` 는 `ucc0204….dl.dropboxusercontent.com`
+   처럼 **무작위 서브도메인**을 주므로 `*.` 가 반드시 있어야 합니다.
+
+   ```
+   *.dl.dropboxusercontent.com
+   dl.dropboxusercontent.com
+   ```
+
+   **Also include default list of common package managers** 를 같이 체크해야 npm·GitHub 같은
+   기본 허용목록이 유지됩니다. 바뀐 정책은 **그 뒤에 시작한 세션부터** 적용됩니다.
+   ([문서](https://code.claude.com/docs/en/cloud-environments#allow-specific-domains))
 
 ## 글로 이어질 때
 
