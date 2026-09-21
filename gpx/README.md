@@ -18,14 +18,14 @@ node tools/build-courses.mjs
   "courses": {
     "여의도-한강-5k": {
       "title": "여의도 한강공원 5K",
-      "link": "/category/러닝코스/12",
+      "link": "/12",
       "date": "2026-09-14"
     }
   },
   "restaurants": [
     {
       "title": "여의도 ○○버거",
-      "url": "/category/맛집/13",
+      "url": "/13",
       "lat": 37.5265,
       "lon": 126.9315,
       "desc": "러닝 후 단백질 충전"

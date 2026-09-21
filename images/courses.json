@@ -6,7 +6,7 @@
     {
       "id": "여의도-한강공원-5k",
       "title": "여의도 한강공원 5K",
-      "link": "/category/러닝코스/1",
+      "link": "/12",
       "date": "2026-09-14",
       "distance": 7.33,
       "region": "seoul",
@@ -61,14 +61,14 @@
   "restaurants": [
     {
       "title": "여의도 ○○버거",
-      "url": "/category/맛집/2",
+      "url": "/13",
       "lat": 37.5265,
       "lon": 126.9315,
       "desc": "러닝 후 단백질 충전"
     },
     {
       "title": "올림픽공원 브런치",
-      "url": "/category/맛집/3",
+      "url": "/14",
       "lat": 37.5195,
       "lon": 127.126,
       "desc": "주말 아침 러닝 뒤에"

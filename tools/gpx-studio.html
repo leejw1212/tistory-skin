@@ -128,7 +128,7 @@ table.rest input{padding:7px 10px;font-size:.84rem}
     <p class="desc">코스 근처 맛집을 등록하면 지도에 핀으로 표시되고, 러닝 코스 글 아래에 자동으로 추천됩니다.
       좌표는 구글 지도에서 원하는 지점을 우클릭하면 복사할 수 있어요.</p>
     <table class="rest">
-      <thead><tr><th>이름</th><th>글 주소</th><th>위도</th><th>경도</th><th>한 줄 소개</th><th></th></tr></thead>
+      <thead><tr><th>이름</th><th>글 주소 (예: /13)</th><th>위도</th><th>경도</th><th>한 줄 소개</th><th></th></tr></thead>
       <tbody id="rest-body"></tbody>
     </table>
     <div class="row"><button id="add-rest">+ 맛집 추가</button></div>
@@ -554,7 +554,7 @@ function courseMarkdown(course, pace) {
           }).join('') + '</div>' +
           '<div class="fields">' +
           field('title', '코스 이름', c.title, i) +
-          field('link', '글 주소 (예: /category/러닝코스/12)', c.link, i) +
+          field('link', '글 주소 (예: /12 또는 /entry/제목)', c.link, i) +
           field('date', '날짜 (YYYY-MM-DD)', c.date, i) +
           field('id', '아이디 (지도 연결용)', c.id, i) +
           '</div></div></div>' +

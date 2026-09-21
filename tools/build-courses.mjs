@@ -118,8 +118,9 @@ function main() {
     if (missing.length) {
         console.log(`\nℹ️  글 주소가 비어 있는 코스 ${missing.length}개 — 글을 발행한 뒤 gpx/meta.json 에 이렇게 적어주세요:`);
         console.log(JSON.stringify({
-            courses: Object.fromEntries(missing.slice(0, 2).map(c => [c.id, { link: '/category/러닝코스/숫자' }]))
+            courses: Object.fromEntries(missing.slice(0, 2).map(c => [c.id, { link: '/12' }]))
         }, null, 2));
+        console.log('   link 는 글을 발행하면 생기는 주소입니다 — 예: /12 또는 /entry/여의도-한강-5k');
         console.log('   (비워두면 지도에서 코스를 눌렀을 때 제목으로 블로그 내 검색이 열립니다)');
     }
 }
