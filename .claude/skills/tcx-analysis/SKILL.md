@@ -26,7 +26,7 @@ Dropbox: /앱/RunGap/export/          (ns_path: ns:15065913523//export)
 ```
 
 활동 파일과 사진의 **출처가 갈린다**는 게 이 파이프라인의 핵심 제약입니다.
-Dropbox 는 사진을 내어주지 못하고(아래 참고), 구글 포토는 커넥터가 아예 없습니다.
+RunGap 은 Dropbox 에 활동 파일만 올리고, 구글 포토는 커넥터가 아예 없습니다.
 드라이브에 TCX 를 같이 올려두면 한 곳에서 둘 다 가져올 수 있습니다.
 
 ## 먼저 이것부터 — 대부분은 글감이 아닙니다
@@ -117,38 +117,55 @@ Activity[Sport]
 > 파서는 실제 파일(`2019-04-30_10-19-02_hk_1556587142.tcx`, 3.03km · 랩 4개 · 트랙포인트 944개)로
 > 검증했습니다. 랩 값 · 거리 · 시간 · 날짜가 원본과 정확히 일치합니다.
 
-## 이 환경에서의 제약 — 원본 파일을 어떻게 손에 넣나
+## 원본 파일을 손에 넣는 법 — Dropbox 에서 바로 받습니다
 
-Dropbox 커넥터로 **목록과 메타데이터는 정상 조회**됩니다. 크기로 거르고 파일명으로 날짜를 읽는 데까지는
-`list_folder` 만으로 충분합니다. 막히는 건 **원본 바이트를 받는 것 하나**입니다.
+Dropbox 커넥터로 **목록 · 메타데이터 · 원본 다운로드가 모두 됩니다.** 기본 경로는 이것 하나입니다.
 
-| 시도 | 결과 |
-| --- | --- |
-| `fetch` | XML 태그를 지우고 텍스트만 돌려줍니다. `Sport`, `StartTime` 같은 **속성은 아예 사라집니다** |
-| `download_link` → `curl` | **403 `connect_rejected`** — `*.dl.dropboxusercontent.com` 이 조직 이그레스 정책에 막혀 있습니다 |
+1. `list_folder` 로 `/앱/RunGap/export/` 목록을 받아 크기 · 파일명으로 거릅니다
+2. `download_link` 에 ns_path 를 넘겨 임시 URL 을 받습니다
+3. 그 URL 을 `curl` 로 한 번에 내려받습니다
 
-`download_link` 자체는 성공하고 URL 도 정상적으로 나옵니다. 그 URL 로 나가는 연결이 프록시에서 거부됩니다.
-**우회하지 마세요.** 조직 정책 거부는 재시도 대상이 아닙니다.
+```bash
+# download_link 가 준 URL 을 그대로. 쿼리스트링이 있으므로 따옴표가 필요합니다
+curl -sS -o runs/2026-09-21-여의도/activity.tcx "<download_url>"
+```
 
-**그래서 원본 TCX 는 이 세 가지 중 하나로 받습니다.**
+**URL 은 한 번만 쓸 수 있습니다.** HEAD 요청이든 미리보기든 첫 요청 하나로 소모되니,
+확인하지 말고 곧바로 `curl -o` 로 받으세요. 소모했거나 만료됐으면(기본 600초, 최대 900초)
+`download_link` 를 다시 부르면 됩니다.
 
-1. **사용자가 스레드에 파일을 올린다** — 지금 당장 되고, 준비할 게 없습니다. 기본 경로입니다.
+받은 뒤에는 파일 크기가 응답의 `size` 와 같은지만 보면 충분합니다. 응답의 `content_hash` 는
+Dropbox 고유의 블록 해시라서 `sha256sum` 값과 **다른 게 정상입니다.**
+
+> 2026-09-21 실측: `2026-09-21_08-28-48_hk_1789946928.tcx` 를 HTTP 200 으로 984,706 바이트
+> 전부 받았고, `tcx-report.mjs` 가 4.01km · 24분 · 5'54" · 평균 149bpm 으로 읽었습니다.
+
+**`fetch` 는 쓰지 마세요.** XML 태그를 지우고 텍스트만 돌려줘서 `Sport`, `StartTime` 같은
+**속성이 아예 사라집니다.** 파서가 읽을 수 없습니다.
+
+### 403 `connect_rejected` 가 나면
+
+URL 로 나가는 연결이 환경의 이그레스 정책에 막힌 것입니다. **우회하지 마세요** — 정책 거부는
+재시도 대상이 아닙니다. 대신 허용목록을 확인해 달라고 하세요. claude.ai/code 의 환경 선택기에서
+**Network access** 를 **Custom** 으로 두고 **Allowed domains** 에 아래 두 줄이 있어야 합니다.
+`download_link` 는 `uc81a90….dl.dropboxusercontent.com` 처럼 **무작위 서브도메인**을 주므로
+`*.` 가 반드시 필요합니다.
+
+```
+*.dl.dropboxusercontent.com
+dl.dropboxusercontent.com
+```
+
+**Also include default list of common package managers** 를 같이 체크해야 npm·GitHub 같은
+기본 허용목록이 유지됩니다. 바뀐 정책은 **그 뒤에 시작한 세션부터** 적용됩니다.
+([문서](https://code.claude.com/docs/en/cloud-environments#allow-specific-domains))
+
+막혀 있는 동안에는 우회로가 둘 있습니다.
+
+1. **사용자가 스레드에 파일을 올린다** — 준비할 게 없습니다.
 2. **구글 드라이브에 올려두고 커넥터로 받는다** — 사진과 같은 경로로 합칠 수 있습니다.
    `download_file_content` 가 `{id, title, mimeType, content}` JSON(base64)을 주고,
    `tools/drive-import.mjs` 가 사진이든 TCX 든 원래 파일로 되돌립니다.
-3. **환경의 네트워크 정책에 Dropbox CDN 을 허용한다** — 근본 해결이지만 사용자가 환경 설정을
-   바꿔야 합니다. claude.ai/code 의 환경 선택기에서 **Network access** 를 **Custom** 으로 두고
-   **Allowed domains** 에 아래를 넣습니다. `download_link` 는 `ucc0204….dl.dropboxusercontent.com`
-   처럼 **무작위 서브도메인**을 주므로 `*.` 가 반드시 있어야 합니다.
-
-   ```
-   *.dl.dropboxusercontent.com
-   dl.dropboxusercontent.com
-   ```
-
-   **Also include default list of common package managers** 를 같이 체크해야 npm·GitHub 같은
-   기본 허용목록이 유지됩니다. 바뀐 정책은 **그 뒤에 시작한 세션부터** 적용됩니다.
-   ([문서](https://code.claude.com/docs/en/cloud-environments#allow-specific-domains))
 
 ## 글로 이어질 때
 
