@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GPX 스튜디오 — 러닝 코스 변환기</title>
+<style>
+:root{
+  --primary:#ff6b4a; --primary-dark:#e5553a; --primary-light:#ff9a76;
+  --bg:#faf7f2; --card:#fff; --border:#ece4d8; --border-strong:#ddd0ba;
+  --text:#2d2a26; --text-2:#6b6358; --text-3:#a39a8c;
+  --green:#37c98a; --blue:#3d8bff;
+  --radius:14px; --shadow:0 2px 12px rgba(120,95,60,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  background:radial-gradient(120% 80% at 10% 0%,#fffdf9 0%,var(--bg) 60%);
+  color:var(--text);line-height:1.6;min-height:100vh;padding:32px 20px 80px;
+}
+.wrap{max-width:1080px;margin:0 auto}
+header{margin-bottom:28px}
+h1{font-size:1.7rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.sub{color:var(--text-2);font-size:.93rem;margin-top:6px}
+.steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.step{font-size:.78rem;font-weight:700;background:#fff;border:1px solid var(--border);
+  padding:6px 13px;border-radius:100px;color:var(--text-2)}
+.step b{color:var(--primary-dark)}
+
+#drop{
+  border:2px dashed var(--border-strong);border-radius:20px;background:rgba(255,255,255,.65);
+  padding:46px 24px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:24px;
+}
+#drop:hover,#drop.over{border-color:var(--primary);background:#fff8f5;transform:translateY(-1px)}
+#drop .emoji{font-size:2.6rem;display:block;margin-bottom:10px}
+#drop strong{font-size:1.05rem;display:block;margin-bottom:4px}
+#drop span.hint{color:var(--text-3);font-size:.85rem}
+
+.summary{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:22px}
+.summary .kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 18px;box-shadow:var(--shadow);min-width:118px}
+.summary .kpi i{display:block;font-style:normal;font-size:.72rem;font-weight:700;color:var(--text-3);letter-spacing:.03em}
+.summary .kpi b{font-size:1.3rem;font-weight:800;font-variant-numeric:tabular-nums}
+
+.course{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin-bottom:18px;overflow:hidden}
+.course-top{display:grid;grid-template-columns:200px 1fr;gap:0}
+.course canvas{width:200px;height:180px;display:block;background:#f7f1e6;border-right:1px solid var(--border)}
+.course-body{padding:18px 20px}
+.course h3{font-size:1.05rem;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{font-size:.7rem;font-weight:800;padding:3px 9px;border-radius:100px;color:#fff}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.stat{background:#fbf7f1;border:1px solid var(--border);border-radius:9px;padding:6px 11px;font-size:.8rem;font-weight:700}
+.stat em{font-style:normal;color:var(--text-3);font-weight:600;margin-right:4px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+label{display:block;font-size:.72rem;font-weight:700;color:var(--text-3);margin-bottom:4px}
+input[type=text]{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:9px;
+  font:inherit;font-size:.88rem;outline:none;background:#fff}
+input[type=text]:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(255,107,74,.1)}
+.course-actions{display:flex;gap:8px;padding:12px 20px;border-top:1px solid var(--border);background:#fdfbf8;flex-wrap:wrap}
+
+button{font:inherit;font-weight:700;font-size:.85rem;border-radius:100px;border:1px solid var(--border);
+  background:#fff;color:var(--text-2);padding:8px 16px;cursor:pointer;transition:.18s}
+button:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
+button.primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));border-color:transparent;color:#fff}
+button.primary:hover{color:#fff;box-shadow:0 6px 18px rgba(255,107,74,.3)}
+button.danger:hover{border-color:#e05252;color:#e05252}
+button.ok{background:#eefaf1;border-color:#b6e3c3;color:#1f8f5c}
+
+section.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
+section.panel h2{font-size:1.05rem;font-weight:800;margin-bottom:6px}
+section.panel p.desc{font-size:.85rem;color:var(--text-2);margin-bottom:14px}
+textarea{width:100%;min-height:200px;padding:14px;border:1px solid var(--border);border-radius:11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;line-height:1.55;
+  background:#fbf9f5;outline:none;resize:vertical;color:var(--text)}
+textarea:focus{border-color:var(--primary)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+table.rest{width:100%;border-collapse:collapse;font-size:.85rem}
+table.rest th{text-align:left;font-size:.72rem;color:var(--text-3);padding:4px 6px}
+table.rest td{padding:3px 6px}
+table.rest input{padding:7px 10px;font-size:.84rem}
+
+.empty{color:var(--text-3);font-size:.88rem;text-align:center;padding:24px}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+  background:#2d2a26;color:#fff;padding:12px 24px;border-radius:100px;font-size:.87rem;font-weight:600;
+  opacity:0;pointer-events:none;transition:.25s;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:720px){
+  .course-top{grid-template-columns:1fr}
+  .course canvas{width:100%;border-right:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🏃 GPX 스튜디오</h1>
+    <p class="sub">러닝 앱에서 받은 GPX 파일을 떨어뜨리면 <b>courses.json</b> 과 글에 붙여넣을 표를 만들어 드립니다.</p>
+    <div class="steps">
+      <span class="step"><b>1</b> GPX 끌어다 놓기</span>
+      <span class="step"><b>2</b> 제목·글주소 확인</span>
+      <span class="step"><b>3</b> courses.json 내려받기</span>
+      <span class="step"><b>4</b> 티스토리 스킨에 업로드</span>
+    </div>
+  </header>
+
+  <div id="drop">
+    <span class="emoji">📂</span>
+    <strong>GPX 파일을 여기에 끌어다 놓으세요</strong>
+    <span class="hint">여러 개를 한 번에 올려도 됩니다 · 클릭해서 선택할 수도 있어요</span>
+    <input type="file" id="file" accept=".gpx,application/gpx+xml" multiple hidden>
+  </div>
+
+  <div class="summary" id="summary" hidden>
+    <div class="kpi"><i>코스</i><b id="kpi-count">0</b></div>
+    <div class="kpi"><i>총 거리</i><b id="kpi-dist">0</b></div>
+    <div class="kpi"><i>총 시간</i><b id="kpi-time">-</b></div>
+    <div class="kpi"><i>파일 크기</i><b id="kpi-size">0KB</b></div>
+  </div>
+
+  <div id="list"></div>
+
+  <section class="panel">
+    <h2>🍽️ 맛집</h2>
+    <p class="desc">코스 근처 맛집을 등록하면 지도에 핀으로 표시되고, 러닝 코스 글 아래에 자동으로 추천됩니다.
+      좌표는 구글 지도에서 원하는 지점을 우클릭하면 복사할 수 있어요.</p>
+    <table class="rest">
+      <thead><tr><th>이름</th><th>글 주소</th><th>위도</th><th>경도</th><th>한 줄 소개</th><th></th></tr></thead>
+      <tbody id="rest-body"></tbody>
+    </table>
+    <div class="row"><button id="add-rest">+ 맛집 추가</button></div>
+  </section>
+
+  <section class="panel">
+    <h2>📦 courses.json</h2>
+    <p class="desc">이 내용을 <code>images/courses.json</code> 으로 저장해 티스토리 [스킨 편집 → 파일 업로드] 에 올리세요.
+      기존 파일을 아래에 붙여넣고 <b>기존 내용 불러오기</b> 를 누르면 이어서 편집할 수 있습니다.</p>
+    <textarea id="json" spellcheck="false"></textarea>
+    <div class="row">
+      <button class="primary" id="download">⬇️ courses.json 내려받기</button>
+      <button id="copy-json">📋 복사</button>
+      <button id="load-json">↩️ 기존 내용 불러오기</button>
+      <button class="danger" id="clear">🗑️ 전체 지우기</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>📝 글에 붙여넣을 마크다운</h2>
+    <p class="desc">러닝코스 글 맨 위에 붙여넣고 빈칸만 채우면 됩니다. <code>[course:아이디]</code> 줄이 그 자리에 지도를 그려줍니다.</p>
+    <textarea id="md" spellcheck="false"></textarea>
+    <div class="row"><button id="copy-md">📋 복사</button></div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== GPX_CORE_INLINE_START — tools/gpx-core.mjs 에서 자동 생성됩니다 ===== */
+/* =========================================================================
+ * GPX → 코스 데이터 변환 공용 로직
+ *   build-courses.mjs (Node) 와 gpx-studio.html (브라우저) 가 함께 사용합니다.
+ *   의존성 없음 · 정규식 기반 GPX 파서 (Node 에 DOMParser 가 없으므로)
+ * ========================================================================= */
+
+const EARTH_R = 6371;
+
+function haversine(a, b) {
+    const dLat = (b.lat - a.lat) * Math.PI / 180;
+    const dLon = (b.lon - a.lon) * Math.PI / 180;
+    const s = Math.sin(dLat / 2) ** 2 +
+              Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) *
+              Math.sin(dLon / 2) ** 2;
+    return 2 * EARTH_R * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+/** GPX 텍스트 → { name, points:[{lat,lon,ele,time}] } */
+function parseGpx(xml) {
+    const points = [];
+    const ptRe = /<(?:trkpt|rtept|wpt)\b[^>]*?lat\s*=\s*["']([-\d.]+)["'][^>]*?lon\s*=\s*["']([-\d.]+)["'][^>]*?(\/?)>/gi;
+    let m;
+    while ((m = ptRe.exec(xml)) !== null) {
+        const lat = parseFloat(m[1]);
+        const lon = parseFloat(m[2]);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        let ele = null, time = null;
+        if (m[3] !== '/') {
+            // 여는 태그면 대응하는 닫는 태그까지의 내용에서 ele/time 추출
+            const tail = xml.slice(ptRe.lastIndex, ptRe.lastIndex + 400);
+            const eleM = tail.match(/<ele>\s*([-\d.]+)\s*<\/ele>/i);
+            const timeM = tail.match(/<time>\s*([^<]+?)\s*<\/time>/i);
+            if (eleM) ele = parseFloat(eleM[1]);
+            if (timeM) time = timeM[1];
+        }
+        points.push({ lat, lon, ele, time });
+    }
+
+    const nameM = xml.match(/<trk>[\s\S]*?<name>\s*([^<]+?)\s*<\/name>/i) ||
+                  xml.match(/<metadata>[\s\S]*?<name>\s*([^<]+?)\s*<\/name>/i) ||
+                  xml.match(/<name>\s*([^<]+?)\s*<\/name>/i);
+
+    return { name: nameM ? nameM[1].trim() : '', points };
+}
+
+/** 총 거리(km) */
+function totalDistance(points) {
+    let d = 0;
+    for (let i = 1; i < points.length; i++) d += haversine(points[i - 1], points[i]);
+    return d;
+}
+
+/** 누적 상승고도(m) — 3m 미만 변화는 GPS 노이즈로 간주 */
+function elevationGain(points) {
+    const withEle = points.filter(p => Number.isFinite(p.ele));
+    if (withEle.length < 2) return null;
+    let gain = 0, ref = withEle[0].ele;
+    for (const p of withEle) {
+        const diff = p.ele - ref;
+        if (diff > 3) { gain += diff; ref = p.ele; }
+        else if (diff < -3) { ref = p.ele; }
+    }
+    return Math.round(gain);
+}
+
+/** 소요 시간(초) */
+function duration(points) {
+    const times = points.map(p => p.time).filter(Boolean).map(t => Date.parse(t)).filter(Number.isFinite);
+    if (times.length < 2) return null;
+    return Math.round((Math.max(...times) - Math.min(...times)) / 1000);
+}
+
+function bounds(points) {
+    let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+    for (const p of points) {
+        if (p.lat < minLat) minLat = p.lat;
+        if (p.lat > maxLat) maxLat = p.lat;
+        if (p.lon < minLon) minLon = p.lon;
+        if (p.lon > maxLon) maxLon = p.lon;
+    }
+    return [minLat, minLon, maxLat, maxLon];
+}
+
+/** Ramer–Douglas–Peucker (tolerance 단위: 도) */
+function simplify(points, tolerance = 0.00004) {
+    if (points.length < 3) return points.slice();
+    const sqTol = tolerance * tolerance;
+    const keep = new Uint8Array(points.length);
+    keep[0] = keep[points.length - 1] = 1;
+    const stack = [[0, points.length - 1]];
+
+    const sqSegDist = (p, a, b) => {
+        let x = a.lon, y = a.lat;
+        let dx = b.lon - x, dy = b.lat - y;
+        if (dx !== 0 || dy !== 0) {
+            const t = ((p.lon - x) * dx + (p.lat - y) * dy) / (dx * dx + dy * dy);
+            if (t > 1) { x = b.lon; y = b.lat; }
+            else if (t > 0) { x += dx * t; y += dy * t; }
+        }
+        dx = p.lon - x; dy = p.lat - y;
+        return dx * dx + dy * dy;
+    };
+
+    while (stack.length) {
+        const [first, last] = stack.pop();
+        let maxD = 0, idx = -1;
+        for (let i = first + 1; i < last; i++) {
+            const d = sqSegDist(points[i], points[first], points[last]);
+            if (d > maxD) { maxD = d; idx = i; }
+        }
+        if (maxD > sqTol && idx > 0) {
+            keep[idx] = 1;
+            stack.push([first, idx], [idx, last]);
+        }
+    }
+    return points.filter((_, i) => keep[i]);
+}
+
+/** 목표 점 개수에 맞춰 자동으로 tolerance 를 조절 */
+function simplifyToBudget(points, budget = 320) {
+    if (points.length <= budget) return points;
+    let lo = 0.000005, hi = 0.005, best = simplify(points, hi);
+    for (let i = 0; i < 24; i++) {
+        const mid = (lo + hi) / 2;
+        const out = simplify(points, mid);
+        if (out.length > budget) lo = mid;
+        else { best = out; hi = mid; }
+        if (Math.abs(out.length - budget) <= 10) { best = out; break; }
+    }
+    return best.length >= 2 ? best : points.slice(0, budget);
+}
+
+/** Google Encoded Polyline (precision 5) */
+function encodePolyline(points) {
+    let lastLat = 0, lastLon = 0, out = '';
+    const enc = (v) => {
+        v = v < 0 ? ~(v << 1) : (v << 1);
+        let s = '';
+        while (v >= 0x20) { s += String.fromCharCode((0x20 | (v & 0x1f)) + 63); v >>= 5; }
+        s += String.fromCharCode(v + 63);
+        return s;
+    };
+    for (const p of points) {
+        const lat = Math.round(p.lat * 1e5), lon = Math.round(p.lon * 1e5);
+        out += enc(lat - lastLat) + enc(lon - lastLon);
+        lastLat = lat; lastLon = lon;
+    }
+    return out;
+}
+
+const REGIONS = {
+    seoul:    { label: '서울', minLat: 37.42, maxLat: 37.70, minLon: 126.80, maxLon: 127.19 },
+    incheon:  { label: '인천', minLat: 37.30, maxLat: 37.62, minLon: 126.35, maxLon: 126.80 },
+    busan:    { label: '부산', minLat: 35.05, maxLat: 35.40, minLon: 128.85, maxLon: 129.30 },
+    daegu:    { label: '대구', minLat: 35.75, maxLat: 36.05, minLon: 128.40, maxLon: 128.80 },
+    gwangju:  { label: '광주', minLat: 35.08, maxLat: 35.28, minLon: 126.70, maxLon: 127.02 },
+    daejeon:  { label: '대전', minLat: 36.22, maxLat: 36.50, minLon: 127.28, maxLon: 127.56 },
+    jeju:     { label: '제주', minLat: 33.10, maxLat: 33.62, minLon: 126.10, maxLon: 127.00 },
+    gyeonggi: { label: '경기', minLat: 36.88, maxLat: 38.30, minLon: 126.30, maxLon: 127.90 }
+};
+const REGION_ORDER = ['seoul', 'incheon', 'busan', 'daegu', 'gwangju', 'daejeon', 'jeju', 'gyeonggi'];
+
+function regionOf(lat, lon) {
+    for (const k of REGION_ORDER) {
+        const b = REGIONS[k];
+        if (lat >= b.minLat && lat <= b.maxLat && lon >= b.minLon && lon <= b.maxLon) return k;
+    }
+    return 'other';
+}
+
+/** 거리 + 상승고도로 난이도 추정 (1~5) */
+function difficultyOf(distanceKm, elevGain) {
+    let score = 1;
+    if (distanceKm >= 5) score++;
+    if (distanceKm >= 10) score++;
+    if (distanceKm >= 18) score++;
+    const gainPerKm = elevGain != null && distanceKm > 0 ? elevGain / distanceKm : 0;
+    if (gainPerKm >= 15) score++;
+    if (gainPerKm >= 35) score++;
+    return Math.min(5, score);
+}
+
+function slugify(text) {
+    return String(text)
+        .trim()
+        .toLowerCase()
+        .replace(/\.[a-z0-9]+$/i, '')
+        .replace(/[^가-힣a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'course';
+}
+
+function formatPace(distanceKm, seconds) {
+    if (!seconds || !distanceKm) return null;
+    const secPerKm = seconds / distanceKm;
+    const m = Math.floor(secPerKm / 60);
+    const s = Math.round(secPerKm % 60);
+    return `${m}'${String(s).padStart(2, '0')}"`;
+}
+
+function formatDuration(seconds) {
+    if (!seconds) return null;
+    const m = Math.round(seconds / 60);
+    return m >= 60 ? `${Math.floor(m / 60)}시간 ${m % 60}분` : `${m}분`;
+}
+
+/**
+ * GPX 텍스트 → courses.json 항목 1개
+ * @param {string} xml   GPX 원본
+ * @param {string} file  파일명 (id / 제목 폴백)
+ * @param {object} meta  { id, title, link, date, note } 수동 지정값
+ */
+function gpxToCourse(xml, file = 'course.gpx', meta = {}) {
+    const parsed = parseGpx(xml);
+    if (parsed.points.length < 2) {
+        throw new Error(`${file}: 트랙 포인트를 찾지 못했습니다`);
+    }
+
+    const pts = parsed.points;
+    const distance = totalDistance(pts);
+    const elevGain = elevationGain(pts);
+    const secs = duration(pts);
+    const mid = pts[Math.floor(pts.length / 2)];
+    const slim = simplifyToBudget(pts, meta.budget || 320);
+    const firstTime = pts.find(p => p.time)?.time;
+
+    const title = meta.title || parsed.name || file.replace(/\.gpx$/i, '');
+
+    const course = {
+        id: meta.id || slugify(file),
+        title,
+        link: meta.link || '',
+        date: meta.date || (firstTime ? firstTime.slice(0, 10) : ''),
+        distance: Number(distance.toFixed(2)),
+        region: meta.region || regionOf(mid.lat, mid.lon),
+        difficulty: meta.difficulty || difficultyOf(distance, elevGain),
+        bounds: bounds(pts).map(v => Number(v.toFixed(5))),
+        polyline: encodePolyline(slim)
+    };
+    if (elevGain != null) course.elevGain = elevGain;
+    if (secs != null) course.duration = secs;
+    if (meta.note) course.note = meta.note;
+
+    return { course, rawPoints: pts.length, keptPoints: slim.length, pace: formatPace(distance, secs) };
+}
+
+/** 글에 붙여넣을 마크다운 표 */
+function courseMarkdown(course, pace) {
+    const stars = '★'.repeat(course.difficulty) + '☆'.repeat(5 - course.difficulty);
+    const rows = [
+        ['📍 장소', course.title],
+        ['📏 거리', `${course.distance} km`],
+        ['⏱️ 시간', formatDuration(course.duration) || '— '],
+        ['🏃 페이스', pace || '— '],
+        ['↗️ 상승고도', course.elevGain != null ? `${course.elevGain} m` : '— '],
+        ['⛰️ 난이도', `${stars}`],
+        ['🅿️ 주차', '(주차장 이름 / 요금을 적어주세요)'],
+        ['🚇 접근성', '(가까운 역 · 출구 · 도보 시간)'],
+        ['🚰 급수대', '(개수 또는 위치)'],
+        ['🚻 화장실', '(개수 또는 위치)']
+    ];
+    return [
+        '## 📍 코스 정보',
+        '',
+        '| 항목 | 내용 |',
+        '| --- | --- |',
+        ...rows.map(([k, v]) => `| ${k} | ${v} |`),
+        '',
+        `[course:${course.id}]`,
+        ''
+    ].join('\n');
+}
+
+/* ===== GPX_CORE_INLINE_END ===== */
+
+(function () {
+  'use strict';
+  var courses = [];
+  var restaurants = [];
+  var TIERS = [
+    { max: 5, color: '#37c98a' },
+    { max: 10, color: '#3d8bff' },
+    { max: Infinity, color: '#ff6b4a' }
+  ];
+  function tierColor(km) { for (var i = 0; i < TIERS.length; i++) if (km < TIERS[i].max) return TIERS[i].color; }
+  function $(s) { return document.querySelector(s); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]; }); }
+
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { t.classList.remove('show'); }, 1800);
+  }
+
+  /* ---------- 파일 받기 ---------- */
+  var drop = $('#drop'), fileInput = $('#file');
+  drop.addEventListener('click', function () { fileInput.click(); });
+  fileInput.addEventListener('change', function () { handleFiles(fileInput.files); fileInput.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); });
+  });
+  drop.addEventListener('drop', function (e) { handleFiles(e.dataTransfer.files); });
+
+  function handleFiles(fileList) {
+    var files = Array.prototype.slice.call(fileList).filter(function (f) { return /\.gpx$/i.test(f.name); });
+    if (!files.length) { toast('GPX 파일만 올릴 수 있어요'); return; }
+    var pending = files.length;
+    files.forEach(function (f) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        try {
+          var res = gpxToCourse(reader.result, f.name, {});
+          var existing = courses.findIndex(function (c) { return c.course.id === res.course.id; });
+          if (existing > -1) courses[existing] = res;
+          else courses.push(res);
+        } catch (err) {
+          toast(f.name + ': ' + err.message);
+        }
+        if (--pending === 0) { render(); toast(files.length + '개 코스를 불러왔어요'); }
+      };
+      reader.readAsText(f);
+    });
+  }
+
+  /* ---------- 경로 미리보기 ---------- */
+  function drawPreview(canvas, course) {
+    var pts = decodePolyline(course.polyline);
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = canvas.clientWidth || 200, h = canvas.clientHeight || 180;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    var g = ctx.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, '#fbf5e9'); g.addColorStop(1, '#f2e9d7');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+
+    var minLat = course.bounds[0], minLon = course.bounds[1], maxLat = course.bounds[2], maxLon = course.bounds[3];
+    var cosLat = Math.cos(((minLat + maxLat) / 2) * Math.PI / 180);
+    var latD = Math.max(maxLat - minLat, 1e-5), lonD = Math.max((maxLon - minLon) * cosLat, 1e-5);
+    var pad = 22;
+    var scale = Math.min((w - pad * 2) / lonD, (h - pad * 2) / latD);
+    var ox = (w - lonD * scale) / 2, oy = (h - latD * scale) / 2;
+    var P = function (p) {
+      return { x: ox + (p.lon - minLon) * cosLat * scale, y: h - oy - (p.lat - minLat) * scale };
+    };
+
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    var trace = function () {
+      ctx.beginPath();
+      pts.forEach(function (p, i) { var q = P(p); i ? ctx.lineTo(q.x, q.y) : ctx.moveTo(q.x, q.y); });
+    };
+    ctx.strokeStyle = 'rgba(255,255,255,.95)'; ctx.lineWidth = 6; trace(); ctx.stroke();
+    ctx.strokeStyle = tierColor(course.distance); ctx.lineWidth = 3.2; trace(); ctx.stroke();
+
+    var s = P(pts[0]);
+    ctx.beginPath(); ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = tierColor(course.distance); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
+  }
+
+  /* ---------- 렌더 ---------- */
+  function render() {
+    var list = $('#list');
+    if (!courses.length) {
+      list.innerHTML = '<div class="empty">아직 코스가 없습니다. 위에 GPX 를 올려보세요.</div>';
+      $('#summary').hidden = true;
+    } else {
+      $('#summary').hidden = false;
+      list.innerHTML = courses.map(function (item, i) {
+        var c = item.course;
+        var color = tierColor(c.distance);
+        var stats = [
+          ['거리', c.distance + ' km'],
+          ['시간', formatDuration(c.duration) || '기록 없음'],
+          ['페이스', item.pace || '기록 없음'],
+          ['상승', c.elevGain != null ? c.elevGain + ' m' : '기록 없음'],
+          ['난이도', '★'.repeat(c.difficulty) + '☆'.repeat(5 - c.difficulty)],
+          ['지역', (REGIONS[c.region] && REGIONS[c.region].label) || '기타'],
+          ['좌표', item.rawPoints + ' → ' + item.keptPoints + '개']
+        ];
+        return '<div class="course" data-i="' + i + '">' +
+          '<div class="course-top"><canvas></canvas><div class="course-body">' +
+          '<h3><span class="badge" style="background:' + color + '">' + c.distance + 'km</span>' + esc(c.title) + '</h3>' +
+          '<div class="stats">' + stats.map(function (s) {
+            return '<span class="stat"><em>' + s[0] + '</em>' + esc(s[1]) + '</span>';
+          }).join('') + '</div>' +
+          '<div class="fields">' +
+          field('title', '코스 이름', c.title, i) +
+          field('link', '글 주소 (예: /category/러닝코스/12)', c.link, i) +
+          field('date', '날짜 (YYYY-MM-DD)', c.date, i) +
+          field('id', '아이디 (지도 연결용)', c.id, i) +
+          '</div></div></div>' +
+          '<div class="course-actions">' +
+          '<button data-act="md" data-i="' + i + '">📝 이 코스 마크다운</button>' +
+          '<button class="danger" data-act="del" data-i="' + i + '">삭제</button>' +
+          '</div></div>';
+      }).join('');
+
+      courses.forEach(function (item, i) {
+        drawPreview(list.querySelector('.course[data-i="' + i + '"] canvas'), item.course);
+      });
+    }
+
+    var total = courses.reduce(function (s, c) { return s + c.course.distance; }, 0);
+    var secs = courses.reduce(function (s, c) { return s + (c.course.duration || 0); }, 0);
+    $('#kpi-count').textContent = courses.length;
+    $('#kpi-dist').textContent = total.toFixed(1) + 'km';
+    $('#kpi-time').textContent = formatDuration(secs) || '-';
+
+    renderRestaurants();
+    renderJson();
+    renderMarkdown();
+  }
+
+  function field(key, label, value, i) {
+    return '<div><label>' + label + '</label>' +
+      '<input type="text" data-field="' + key + '" data-i="' + i + '" value="' + esc(value) + '"></div>';
+  }
+
+  $('#list').addEventListener('input', function (e) {
+    var input = e.target.closest('input[data-field]');
+    if (!input) return;
+    courses[+input.dataset.i].course[input.dataset.field] = input.value.trim();
+    renderJson();
+    renderMarkdown();
+  });
+
+  $('#list').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    var i = +btn.dataset.i;
+    if (btn.dataset.act === 'del') { courses.splice(i, 1); render(); }
+    else {
+      copy(courseMarkdown(courses[i].course, courses[i].pace));
+      toast('마크다운을 복사했어요');
+    }
+  });
+
+  /* ---------- 맛집 ---------- */
+  function renderRestaurants() {
+    $('#rest-body').innerHTML = restaurants.map(function (r, i) {
+      return '<tr data-i="' + i + '">' +
+        cell('title', r.title, i) + cell('url', r.url, i) +
+        cell('lat', r.lat, i) + cell('lon', r.lon, i) + cell('desc', r.desc, i) +
+        '<td><button class="danger" data-rest-del="' + i + '">×</button></td></tr>';
+    }).join('') || '<tr><td colspan="6" class="empty">등록된 맛집이 없습니다.</td></tr>';
+  }
+
+  function cell(key, value, i) {
+    return '<td><input type="text" data-rest="' + key + '" data-i="' + i + '" value="' + esc(value) + '"></td>';
+  }
+
+  $('#add-rest').addEventListener('click', function () {
+    restaurants.push({ title: '', url: '', lat: '', lon: '', desc: '' });
+    renderRestaurants();
+    renderJson();
+  });
+
+  $('#rest-body').addEventListener('input', function (e) {
+    var input = e.target.closest('input[data-rest]');
+    if (!input) return;
+    restaurants[+input.dataset.i][input.dataset.rest] = input.value.trim();
+    renderJson();
+  });
+
+  $('#rest-body').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-rest-del]');
+    if (!btn) return;
+    restaurants.splice(+btn.dataset.restDel, 1);
+    renderRestaurants();
+    renderJson();
+  });
+
+  /* ---------- 출력 ---------- */
+  function buildJson() {
+    return {
+      version: 1,
+      generated: new Date().toISOString(),
+      courses: courses.map(function (c) {
+        var out = {};
+        Object.keys(c.course).forEach(function (k) {
+          if (c.course[k] !== '' && c.course[k] != null) out[k] = c.course[k];
+        });
+        return out;
+      }),
+      restaurants: restaurants
+        .filter(function (r) { return r.title && r.lat && r.lon; })
+        .map(function (r) {
+          var out = { title: r.title, lat: Number(r.lat), lon: Number(r.lon) };
+          if (r.url) out.url = r.url;
+          if (r.desc) out.desc = r.desc;
+          return out;
+        })
+    };
+  }
+
+  function renderJson() {
+    var text = JSON.stringify(buildJson(), null, 2);
+    $('#json').value = text;
+    $('#kpi-size').textContent = (new Blob([text]).size / 1024).toFixed(1) + 'KB';
+  }
+
+  function renderMarkdown() {
+    $('#md').value = courses.map(function (c) { return courseMarkdown(c.course, c.pace); }).join('\n---\n\n');
+  }
+
+  function copy(text) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).catch(fallback);
+    else fallback();
+    function fallback() {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  }
+
+  $('#copy-json').addEventListener('click', function () { copy($('#json').value); toast('courses.json 을 복사했어요'); });
+  $('#copy-md').addEventListener('click', function () { copy($('#md').value); toast('마크다운을 복사했어요'); });
+
+  $('#download').addEventListener('click', function () {
+    var blob = new Blob([$('#json').value], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'courses.json';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
+
+  $('#load-json').addEventListener('click', function () {
+    try {
+      var data = JSON.parse($('#json').value);
+      var loaded = 0;
+      (data.courses || []).forEach(function (c) {
+        if (!c.polyline) return;
+        if (courses.some(function (x) { return x.course.id === c.id; })) return;
+        var pts = decodePolyline(c.polyline);
+        courses.push({
+          course: Object.assign({ difficulty: 1, region: 'other' }, c),
+          rawPoints: pts.length,
+          keptPoints: pts.length,
+          pace: formatPace(c.distance, c.duration)
+        });
+        loaded++;
+      });
+      restaurants = (data.restaurants || []).map(function (r) {
+        return { title: r.title || '', url: r.url || '', lat: r.lat, lon: r.lon, desc: r.desc || '' };
+      });
+      render();
+      toast('코스 ' + loaded + '개 · 맛집 ' + restaurants.length + '곳을 불러왔어요');
+    } catch (e) {
+      toast('JSON 을 읽지 못했습니다: ' + e.message);
+    }
+  });
+
+  $('#clear').addEventListener('click', function () {
+    if (!confirm('모든 코스와 맛집을 지울까요?')) return;
+    courses = []; restaurants = [];
+    render();
+  });
+
+  /* Encoded Polyline 디코더 (미리보기 · 불러오기용) */
+  function decodePolyline(str) {
+    var points = [], index = 0, lat = 0, lon = 0;
+    while (index < str.length) {
+      var shift = 0, result = 0, b;
+      do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+      lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+      shift = 0; result = 0;
+      do { b = str.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+      lon += (result & 1) ? ~(result >> 1) : (result >> 1);
+      points.push({ lat: lat / 1e5, lon: lon / 1e5 });
+    }
+    return points;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>

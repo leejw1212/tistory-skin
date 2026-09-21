@@ -1,926 +1,846 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // ===========================
-    // 1. Header scroll effect
-    // ===========================
-    const header = document.getElementById('header');
-    const backToTopBtn = document.querySelector('.back-to-top');
+/* =========================================================================
+ * Warm Life Skin — UI & 본문 향상 스크립트
+ *   1. 헤더 / 모바일 메뉴 / 맨 위로
+ *   2. 카테고리 컬러 매핑
+ *   3. 카드 등장 애니메이션
+ *   4. 홈 사이드바 탭 (캐시 적용)
+ *   5. 마크다운 본문 꾸미기 (콜아웃 / 코드 / 표 / 이미지 / 목차)
+ *   6. 러닝 코스 상세 (코스 정보 카드 · 본문 지도 · 근처 맛집)
+ * ========================================================================= */
+(function () {
+    'use strict';
 
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 10) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-        if (backToTopBtn) {
-            if (window.scrollY > 400) {
-                backToTopBtn.classList.add('visible');
-            } else {
-                backToTopBtn.classList.remove('visible');
+    var $ = function (sel, root) { return (root || document).querySelector(sel); };
+    var $$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    document.documentElement.classList.add('js');
+
+    function ready(fn) {
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+        else fn();
+    }
+
+    /* =====================================================================
+     * 1. 헤더 / 스크롤
+     * ===================================================================== */
+    function initChrome() {
+        var header = $('#header');
+        var toTop = $('.back-to-top');
+        var progress = $('#read-progress');
+        var ticking = false;
+
+        function onScroll() {
+            var y = window.scrollY || window.pageYOffset;
+            if (header) header.classList.toggle('scrolled', y > 10);
+            if (toTop) toTop.classList.toggle('visible', y > 400);
+            if (progress) {
+                var doc = document.documentElement;
+                var max = doc.scrollHeight - doc.clientHeight;
+                progress.style.transform = 'scaleX(' + (max > 0 ? Math.min(y / max, 1) : 0) + ')';
             }
+            ticking = false;
         }
-    });
 
-    if (backToTopBtn) {
-        backToTopBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.addEventListener('scroll', function () {
+            if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+        }, { passive: true });
+        onScroll();
+
+        if (toTop) {
+            toTop.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+            });
+        }
+
+        /* 모바일 메뉴 */
+        var btn = $('.mobile-menu-btn');
+        var nav = $('.mobile-nav');
+        var scrim = $('.mobile-nav-scrim');
+        if (btn && nav) {
+            var setOpen = function (open) {
+                btn.classList.toggle('active', open);
+                btn.setAttribute('aria-expanded', String(open));
+                nav.classList.toggle('open', open);
+                if (scrim) scrim.classList.toggle('visible', open);
+                document.body.classList.toggle('nav-locked', open);
+            };
+            btn.setAttribute('aria-expanded', 'false');
+            btn.addEventListener('click', function () { setOpen(!nav.classList.contains('open')); });
+            if (scrim) scrim.addEventListener('click', function () { setOpen(false); });
+            $$('a', nav).forEach(function (a) { a.addEventListener('click', function () { setOpen(false); }); });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && nav.classList.contains('open')) setOpen(false);
+            });
+        }
+
+        /* 현재 카테고리 메뉴 강조 */
+        var path = decodeURIComponent(location.pathname);
+        $$('.gnb a, .mobile-nav a').forEach(function (a) {
+            var href = decodeURIComponent(a.getAttribute('href') || '');
+            if (href.length > 1 && path.indexOf(href) === 0) a.classList.add('is-current');
         });
     }
 
-    // ===========================
-    // 2. Mobile menu toggle
-    // ===========================
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
-    const mobileNav = document.querySelector('.mobile-nav');
+    /* =====================================================================
+     * 2. 카테고리 컬러
+     * ===================================================================== */
+    var CAT_MAP = [
+        { key: 'running', match: ['러닝', '코스', 'run'] },
+        { key: 'food',    match: ['맛집', '음식', 'food', '카페'] },
+        { key: 'review',  match: ['리뷰', '제품', 'review', '장비'] }
+    ];
 
-    if (mobileMenuBtn && mobileNav) {
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenuBtn.classList.toggle('active');
-            mobileNav.classList.toggle('open');
-            document.body.style.overflow = mobileNav.classList.contains('open') ? 'hidden' : '';
-        });
-        mobileNav.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenuBtn.classList.remove('active');
-                mobileNav.classList.remove('open');
-                document.body.style.overflow = '';
-            });
-        });
-    }
-
-    // ===========================
-    // 3. Category color auto-mapping
-    // ===========================
-    document.querySelectorAll('.post-item .category, .post-header .category').forEach(el => {
-        const text = el.textContent.trim();
-        if (text.includes('러닝') || text.includes('코스') || text.includes('running')) {
-            el.setAttribute('data-cat', 'running');
-        } else if (text.includes('맛집') || text.includes('음식') || text.includes('food')) {
-            el.setAttribute('data-cat', 'food');
-        } else if (text.includes('리뷰') || text.includes('제품') || text.includes('review')) {
-            el.setAttribute('data-cat', 'review');
-        }
-    });
-
-    // ===========================
-    // 4. Card entry animation stagger
-    // ===========================
-    document.querySelectorAll('.post-item').forEach((item, index) => {
-        item.style.animationDelay = `${index * 0.08}s`;
-    });
-
-    // ===========================
-    // 5. Interactive Map — Zoom / Pan / Region
-    // ===========================
-    const canvas = document.getElementById('route-canvas');
-    const tooltip = document.getElementById('map-tooltip');
-
-    if (canvas && canvas.offsetWidth > 0) {
-        const ctx = canvas.getContext('2d');
-
-        const containerRect = canvas.parentElement.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = containerRect.width * dpr;
-        canvas.height = containerRect.height * dpr;
-        ctx.scale(dpr, dpr);
-
-        const W = containerRect.width;
-        const H = containerRect.height;
-
-        // Skin images path
-        let skinImagesPath = '';
-        const helperScript = document.getElementById('skin-path-helper');
-        if (helperScript && helperScript.src) {
-            skinImagesPath = helperScript.src.split('script.js')[0];
-        }
-
-        // Region presets (lat/lon bounds)
-        const REGIONS = {
-            all:      null, // auto-fit to routes
-            seoul:    { minLat: 37.42, maxLat: 37.70, minLon: 126.80, maxLon: 127.15 },
-            gyeonggi: { minLat: 36.90, maxLat: 38.00, minLon: 126.40, maxLon: 127.80 },
-            incheon:  { minLat: 37.30, maxLat: 37.60, minLon: 126.35, maxLon: 126.80 },
-            busan:    { minLat: 35.05, maxLat: 35.25, minLon: 128.90, maxLon: 129.20 },
-            daegu:    { minLat: 35.80, maxLat: 35.95, minLon: 128.50, maxLon: 128.75 },
-            gwangju:  { minLat: 35.10, maxLat: 35.25, minLon: 126.80, maxLon: 127.00 },
-            daejeon:  { minLat: 36.28, maxLat: 36.42, minLon: 127.30, maxLon: 127.50 },
-            jeju:     { minLat: 33.20, maxLat: 33.60, minLon: 126.15, maxLon: 126.95 }
-        };
-
-        // Fetch data
-        // Distance calculation (Haversine)
-        function calcDistance(pts) {
-            let dist = 0;
-            const R = 6371; // Earth's radius in km
-            for (let i = 0; i < pts.length - 1; i++) {
-                const dLat = (pts[i+1].lat - pts[i].lat) * Math.PI / 180;
-                const dLon = (pts[i+1].lon - pts[i].lon) * Math.PI / 180;
-                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                        Math.cos(pts[i].lat * Math.PI / 180) * Math.cos(pts[i+1].lat * Math.PI / 180) *
-                        Math.sin(dLon/2) * Math.sin(dLon/2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                dist += R * c;
-            }
-            return dist; // in km
-        }
-
-        const fetchGeo = fetch(skinImagesPath + 'korea.json').then(r => r.json());
-        const fetchRivers = fetch(skinImagesPath + 'rivers.json').then(r => r.json()).catch(() => null);
-        const fetchParks = fetch(skinImagesPath + 'parks.json').then(r => r.json()).catch(() => null);
-        let gpxPromises = [];
-        if (window.MAP_DATA && window.MAP_DATA.gpxFiles) {
-            gpxPromises = window.MAP_DATA.gpxFiles.map(file => {
-                const fetchUrl = file.url || (skinImagesPath + file.filename);
-                return fetch(fetchUrl)
-                    .then(r => r.text())
-                    .then(xml => {
-                        const doc = new DOMParser().parseFromString(xml, 'text/xml');
-                        let title = file.title;
-                        if (!title) {
-                            const n = doc.getElementsByTagName('name')[0];
-                            title = n ? n.textContent : '러닝 코스';
-                        }
-                        const pts = doc.getElementsByTagName('trkpt');
-                        const points = [];
-                        for (let i = 0; i < pts.length; i++) {
-                            points.push({
-                                lat: parseFloat(pts[i].getAttribute('lat')),
-                                lon: parseFloat(pts[i].getAttribute('lon'))
-                            });
-                        }
-                        const dist = calcDistance(points);
-                        // Color coding based on distance
-                        let color = 'rgba(255, 107, 74, 0.8)'; // Red/Orange for >=10km
-                        let glow = 'rgba(255, 107, 74, 0.5)';
-                        if (dist < 5) {
-                            color = 'rgba(74, 219, 145, 0.8)'; // Green
-                            glow = 'rgba(74, 219, 145, 0.5)';
-                        } else if (dist < 10) {
-                            color = 'rgba(74, 153, 255, 0.8)'; // Blue
-                            glow = 'rgba(74, 153, 255, 0.5)';
-                        }
-                        return { points, link: file.link, title, dist: dist.toFixed(1), color, glow };
-                    })
-                    .catch(() => null);
-            });
-        }
-
-        Promise.all([fetchGeo, fetchRivers, fetchParks, Promise.all(gpxPromises)]).then(([geoData, riverData, parkData, routes]) => {
-            const validRoutes = routes.filter(r => r && r.points.length > 0);
-
-            // Compute route bounds
-            let rMinLat = Infinity, rMaxLat = -Infinity;
-            let rMinLon = Infinity, rMaxLon = -Infinity;
-            if (validRoutes.length > 0) {
-                validRoutes.forEach(route => {
-                    route.points.forEach(p => {
-                        if (p.lat < rMinLat) rMinLat = p.lat;
-                        if (p.lat > rMaxLat) rMaxLat = p.lat;
-                        if (p.lon < rMinLon) rMinLon = p.lon;
-                        if (p.lon > rMaxLon) rMaxLon = p.lon;
-                    });
-                });
-            } else {
-                rMinLat = 37.4; rMaxLat = 37.7;
-                rMinLon = 126.8; rMaxLon = 127.2;
-            }
-
-            // ──── Viewport state ────
-            let viewport = { minLat: 0, maxLat: 0, minLon: 0, maxLon: 0 };
-
-            function fitBounds(minLat, maxLat, minLon, maxLon, padding) {
-                padding = padding || 0.4;
-                const latD = maxLat - minLat || 0.05;
-                const lonD = maxLon - minLon || 0.05;
-                const avgLat = (minLat + maxLat) / 2;
-                const cosLat = Math.cos(avgLat * Math.PI / 180);
-
-                const mapR = (lonD * cosLat) / latD;
-                const canR = W / H;
-
-                let dMinLat = minLat, dMaxLat = maxLat;
-                let dMinLon = minLon, dMaxLon = maxLon;
-
-                if (mapR > canR) {
-                    const nd = (lonD * cosLat) / canR;
-                    const pad = (nd - latD) / 2;
-                    dMinLat -= pad; dMaxLat += pad;
-                } else {
-                    const nd = (latD * canR) / cosLat;
-                    const pad = (nd - lonD) / 2;
-                    dMinLon -= pad; dMaxLon += pad;
-                }
-
-                const pLat = (dMaxLat - dMinLat) * padding;
-                const pLon = (dMaxLon - dMinLon) * padding;
-                viewport.minLat = dMinLat - pLat;
-                viewport.maxLat = dMaxLat + pLat;
-                viewport.minLon = dMinLon - pLon;
-                viewport.maxLon = dMaxLon + pLon;
-            }
-
-            // Initial fit
-            fitBounds(rMinLat, rMaxLat, rMinLon, rMaxLon, 0.4);
-
-            const initialViewport = { ...viewport };
-
-            // ──── Projection ────
-            function getXY(lat, lon) {
-                const x = ((lon - viewport.minLon) / (viewport.maxLon - viewport.minLon)) * W;
-                const y = H - (((lat - viewport.minLat) / (viewport.maxLat - viewport.minLat)) * H);
-                return { x, y };
-            }
-
-            function getLatLon(x, y) {
-                const lon = viewport.minLon + (x / W) * (viewport.maxLon - viewport.minLon);
-                const lat = viewport.minLat + ((H - y) / H) * (viewport.maxLat - viewport.minLat);
-                return { lat, lon };
-            }
-
-            // ──── Render function ────
-            let userLoc = null; function render() {
-                // Re-project
-                validRoutes.forEach(route => {
-                    route.projected = route.points.map(p => getXY(p.lat, p.lon));
-                });
-                if (window.MAP_DATA.restaurants) {
-                    window.MAP_DATA.restaurants.forEach(rest => {
-                        rest.projected = getXY(rest.lat, rest.lon);
-                    });
-                }
-
-                // Clear
-                ctx.clearRect(0, 0, W, H);
-
-                // 1. Background
-                const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-                bgGrad.addColorStop(0, '#fdfaf6');
-                bgGrad.addColorStop(1, '#f5ede0');
-                ctx.fillStyle = bgGrad;
-                ctx.fillRect(0, 0, W, H);
-
-                // Dot grid
-                ctx.fillStyle = 'rgba(200, 185, 165, 0.25)';
-                for (let gx = 0; gx < W; gx += 24) {
-                    for (let gy = 0; gy < H; gy += 24) {
-                        ctx.beginPath();
-                        ctx.arc(gx, gy, 0.8, 0, Math.PI * 2);
-                        ctx.fill();
-                    }
-                }
-
-                // 2. Korea outline
-                ctx.save();
-                ctx.shadowColor = 'rgba(150, 130, 110, 0.12)';
-                ctx.shadowBlur = 18;
-                ctx.shadowOffsetX = 3;
-                ctx.shadowOffsetY = 6;
-
-                const landGrad = ctx.createLinearGradient(0, 0, 0, H);
-                landGrad.addColorStop(0, '#f6eed9');
-                landGrad.addColorStop(1, '#ece2cc');
-
-                ctx.fillStyle = landGrad;
-                ctx.strokeStyle = '#ddd0ba';
-                ctx.lineWidth = 1.2;
-
-                const drawRings = (rings) => {
-                    rings.forEach(ring => {
-                        ctx.beginPath();
-                        ring.forEach((c, i) => {
-                            const p = getXY(c[1], c[0]);
-                            i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-                        });
-                        ctx.closePath();
-                        ctx.fill();
-                    });
-                    ctx.shadowColor = 'transparent';
-                    rings.forEach(ring => {
-                        ctx.beginPath();
-                        ring.forEach((c, i) => {
-                            const p = getXY(c[1], c[0]);
-                            i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-                        });
-                        ctx.closePath();
-                        ctx.stroke();
-                    });
-                };
-
-                geoData.features.forEach(f => {
-                    if (f.geometry.type === 'Polygon') drawRings(f.geometry.coordinates);
-                    else if (f.geometry.type === 'MultiPolygon') f.geometry.coordinates.forEach(p => drawRings(p));
-                });
-                ctx.restore();
-
-                // 2.5 Rivers
-                if (riverData && riverData.features) {
-                    ctx.save();
-                    ctx.strokeStyle = '#b2cdde'; // 강 색상
-                    ctx.lineWidth = 1.5;
-                    ctx.lineCap = 'round';
-                    ctx.lineJoin = 'round';
-                    riverData.features.forEach(f => {
-                        if (f.geometry.type === 'LineString') {
-                            ctx.beginPath();
-                            f.geometry.coordinates.forEach((c, i) => {
-                                const p = getXY(c[1], c[0]); // [lat, lon] -> getXY requires lat, lon. Wait: GeoJSON is [lon, lat]!
-                                i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-                            });
-                            ctx.stroke();
-                        }
-                    });
-                    ctx.restore();
-                }
-
-                // 2.7 Parks and Lakes
-                if (parkData && parkData.features) {
-                    ctx.save();
-                    parkData.features.forEach(f => {
-                        ctx.beginPath();
-                        if (f.geometry.type === 'Polygon') {
-                            f.geometry.coordinates.forEach(ring => {
-                                ring.forEach((c, i) => {
-                                    const p = getXY(c[1], c[0]); // GeoJSON is [lon,lat]
-                                    i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
-                                });
-                            });
-                        }
-                        ctx.fillStyle = f.properties.type === 'water' ? 'rgba(178, 205, 222, 0.6)' : 'rgba(164, 214, 158, 0.6)';
-                        ctx.fill();
-                        ctx.strokeStyle = f.properties.type === 'water' ? 'rgba(178, 205, 222, 0.9)' : 'rgba(164, 214, 158, 0.9)';
-                        ctx.lineWidth = 1;
-                        ctx.stroke();
-                        
-                        // Faint label for major parks if zoomed in enough (scale check could be added, but let's just add faint text)
-                        // To avoid clutter, we only label if the park is reasonably large, or just don't label text here to keep it clean.
-                    });
-                    ctx.restore();
-                }
-                
-                // 2.8 Region Labels
-                ctx.save();
-                ctx.font = '600 14px "Pretendard", sans-serif';
-                ctx.fillStyle = 'rgba(160, 145, 125, 0.4)';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                const labels = {
-                    '서울': [37.566, 126.978],
-                    '경기': [37.275, 127.009],
-                    '제주': [33.388, 126.521],
-                    '부산': [35.179, 129.075],
-                    '강원': [37.822, 128.155],
-                    '충남': [36.658, 126.673],
-                    '경북': [36.491, 128.888],
-                    '전남': [34.816, 126.462]
-                };
-                Object.keys(labels).forEach(name => {
-                    const p = getXY(labels[name][0], labels[name][1]);
-                    // Only draw if within current viewport
-                    if (p.x > 0 && p.x < W && p.y > 0 && p.y < H) {
-                        ctx.fillText(name, p.x, p.y);
-                    }
-                });
-                ctx.restore();
-
-                // 3. GPX Routes
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                validRoutes.forEach(route => {
-                    if (route.projected.length < 2) return;
-                    // Glow
-                    ctx.save();
-                    ctx.shadowColor = 'rgba(255, 107, 74, 0.5)';
-                    ctx.shadowBlur = 12;
-                    ctx.lineWidth = 5;
-                    ctx.strokeStyle = 'rgba(255, 107, 74, 0.35)';
-                    ctx.beginPath();
-                    route.projected.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-                    ctx.stroke();
-                    ctx.restore();
-
-                    // Main gradient line
-                    const s = route.projected[0], e = route.projected[route.projected.length - 1];
-                    const grad = ctx.createLinearGradient(s.x, s.y, e.x, e.y);
-                    grad.addColorStop(0, '#ff6b4a');
-                    grad.addColorStop(1, '#ff9a76');
-                    ctx.lineWidth = 3.5;
-                    ctx.strokeStyle = grad;
-                    ctx.beginPath();
-                    route.projected.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
-                    ctx.stroke();
-
-                    // Start dot
-                    ctx.beginPath();
-                    ctx.arc(s.x, s.y, 5, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ff6b4a';
-                    ctx.fill();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                });
-
-                // 4. Restaurant Pins
-                const drawPin = (x, y) => {
-                    ctx.save();
-                    ctx.shadowColor = 'rgba(0,0,0,0.15)';
-                    ctx.shadowBlur = 6;
-                    ctx.shadowOffsetY = 3;
-                    ctx.beginPath();
-                    ctx.arc(x, y - 12, 9, Math.PI, 0, false);
-                    ctx.lineTo(x, y + 2);
-                    ctx.closePath();
-                    const pg = ctx.createLinearGradient(x, y - 21, x, y + 2);
-                    pg.addColorStop(0, '#ff9a76');
-                    pg.addColorStop(1, '#ff6b4a');
-                    ctx.fillStyle = pg;
-                    ctx.fill();
-                    ctx.restore();
-
-                    ctx.beginPath();
-                    ctx.arc(x, y - 12, 9, Math.PI, 0, false);
-                    ctx.lineTo(x, y + 2);
-                    ctx.closePath();
-                    ctx.strokeStyle = '#fff';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-
-                    ctx.beginPath();
-                    ctx.arc(x, y - 12, 3.5, 0, Math.PI * 2);
-                    ctx.fillStyle = '#fff';
-                    ctx.fill();
-                };
-
-                if (window.MAP_DATA.restaurants) {
-                    window.MAP_DATA.restaurants.forEach(r => {
-                        if (r.projected) drawPin(r.projected.x, r.projected.y);
-                    });
-                }
-
-                // 4. User Location
-                if (userLoc) {
-                    const p = getXY(userLoc.lat, userLoc.lon);
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 14, 0, Math.PI*2);
-                    ctx.fillStyle = 'rgba(74, 144, 226, 0.3)';
-                    ctx.fill();
-                    
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, 6, 0, Math.PI*2);
-                    ctx.fillStyle = '#4a90e2';
-                    ctx.fill();
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#fff';
-                    ctx.stroke();
-                }
-            }
-
-            // ──── Region Helper ────
-            function getRegionOfPoint(lat, lon) {
-                const check = (k) => lat >= REGIONS[k].minLat && lat <= REGIONS[k].maxLat && lon >= REGIONS[k].minLon && lon <= REGIONS[k].maxLon;
-                
-                // Check smaller/specific regions first so they aren't swallowed by Gyeonggi
-                if (check('seoul')) return 'seoul';
-                if (check('incheon')) return 'incheon';
-                if (check('busan')) return 'busan';
-                if (check('daegu')) return 'daegu';
-                if (check('gwangju')) return 'gwangju';
-                if (check('daejeon')) return 'daejeon';
-                if (check('jeju')) return 'jeju';
-                // Check broader region last
-                if (check('gyeonggi')) return 'gyeonggi';
-                return 'other';
-            }
-
-            // Assign region to items
-            validRoutes.forEach(r => {
-                const mid = r.points[Math.floor(r.points.length / 2)];
-                r.region = getRegionOfPoint(mid.lat, mid.lon);
-            });
-            if (window.MAP_DATA.restaurants) {
-                window.MAP_DATA.restaurants.forEach(r => {
-                    r.region = getRegionOfPoint(r.lat, r.lon);
-                });
-            }
-
-            // Region counts
-            const regionCounts = {};
-            Object.keys(REGIONS).forEach(key => { if(key !== 'all') regionCounts[key] = 0; });
-            
-            validRoutes.forEach(r => { if(regionCounts[r.region] !== undefined) regionCounts[r.region]++; });
-            if (window.MAP_DATA.restaurants) {
-                window.MAP_DATA.restaurants.forEach(r => { if(regionCounts[r.region] !== undefined) regionCounts[r.region]++; });
-            }
-
-            document.querySelectorAll('.map-region-item').forEach(btn => {
-                const key = btn.dataset.region;
-                if (key !== 'all' && regionCounts[key] > 0) {
-                    btn.innerHTML += ` <span class="region-count">(${regionCounts[key]})</span>`;
-                }
-            });
-
-            // Update stats & dropdowns based on current region
-            function updateStatsUI(regionKey) {
-                const isAll = (regionKey === 'all');
-                const filteredRoutes = isAll ? validRoutes : validRoutes.filter(r => r.region === regionKey);
-                const filteredRest = isAll ? (window.MAP_DATA.restaurants || []) : (window.MAP_DATA.restaurants || []).filter(r => r.region === regionKey);
-
-                const elRoutes = document.getElementById('count-routes');
-                const elRest = document.getElementById('count-restaurants');
-                if (elRoutes) elRoutes.textContent = `(${filteredRoutes.length})`;
-                if (elRest) elRest.textContent = `(${filteredRest.length})`;
-
-                const dropdownRoutes = document.getElementById('dropdown-routes');
-                const dropdownRest = document.getElementById('dropdown-restaurants');
-
-                if (dropdownRoutes) {
-                    if (filteredRoutes.length > 0) {
-                        dropdownRoutes.innerHTML = filteredRoutes.map(r => {
-                            const globalIdx = validRoutes.indexOf(r);
-                            return `<button class="stat-item" data-idx="${globalIdx}">📍 ${r.title}</button>`;
-                        }).join('');
-                    } else {
-                        dropdownRoutes.innerHTML = `<div class="stat-item" style="color:var(--text-faint); cursor:default;">해당 지역 코스가 없습니다</div>`;
-                    }
-                }
-
-                if (dropdownRest) {
-                    if (filteredRest.length > 0) {
-                        dropdownRest.innerHTML = filteredRest.map(r => {
-                            const globalIdx = window.MAP_DATA.restaurants.indexOf(r);
-                            return `<button class="stat-item" data-idx="${globalIdx}">🍽️ ${r.title}</button>`;
-                        }).join('');
-                    } else {
-                        dropdownRest.innerHTML = `<div class="stat-item" style="color:var(--text-faint); cursor:default;">해당 지역 맛집이 없습니다</div>`;
-                    }
-                }
-            }
-
-            // Init stats
-            updateStatsUI('all');
-
-            // Initial render
-            render();
-
-            // ──── Zoom / Pan state ────
-            const ZOOM_FACTOR = 0.3;
-            const MIN_SPAN = 0.005;
-
-            function zoomAt(cx, cy, factor) {
-                const center = getLatLon(cx, cy);
-                const latSpan = viewport.maxLat - viewport.minLat;
-                const lonSpan = viewport.maxLon - viewport.minLon;
-
-                const newLatSpan = latSpan * factor;
-                const newLonSpan = lonSpan * factor;
-                if (newLatSpan < MIN_SPAN || newLonSpan < MIN_SPAN) return;
-
-                const ratioX = cx / W;
-                const ratioY = (H - cy) / H;
-
-                viewport.minLon = center.lon - newLonSpan * ratioX;
-                viewport.maxLon = center.lon + newLonSpan * (1 - ratioX);
-                viewport.minLat = center.lat - newLatSpan * ratioY;
-                viewport.maxLat = center.lat + newLatSpan * (1 - ratioY);
-                render();
-            }
-
-            function zoomCenter(factor) {
-                zoomAt(W / 2, H / 2, factor);
-            }
-
-            function resetView() {
-                viewport.minLat = initialViewport.minLat;
-                viewport.maxLat = initialViewport.maxLat;
-                viewport.minLon = initialViewport.minLon;
-                viewport.maxLon = initialViewport.maxLon;
-                render();
-            }
-
-            function goToRegion(regionKey) {
-                const bounds = REGIONS[regionKey];
-                if (!bounds) {
-                    resetView();
+    function initCategories() {
+        $$('.post-item .category, .post-header .category').forEach(function (el) {
+            var text = el.textContent.toLowerCase();
+            for (var i = 0; i < CAT_MAP.length; i++) {
+                if (CAT_MAP[i].match.some(function (m) { return text.indexOf(m) > -1; })) {
+                    el.dataset.cat = CAT_MAP[i].key;
                     return;
                 }
-                fitBounds(bounds.minLat, bounds.maxLat, bounds.minLon, bounds.maxLon, 0.15);
-                render();
             }
-
-            function goToLatLon(lat, lon, targetSpan = 0.03) {
-                viewport.minLat = lat - targetSpan / 2;
-                viewport.maxLat = lat + targetSpan / 2;
-                
-                const avgLat = lat;
-                const cosLat = Math.cos(avgLat * Math.PI / 180);
-                const canR = W / H;
-                const lonD = (targetSpan * canR) / cosLat;
-                
-                viewport.minLon = lon - lonD / 2;
-                viewport.maxLon = lon + lonD / 2;
-                render();
-            }
-
-            // ──── Touch scroll detection (prevent tap if scrolled) ────
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let hasTouchScrolled = false;
-
-            canvas.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                    hasTouchScrolled = false;
-                }
-            }, { passive: true });
-
-            canvas.addEventListener('touchmove', (e) => {
-                if (e.touches.length === 1) {
-                    const dx = Math.abs(e.touches[0].clientX - touchStartX);
-                    const dy = Math.abs(e.touches[0].clientY - touchStartY);
-                    if (dx > 10 || dy > 10) {
-                        hasTouchScrolled = true;
-                    }
-                }
-            }, { passive: true });
-
-            // ──── Hover / Click interaction ────
-            function dist2(v, w) { return (v.x - w.x) ** 2 + (v.y - w.y) ** 2; }
-            function distSeg2(p, v, w) {
-                let l2 = dist2(v, w);
-                if (l2 === 0) return dist2(p, v);
-                let t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
-                t = Math.max(0, Math.min(1, t));
-                return dist2(p, { x: v.x + t * (w.x - v.x), y: v.y + t * (w.y - v.y) });
-            }
-
-            function getHit(mx, my) {
-                const mp = { x: mx, y: my };
-                if (window.MAP_DATA.restaurants) {
-                    for (const r of window.MAP_DATA.restaurants) {
-                        if (r.projected && dist2(mp, { x: r.projected.x, y: r.projected.y - 8 }) < 200) {
-                            return { type: 'restaurant', data: r };
-                        }
-                    }
-                }
-                for (const route of validRoutes) {
-                    for (let i = 0; i < route.projected.length - 1; i++) {
-                        if (distSeg2(mp, route.projected[i], route.projected[i + 1]) < 100) {
-                            return { type: 'route', data: route };
-                        }
-                    }
-                }
-                return null;
-            }
-
-            let hoveredItem = null;
-
-            canvas.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const hit = getHit(x, y);
-                if (hit) {
-                    canvas.style.cursor = 'pointer';
-                    hoveredItem = hit;
-                    tooltip.style.display = 'block';
-                    tooltip.style.opacity = '1';
-                    tooltip.style.left = x + 'px';
-                    tooltip.style.top = y + 'px';
-                    tooltip.textContent = hit.type === 'restaurant' ? `🍽️ ${hit.data.title}` : `🏃 ${hit.data.title} (${hit.data.dist}km)`;
-                } else {
-                    canvas.style.cursor = 'default';
-                    hoveredItem = null;
-                    tooltip.style.display = 'none';
-                }
-            });
-
-            canvas.addEventListener('click', (e) => {
-                if (hasTouchScrolled) return;
-                const rect = canvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                // Calculate directly on click to ensure it works accurately on mobile taps
-                const hit = getHit(x, y) || hoveredItem; 
-                if (hit && (hit.data.link || hit.data.url)) {
-                    window.location.href = hit.data.link || hit.data.url;
-                }
-            });
-
-            canvas.addEventListener('mouseleave', () => {
-                tooltip.style.display = 'none';
-                hoveredItem = null;
-            });
-
-            // ──── Control buttons & Dropdowns ────
-            
-            const btnGps = document.getElementById('map-gps');
-            if (btnGps) {
-                btnGps.addEventListener('click', () => {
-                    if (navigator.geolocation) {
-                        btnGps.innerHTML = '⏳';
-                        navigator.geolocation.getCurrentPosition(pos => {
-                            btnGps.innerHTML = '🎯';
-                            userLoc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-                            goToLatLon(userLoc.lat, userLoc.lon, 0.05);
-                        }, () => {
-                            btnGps.innerHTML = '🎯';
-                            alert('위치 정보를 가져올 수 없거나 권한이 차단되었습니다.');
-                        });
-                    }
-                });
-            }
-            const btnZoomIn = document.getElementById('map-zoom-in');
-            const btnZoomOut = document.getElementById('map-zoom-out');
-            const btnReset = document.getElementById('map-reset');
-            const btnRegionToggle = document.getElementById('map-region-toggle');
-            const regionDropdown = document.getElementById('map-region-dropdown');
-
-            if (btnZoomIn) btnZoomIn.addEventListener('click', () => zoomCenter(1 - ZOOM_FACTOR));
-            if (btnZoomOut) btnZoomOut.addEventListener('click', () => zoomCenter(1 + ZOOM_FACTOR));
-            if (btnReset) btnReset.addEventListener('click', () => {
-                resetView();
-                updateStatsUI('all');
-                if (regionDropdown) {
-                    regionDropdown.querySelectorAll('.map-region-item').forEach(b => b.classList.remove('active'));
-                    const allBtn = regionDropdown.querySelector('[data-region="all"]');
-                    if (allBtn) allBtn.classList.add('active');
-                }
-            });
-
-            if (btnRegionToggle && regionDropdown) {
-                btnRegionToggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    regionDropdown.classList.toggle('open');
-                    document.getElementById('dropdown-routes')?.classList.remove('open');
-                    document.getElementById('dropdown-restaurants')?.classList.remove('open');
-                });
-                regionDropdown.querySelectorAll('.map-region-item').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const region = btn.dataset.region;
-                        goToRegion(region);
-                        updateStatsUI(region);
-                        
-                        regionDropdown.classList.remove('open');
-                        regionDropdown.querySelectorAll('.map-region-item').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                    });
-                });
-            }
-
-            // Stat Dropdowns
-            document.getElementById('btn-stat-routes')?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const dRoutes = document.getElementById('dropdown-routes');
-                const dRest = document.getElementById('dropdown-restaurants');
-                dRoutes?.classList.toggle('open');
-                dRest?.classList.remove('open');
-                regionDropdown?.classList.remove('open');
-            });
-            
-            document.getElementById('btn-stat-restaurants')?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const dRoutes = document.getElementById('dropdown-routes');
-                const dRest = document.getElementById('dropdown-restaurants');
-                dRest?.classList.toggle('open');
-                dRoutes?.classList.remove('open');
-                regionDropdown?.classList.remove('open');
-            });
-
-            document.addEventListener('click', () => {
-                regionDropdown?.classList.remove('open');
-                document.getElementById('dropdown-routes')?.classList.remove('open');
-                document.getElementById('dropdown-restaurants')?.classList.remove('open');
-            });
-
-            const dRoutesContainer = document.getElementById('dropdown-routes');
-            if (dRoutesContainer) {
-                dRoutesContainer.addEventListener('click', (e) => {
-                    const btn = e.target.closest('.stat-item');
-                    if (!btn || !btn.dataset.idx) return;
-                    const r = validRoutes[btn.dataset.idx];
-                    if (r && r.points.length > 0) {
-                        // Start animation!
-                        r.animProgress = 0;
-                        let lastTime = performance.now();
-                        const animateRoute = (time) => {
-                            const dt = time - lastTime;
-                            lastTime = time;
-                            r.animProgress += dt / 1000; // 1.0 second to draw
-                            if (r.animProgress < 1) {
-                                render();
-                                requestAnimationFrame(animateRoute);
-                            } else {
-                                r.animProgress = 1;
-                                render();
-                            }
-                        };
-                        requestAnimationFrame(animateRoute);
-
-                        let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
-                        r.points.forEach(p => {
-                            if (p.lat < minLat) minLat = p.lat;
-                            if (p.lat > maxLat) maxLat = p.lat;
-                            if (p.lon < minLon) minLon = p.lon;
-                            if (p.lon > maxLon) maxLon = p.lon;
-                        });
-                        // 프레이밍 15% 여백
-                        fitBounds(minLat, maxLat, minLon, maxLon, 0.15);
-                        render();
-                    }
-                });
-            }
-
-            const dRestContainer = document.getElementById('dropdown-restaurants');
-            if (dRestContainer) {
-                dRestContainer.addEventListener('click', (e) => {
-                    const btn = e.target.closest('.stat-item');
-                    if (!btn || !btn.dataset.idx) return;
-                    const r = window.MAP_DATA.restaurants[btn.dataset.idx];
-                    if (r) goToLatLon(r.lat, r.lon, 0.02); // 맛집은 단일 지점이므로 가까이 줌
-                });
-            }
+            el.dataset.cat = 'etc';
         });
     }
 
-    // ===========================
-    // 6. Homepage Sidebar Tabs (AJAX load)
-    // ===========================
-    if (document.body.id === 'tt-body-index') {
-        const categories = {
-            'running': '/category/러닝코스',
-            'food': '/category/맛집',
-            'review': '/category/제품리뷰'
-        };
+    /* =====================================================================
+     * 3. 카드 등장 애니메이션
+     * ===================================================================== */
+    function initReveal(root) {
+        var items = $$('.post-item, .reveal', root || document).filter(function (el) { return !el.__revealed; });
+        if (!items.length) return;
+        if (reduceMotion || !window.IntersectionObserver) {
+            items.forEach(function (el) { el.__revealed = true; el.classList.add('is-visible'); });
+            return;
+        }
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry, i) {
+                if (!entry.isIntersecting) return;
+                var el = entry.target;
+                el.style.transitionDelay = Math.min(i * 60, 240) + 'ms';
+                el.classList.add('is-visible');
+                io.unobserve(el);
+            });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+        items.forEach(function (el) { el.__revealed = true; io.observe(el); });
+    }
 
-        const loadCategory = async (key, url) => {
-            const panel = document.getElementById(`panel-${key}`);
+    /* =====================================================================
+     * 4. 홈 사이드바 탭
+     * ===================================================================== */
+    var CATEGORY_URLS = {
+        running: '/category/러닝코스',
+        food: '/category/맛집',
+        review: '/category/제품리뷰'
+    };
+    var CACHE_TTL = 10 * 60 * 1000;
+
+    function cacheGet(key) {
+        try {
+            var raw = sessionStorage.getItem(key);
+            if (!raw) return null;
+            var obj = JSON.parse(raw);
+            if (Date.now() - obj.t > CACHE_TTL) return null;
+            return obj.v;
+        } catch (e) { return null; }
+    }
+
+    function cacheSet(key, value) {
+        try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), v: value })); } catch (e) { /* quota */ }
+    }
+
+    function initSidebarTabs() {
+        if (document.body.id !== 'tt-body-index') return;
+        var loaded = {};
+
+        function load(key) {
+            if (loaded[key]) return;
+            loaded[key] = true;
+            var panel = document.getElementById('panel-' + key);
             if (!panel) return;
-            try {
-                const res = await fetch(url);
-                const html = await res.text();
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                const posts = Array.from(doc.querySelectorAll('.original-list .post-item')).slice(0, 3);
-                
-                if (posts.length > 0) {
-                    panel.innerHTML = '';
-                    posts.forEach((post, index) => {
-                        post.style.animationDelay = `${index * 0.08}s`;
-                        panel.appendChild(post);
+
+            var cacheKey = 'wl:cat:' + key;
+            var cached = cacheGet(cacheKey);
+            if (cached != null) { paint(panel, cached); return; }
+
+            fetch(CATEGORY_URLS[key], { credentials: 'same-origin' })
+                .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+                .then(function (html) {
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var posts = $$('.original-list .post-item', doc).slice(0, 4);
+                    // 외부 문서의 이미지가 즉시 로드되지 않도록 lazy 속성 부여
+                    posts.forEach(function (p) {
+                        $$('img', p).forEach(function (img) { img.loading = 'lazy'; });
                     });
-                } else {
-                    panel.innerHTML = '<div class="loading-spinner">등록된 글이 없습니다.</div>';
-                }
-            } catch (e) {
-                panel.innerHTML = '<div class="loading-spinner">불러오기 실패</div>';
+                    var markup = posts.map(function (p) { return p.outerHTML; }).join('');
+                    cacheSet(cacheKey, markup);
+                    paint(panel, markup);
+                })
+                .catch(function () {
+                    loaded[key] = false;
+                    panel.innerHTML = '<div class="panel-empty">불러오지 못했습니다. ' +
+                        '<a href="' + CATEGORY_URLS[key] + '">카테고리로 이동</a></div>';
+                });
+        }
+
+        function paint(panel, markup) {
+            if (!markup) {
+                panel.innerHTML = '<div class="panel-empty">아직 등록된 글이 없습니다.</div>';
+                return;
             }
-        };
+            panel.innerHTML = markup;
+            initCategories();
+            initReveal(panel);
+        }
 
-        Object.entries(categories).forEach(([key, url]) => loadCategory(key, url));
-
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        $$('.tab-btn').forEach(function (btn) {
+            btn.setAttribute('aria-selected', String(btn.classList.contains('active')));
+            btn.addEventListener('click', function () {
+                $$('.tab-btn').forEach(function (b) {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
+                $$('.tab-panel').forEach(function (p) { p.classList.remove('active'); });
                 btn.classList.add('active');
-                document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
+                btn.setAttribute('aria-selected', 'true');
+                var panel = document.getElementById('panel-' + btn.dataset.tab);
+                if (panel) panel.classList.add('active');
+                load(btn.dataset.tab);
             });
+        });
+
+        load('running');
+        // 나머지 탭은 잠시 뒤 미리 로드 (첫 화면 렌더 방해 금지)
+        setTimeout(function () { load('food'); load('review'); }, 1200);
+    }
+
+    /* =====================================================================
+     * 5. 마크다운 본문 꾸미기
+     * ===================================================================== */
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (m) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
         });
     }
 
-    // ===========================
-    // 7. Nearby Restaurants Widget
-    // ===========================
-    const isPostPage = document.body.id === 'tt-body-page';
-    const categoryEl = document.querySelector('.post-header .category');
+    /* 5-1. 제목에 id 부여 + 목차 생성 */
+    function initToc(content) {
+        var heads = $$('h2, h3', content).filter(function (h) { return h.textContent.trim(); });
+        if (heads.length < 3) return;
 
-    if (isPostPage && categoryEl && categoryEl.textContent.includes('러닝코스')) {
-        const tagEls = document.querySelectorAll('.post-tags a');
-        if (tagEls.length > 0) {
-            const locationTag = tagEls[0].textContent.replace('#', '').trim();
-            const postContent = document.querySelector('.post-content');
+        var used = {};
+        var items = heads.map(function (h) {
+            var slug = h.textContent.trim().toLowerCase()
+                .replace(/[^가-힣\w\s-]/g, '')
+                .replace(/\s+/g, '-').slice(0, 40) || 'section';
+            used[slug] = (used[slug] || 0) + 1;
+            if (used[slug] > 1) slug += '-' + used[slug];
+            h.id = h.id || slug;
+            h.classList.add('has-anchor');
+            return { id: h.id, text: h.textContent.trim(), level: h.tagName === 'H3' ? 3 : 2, el: h };
+        });
 
-            const widget = document.createElement('div');
-            widget.className = 'nearby-restaurants';
-            widget.innerHTML = `<h3>🏃 '${locationTag}' 근처 추천 맛집</h3><div class="nearby-list"></div>`;
+        var toc = document.createElement('nav');
+        toc.className = 'post-toc';
+        toc.setAttribute('aria-label', '목차');
+        toc.innerHTML =
+            '<button class="toc-toggle" type="button" aria-expanded="true">📑 목차</button>' +
+            '<ol class="toc-list">' +
+            items.map(function (it) {
+                return '<li class="toc-l' + it.level + '"><a href="#' + it.id + '">' +
+                       escapeHtml(it.text) + '</a></li>';
+            }).join('') + '</ol>';
 
-            const listContainer = widget.querySelector('.nearby-list');
-            const searchLink = document.createElement('a');
-            searchLink.className = 'nearby-item';
-            searchLink.href = `/search/${encodeURIComponent(locationTag + ' 맛집')}`;
-            searchLink.innerHTML = `🍽️ <strong>${locationTag}</strong> 맛집 검색 결과 보기`;
-            listContainer.appendChild(searchLink);
+        content.insertBefore(toc, content.firstChild);
 
-            if (window.MAP_DATA && window.MAP_DATA.restaurants) {
-                window.MAP_DATA.restaurants.forEach(rest => {
-                    if (rest.title.includes(locationTag)) {
-                        const a = document.createElement('a');
-                        a.className = 'nearby-item';
-                        a.href = rest.url;
-                        a.innerHTML = `🍽️ ${rest.title}`;
-                        listContainer.appendChild(a);
+        var toggle = $('.toc-toggle', toc);
+        toggle.addEventListener('click', function () {
+            var open = toc.classList.toggle('collapsed');
+            toggle.setAttribute('aria-expanded', String(!open));
+        });
+
+        // 스크롤 위치에 따라 현재 항목 강조
+        if (window.IntersectionObserver) {
+            var links = {};
+            $$('a', toc).forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+            var spy = new IntersectionObserver(function (entries) {
+                entries.forEach(function (e) {
+                    var a = links[e.target.id];
+                    if (a && e.isIntersecting) {
+                        $$('a.active', toc).forEach(function (x) { x.classList.remove('active'); });
+                        a.classList.add('active');
                     }
                 });
-            }
-            postContent.appendChild(widget);
+            }, { rootMargin: '-80px 0px -70% 0px' });
+            items.forEach(function (it) { spy.observe(it.el); });
         }
     }
-});
+
+    /* 5-2. 인용구 → 콜아웃 */
+    var CALLOUTS = [
+        { re: /^(💡|팁|TIP)/i,        cls: 'tip',    icon: '💡' },
+        { re: /^(⚠️|주의|경고)/,       cls: 'warn',   icon: '⚠️' },
+        { re: /^(✅|체크|확인)/,       cls: 'check',  icon: '✅' },
+        { re: /^(🅿️|주차)/,           cls: 'park',   icon: '🅿️' },
+        { re: /^(🚇|🚉|교통|접근)/,    cls: 'transit',icon: '🚇' },
+        { re: /^(📌|포인트|핵심)/,     cls: 'point',  icon: '📌' },
+        { re: /^(🍽️|맛집)/,           cls: 'food',   icon: '🍽️' }
+    ];
+
+    function initCallouts(content) {
+        $$('blockquote', content).forEach(function (q) {
+            var text = q.textContent.trim();
+            for (var i = 0; i < CALLOUTS.length; i++) {
+                var m = text.match(CALLOUTS[i].re);
+                if (!m) continue;
+                q.classList.add('callout', 'callout-' + CALLOUTS[i].cls);
+                q.dataset.icon = CALLOUTS[i].icon;
+                // 이모지로 시작했다면 본문에서는 지운다 — 아이콘은 왼쪽에 따로 표시되므로
+                if (/^[^\w\uAC00-\uD7A3]/.test(m[0])) stripPrefix(q, m[0].length);
+                return;
+            }
+        });
+    }
+
+    function stripPrefix(root, length) {
+        var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+        var node = walker.nextNode();
+        while (node && !node.nodeValue.trim()) node = walker.nextNode();
+        if (!node) return;
+        node.nodeValue = node.nodeValue.replace(/^\s*/, '').slice(length).replace(/^\s*/, ' ').trimStart();
+    }
+
+    /* 5-3. 코드 블록 — 언어 배지 + 복사 버튼 */
+    function initCodeBlocks(content) {
+        $$('pre', content).forEach(function (pre) {
+            if (pre.parentElement.classList.contains('code-block')) return;
+            var code = $('code', pre);
+            var lang = '';
+            if (code) {
+                var m = (code.className || '').match(/language-([\w+#-]+)/);
+                if (m) lang = m[1];
+            }
+            var wrap = document.createElement('div');
+            wrap.className = 'code-block';
+            pre.parentNode.insertBefore(wrap, pre);
+            wrap.appendChild(pre);
+
+            var bar = document.createElement('div');
+            bar.className = 'code-bar';
+            bar.innerHTML = '<span class="code-lang">' + (lang || 'code') + '</span>' +
+                            '<button type="button" class="code-copy">복사</button>';
+            wrap.insertBefore(bar, pre);
+
+            $('.code-copy', bar).addEventListener('click', function () {
+                var btn = this;
+                var text = (code || pre).innerText;
+                var done = function () {
+                    btn.textContent = '복사됨!';
+                    btn.classList.add('done');
+                    setTimeout(function () { btn.textContent = '복사'; btn.classList.remove('done'); }, 1500);
+                };
+                if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, done);
+                else {
+                    var ta = document.createElement('textarea');
+                    ta.value = text;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try { document.execCommand('copy'); } catch (e) { /* noop */ }
+                    document.body.removeChild(ta);
+                    done();
+                }
+            });
+        });
+    }
+
+    /* 5-4. 표 — 가로 스크롤 래퍼 + 모바일 라벨 */
+    function initTables(content) {
+        $$('table', content).forEach(function (table) {
+            if (table.parentElement.classList.contains('table-scroll')) return;
+            var heads = $$('thead th', table).map(function (th) { return th.textContent.trim(); });
+            if (heads.length) {
+                $$('tbody tr', table).forEach(function (tr) {
+                    $$('td', tr).forEach(function (td, i) {
+                        if (heads[i]) td.setAttribute('data-label', heads[i]);
+                    });
+                });
+            }
+            var wrap = document.createElement('div');
+            wrap.className = 'table-scroll';
+            table.parentNode.insertBefore(wrap, table);
+            wrap.appendChild(table);
+        });
+    }
+
+    /* 5-5. 이미지 — 캡션 / 갤러리 / 라이트박스 */
+    function isImageOnly(el) {
+        if (!el || el.nodeType !== 1) return false;
+        if (!/^(P|FIGURE|DIV)$/.test(el.tagName)) return false;
+        var imgs = $$('img', el);
+        return imgs.length === 1 && el.textContent.trim() === '';
+    }
+
+    /** 티스토리는 본문을 .contents_style 같은 div 로 한 번 더 감쌉니다.
+     *  연속 이미지 묶기처럼 형제 관계를 보는 로직은 그 안쪽을 기준으로 해야 합니다. */
+    function contentRoot(content) {
+        if (content.__root) return content.__root;
+        var node = content;
+        while (node.children.length === 1 && node.firstElementChild.tagName === 'DIV') {
+            node = node.firstElementChild;
+        }
+        content.__root = node;
+        return node;
+    }
+
+    function initImages(content) {
+        $$('img', content).forEach(function (img) {
+            img.loading = 'lazy';
+            img.decoding = 'async';
+        });
+
+        // 연속된 이미지 → 갤러리 그리드
+        var root = contentRoot(content);
+        var children = Array.prototype.slice.call(root.children);
+        var i = 0;
+        while (i < children.length) {
+            if (!isImageOnly(children[i])) { i++; continue; }
+            var run = [children[i]];
+            var j = i + 1;
+            while (j < children.length && isImageOnly(children[j])) { run.push(children[j]); j++; }
+            if (run.length >= 2) {
+                var gallery = document.createElement('div');
+                gallery.className = 'img-gallery cols-' + Math.min(run.length, 3);
+                run[0].parentNode.insertBefore(gallery, run[0]);
+                run.forEach(function (el) { gallery.appendChild(el); });
+            }
+            i = j;
+        }
+
+        // alt 텍스트를 캡션으로
+        $$('p > img, figure > img', content).forEach(function (img) {
+            var alt = (img.getAttribute('alt') || '').trim();
+            var host = img.closest('p, figure');
+            if (!host || host.__captioned) return;
+            host.__captioned = true;
+            host.classList.add('img-block');
+            if (alt && !$('figcaption', host)) {
+                var cap = document.createElement('span');
+                cap.className = 'img-caption';
+                cap.textContent = alt;
+                host.appendChild(cap);
+            }
+        });
+
+        // 라이트박스
+        content.addEventListener('click', function (e) {
+            var img = e.target.closest('img');
+            if (!img || !content.contains(img)) return;
+            if (img.closest('a')) return;      // 링크된 이미지는 링크 우선
+            openLightbox(img);
+        });
+    }
+
+    var lightbox = null;
+    function openLightbox(img) {
+        if (!lightbox) {
+            lightbox = document.createElement('div');
+            lightbox.className = 'lightbox';
+            lightbox.innerHTML = '<button class="lightbox-close" type="button" aria-label="닫기">×</button>' +
+                                 '<img alt=""><p class="lightbox-caption"></p>';
+            document.body.appendChild(lightbox);
+            var close = function () {
+                lightbox.classList.remove('open');
+                document.body.classList.remove('nav-locked');
+            };
+            lightbox.addEventListener('click', function (e) {
+                if (e.target === lightbox || e.target.classList.contains('lightbox-close')) close();
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') close();
+            });
+        }
+        $('img', lightbox).src = img.currentSrc || img.src;
+        var cap = (img.getAttribute('alt') || '').trim();
+        $('.lightbox-caption', lightbox).textContent = cap;
+        lightbox.classList.add('open');
+        document.body.classList.add('nav-locked');
+    }
+
+    /* 5-6. 링크 / 체크리스트 / 읽는 시간 */
+    function initMisc(content) {
+        $$('a[href^="http"]', content).forEach(function (a) {
+            if (a.hostname && a.hostname !== location.hostname) {
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.classList.add('external-link');
+            }
+        });
+
+        // - [ ] / - [x] 체크리스트
+        $$('li', content).forEach(function (li) {
+            var input = li.firstElementChild;
+            if (input && input.tagName === 'INPUT' && input.type === 'checkbox') {
+                li.classList.add('task-item');
+                input.disabled = true;
+                li.parentElement.classList.add('task-list');
+            }
+        });
+
+        var meta = $('.post-header .meta');
+        if (meta && !$('.read-time', meta)) {
+            var words = content.textContent.trim().length;
+            var minutes = Math.max(1, Math.round(words / 500));
+            var span = document.createElement('span');
+            span.className = 'read-time';
+            span.textContent = '⏱️ 약 ' + minutes + '분';
+            meta.appendChild(span);
+        }
+    }
+
+    /* 5-7. 링크 복사 버튼 */
+    function initShare() {
+        var btn = $('[data-share="link"]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            var url = location.href;
+            var done = function () {
+                var old = btn.textContent;
+                btn.textContent = '✅ 복사됨';
+                setTimeout(function () { btn.textContent = old; }, 1500);
+            };
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: url }).catch(function () {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(done, done);
+            } else {
+                prompt('아래 주소를 복사하세요', url);
+            }
+        });
+    }
+
+    /* =====================================================================
+     * 6. 러닝 코스 상세
+     * ===================================================================== */
+
+    /* 6-1. "코스 정보" 표 → 스펙 카드 */
+    var SPEC_ICONS = {
+        '장소': '📍', '위치': '📍', '거리': '📏', '시간': '⏱️', '소요': '⏱️',
+        '주차': '🅿️', '교통': '🚇', '접근': '🚇', '난이도': '⛰️', '노면': '🛣️',
+        '급수': '🚰', '화장실': '🚻', '편의점': '🏪', '조명': '💡', '추천': '⭐',
+        '고도': '↗️', '코스': '🔁', '계절': '🍃', '샤워': '🚿'
+    };
+
+    function iconFor(label) {
+        var keys = Object.keys(SPEC_ICONS);
+        for (var i = 0; i < keys.length; i++) {
+            if (label.indexOf(keys[i]) > -1) return SPEC_ICONS[keys[i]];
+        }
+        return '•';
+    }
+
+    function initSpecCard(content) {
+        var heading = $$('h2, h3', content).filter(function (h) {
+            return /코스\s*정보|기본\s*정보|가게\s*정보|제품\s*정보|스펙/.test(h.textContent);
+        })[0];
+        if (!heading) return;
+
+        var node = heading.nextElementSibling;
+        while (node && !/^(TABLE|DIV)$/.test(node.tagName)) node = node.nextElementSibling;
+        var table = node && (node.tagName === 'TABLE' ? node : $('table', node));
+        if (!table) return;
+
+        var rows = $$('tbody tr', table);
+        if (!rows.length) rows = $$('tr', table).slice(1);
+        if (rows.length < 2) return;
+
+        var card = document.createElement('div');
+        card.className = 'spec-card';
+        card.innerHTML = rows.map(function (tr) {
+            var cells = $$('th, td', tr);
+            if (cells.length < 2) return '';
+            var rawLabel = cells[0].textContent.trim();
+            var label = rawLabel.replace(/^[^가-힣A-Za-z]+/, '').trim() || rawLabel;
+            var emoji = /^[^가-힣A-Za-z0-9]/.test(rawLabel)
+                ? rawLabel.match(/^[^가-힣A-Za-z0-9]+/)[0].trim()
+                : iconFor(label);
+            var valueHtml = cells[1].innerHTML.trim();
+            var stars = cells[1].textContent.match(/[★☆]{3,5}/);
+            if (stars) {
+                var filled = (stars[0].match(/★/g) || []).length;
+                valueHtml = '<span class="spec-stars" aria-label="난이도 ' + filled + '/5">' +
+                    '★★★★★'.split('').map(function (_, i) {
+                        return '<i class="' + (i < filled ? 'on' : '') + '">★</i>';
+                    }).join('') + '</span>' +
+                    '<span class="spec-stars-note">' + cells[1].textContent.replace(/[★☆]/g, '').trim() + '</span>';
+            }
+            return '<div class="spec-item">' +
+                   '<span class="spec-icon">' + emoji + '</span>' +
+                   '<span class="spec-label">' + label + '</span>' +
+                   '<span class="spec-value">' + valueHtml + '</span></div>';
+        }).join('');
+
+        var wrap = table.closest('.table-scroll') || table;
+        wrap.parentNode.insertBefore(card, wrap);
+        wrap.remove();
+    }
+
+    /* 6-2. 이 글에 해당하는 코스 찾기 */
+    function normalizePath(url) {
+        if (!url) return '';
+        try {
+            var u = new URL(url, location.origin);
+            return decodeURIComponent(u.pathname).replace(/\/+$/, '');
+        } catch (e) {
+            return decodeURIComponent(String(url)).replace(/\/+$/, '');
+        }
+    }
+
+    function matchCourse(data, explicitId) {
+        if (explicitId) {
+            var byId = data.courses.filter(function (c) { return c.id === explicitId; })[0];
+            if (byId) return byId;
+        }
+        var here = normalizePath(location.pathname);
+        var byLink = data.courses.filter(function (c) { return c.link && normalizePath(c.link) === here; })[0];
+        if (byLink) return byLink;
+
+        // 제목이 같은 코스
+        var title = ($('.post-header h2') || {}).textContent;
+        if (title) {
+            title = title.trim();
+            return data.courses.filter(function (c) {
+                return c.title && (title.indexOf(c.title) > -1 || c.title.indexOf(title) > -1);
+            })[0] || null;
+        }
+        return null;
+    }
+
+    /* 6-3. 본문 지도 */
+    function renderCourseMap(container, course, geoBundle) {
+        container.innerHTML =
+            '<div class="course-map-inner">' +
+            '  <canvas></canvas>' +
+            '  <div class="course-map-legend">' +
+            '    <span class="cm-title">🏃 ' + course.title + '</span>' +
+            '    <span class="cm-stat">' + course.distance.toFixed(2) + ' km</span>' +
+            (course.elevGain != null ? '    <span class="cm-stat">↗ ' + Math.round(course.elevGain) + ' m</span>' : '') +
+            (course.duration ? '    <span class="cm-stat">⏱ ' + formatDuration(course.duration) + '</span>' : '') +
+            '  </div>' +
+            '  <div class="course-map-controls">' +
+            '    <button type="button" data-act="in" aria-label="확대">+</button>' +
+            '    <button type="button" data-act="out" aria-label="축소">−</button>' +
+            '    <button type="button" data-act="fit" aria-label="전체보기">⟳</button>' +
+            '  </div>' +
+            '</div>';
+
+        var canvas = $('canvas', container);
+        var map = window.RunMapEngine.create(canvas);
+        map.setGeo(geoBundle.geo, geoBundle.rivers, geoBundle.parks);
+        map.setData({ courses: [course], restaurants: geoBundle.restaurants || [] });
+
+        var fit = map.computeFit(course.bounds, 0.18);
+        map.setHome(fit);
+        map.setViewport(fit);
+        course.animProgress = reduceMotion ? 1 : 0;
+        map.requestFrame();
+
+        $$('button', $('.course-map-controls', container)).forEach(function (b) {
+            b.addEventListener('click', function () {
+                var act = b.dataset.act;
+                if (act === 'in') map.zoomCenter(0.72);
+                else if (act === 'out') map.zoomCenter(1.38);
+                else map.flyTo(map.home);
+            });
+        });
+
+        // 드래그 팬
+        var drag = null;
+        canvas.addEventListener('mousedown', function (e) {
+            drag = { x: e.clientX, y: e.clientY };
+            map.setInteracting(true);
+            canvas.classList.add('is-dragging');
+        });
+        window.addEventListener('mousemove', function (e) {
+            if (!drag) return;
+            map.panPx(e.clientX - drag.x, e.clientY - drag.y);
+            drag = { x: e.clientX, y: e.clientY };
+        });
+        window.addEventListener('mouseup', function () {
+            if (!drag) return;
+            drag = null;
+            map.setInteracting(false);
+            canvas.classList.remove('is-dragging');
+        });
+
+        window.addEventListener('resize', function () { map.resize(); });
+    }
+
+    function formatDuration(sec) {
+        var m = Math.round(sec / 60);
+        return m >= 60 ? Math.floor(m / 60) + '시간 ' + (m % 60) + '분' : m + '분';
+    }
+
+    /* 6-4. 근처 맛집 / 근처 코스 */
+    function renderNearby(content, data, course) {
+        var util = window.RunMapUtil;
+        var origin = course ? course.points[Math.floor(course.points.length / 2)] : null;
+
+        var box = document.createElement('section');
+        box.className = 'nearby-block reveal';
+
+        if (origin) {
+            var near = data.restaurants
+                .map(function (r) { return { r: r, d: util.haversine(origin, { lat: r.lat, lon: r.lon }) }; })
+                .filter(function (x) { return x.d <= 5; })
+                .sort(function (a, b) { return a.d - b.d; })
+                .slice(0, 6);
+
+            if (!near.length) return null;
+            box.innerHTML = '<h3 class="nearby-title">🍽️ 이 코스 근처 맛집</h3>' +
+                '<p class="nearby-sub">코스 중간 지점 기준 5km 이내</p>' +
+                '<div class="nearby-grid">' + near.map(function (x) {
+                    return '<a class="nearby-card" href="' + (x.r.url || '#') + '">' +
+                           '<span class="nearby-name">' + escapeHtml(x.r.title) + '</span>' +
+                           '<span class="nearby-dist">' + x.d.toFixed(1) + 'km</span>' +
+                           (x.r.desc ? '<span class="nearby-desc">' + escapeHtml(x.r.desc) + '</span>' : '') +
+                           '</a>';
+                }).join('') + '</div>';
+        } else {
+            // 맛집 글 → 근처 코스 추천
+            var here = normalizePath(location.pathname);
+            var me = data.restaurants.filter(function (r) { return r.url && normalizePath(r.url) === here; })[0];
+            if (!me) return null;
+            var courses = data.courses
+                .map(function (c) {
+                    var mid = c.points[Math.floor(c.points.length / 2)];
+                    return { c: c, d: util.haversine({ lat: me.lat, lon: me.lon }, mid) };
+                })
+                .filter(function (x) { return x.d <= 5; })
+                .sort(function (a, b) { return a.d - b.d; })
+                .slice(0, 4);
+            if (!courses.length) return null;
+            box.innerHTML = '<h3 class="nearby-title">🏃 이 맛집 근처 러닝 코스</h3>' +
+                '<p class="nearby-sub">달리고 나서 들르기 좋은 코스예요</p>' +
+                '<div class="nearby-grid">' + courses.map(function (x) {
+                    return '<a class="nearby-card" href="' + (x.c.link || '#') + '">' +
+                           '<span class="nearby-name">' + escapeHtml(x.c.title) + '</span>' +
+                           '<span class="nearby-dist">' + x.d.toFixed(1) + 'km · ' + x.c.distance.toFixed(1) + 'km 코스</span>' +
+                           '</a>';
+                }).join('') + '</div>';
+        }
+        content.appendChild(box);
+        return box;
+    }
+
+    /* 6-5. 태그 기반 폴백 */
+    function renderTagFallback(content) {
+        var tags = $$('.post-tags a');
+        if (!tags.length) return;
+        var keyword = tags[0].textContent.replace(/^#/, '').trim();
+        if (!keyword) return;
+        var box = document.createElement('section');
+        box.className = 'nearby-block reveal';
+        box.innerHTML = '<h3 class="nearby-title">🔎 \'' + escapeHtml(keyword) + '\' 관련 글</h3>' +
+            '<div class="nearby-grid">' +
+            '<a class="nearby-card" href="/search/' + encodeURIComponent(keyword + ' 맛집') + '">' +
+            '<span class="nearby-name">' + escapeHtml(keyword) + ' 맛집 검색</span></a>' +
+            '<a class="nearby-card" href="/search/' + encodeURIComponent(keyword) + '">' +
+            '<span class="nearby-name">' + escapeHtml(keyword) + ' 글 모두 보기</span></a></div>';
+        content.appendChild(box);
+    }
+
+    /* 6-6. 포스트 초기화 */
+    function initPost() {
+        var content = $('.post-content');
+        if (!content) return;
+
+        contentRoot(content);   // 래퍼 구조를 건드리기 전에 본문 루트를 먼저 확정
+        initToc(content);
+        initCallouts(content);
+        initCodeBlocks(content);
+        initTables(content);
+        initSpecCard(content);
+        initImages(content);
+        initMisc(content);
+        initShare();
+
+        if (!window.RunMapData) return;
+
+        // 본문에 지정된 코스 id: <div class="course-map" data-course="id"> 또는 문단 [course:id]
+        var explicit = $('.course-map', content);
+        var explicitId = explicit ? explicit.dataset.course : '';
+        if (!explicit) {
+            $$('p', content).forEach(function (p) {
+                var m = p.textContent.trim().match(/^\[course:([\w가-힣-]+)\]$/);
+                if (m) {
+                    explicit = document.createElement('div');
+                    explicit.className = 'course-map';
+                    explicitId = m[1];
+                    p.parentNode.replaceChild(explicit, p);
+                }
+            });
+        }
+
+        window.RunMapData.load().then(function (data) {
+            var course = matchCourse(data, explicitId);
+
+            if (course) {
+                var mount = explicit;
+                if (!mount) {
+                    mount = document.createElement('div');
+                    mount.className = 'course-map';
+                    var anchor = $('.spec-card', content);
+                    if (anchor && anchor.nextSibling) anchor.parentNode.insertBefore(mount, anchor.nextSibling);
+                    else content.insertBefore(mount, content.firstChild);
+                }
+                mount.classList.add('is-pending');
+                loadGeoWhenVisible(mount, function (bundle) {
+                    mount.classList.remove('is-pending');
+                    bundle.restaurants = data.restaurants;
+                    renderCourseMap(mount, course, bundle);
+                });
+            } else if (explicit) {
+                explicit.remove();
+            }
+
+            var added = renderNearby(content, data, course);
+            if (!added) renderTagFallback(content);
+            initReveal(content);
+        });
+    }
+
+    var geoBundlePromise = null;
+    function loadGeoWhenVisible(el, cb) {
+        var start = function () {
+            if (!geoBundlePromise) {
+                var base = window.RunMapUtil.skinPath;
+                var j = function (n) {
+                    return fetch(base + n, { credentials: 'same-origin' })
+                        .then(function (r) { return r.ok ? r.json() : null; })
+                        .catch(function () { return null; });
+                };
+                geoBundlePromise = Promise.all([j('korea.json'), j('rivers.json'), j('parks.json')])
+                    .then(function (r) { return { geo: r[0], rivers: r[1], parks: r[2] }; });
+            }
+            geoBundlePromise.then(cb);
+        };
+        if (!window.IntersectionObserver) { start(); return; }
+        var io = new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting) { io.disconnect(); start(); }
+        }, { rootMargin: '300px' });
+        io.observe(el);
+    }
+
+    /* =====================================================================
+     * 부트
+     * ===================================================================== */
+    ready(function () {
+        initChrome();
+        initCategories();
+        initReveal();
+        initSidebarTabs();
+        initPost();
+    });
+})();

@@ -2,9 +2,9 @@
 <skin>
 	<information>
 		<name>Warm Life</name>
-		<version>1.0</version>
+		<version>2.0</version>
 		<description>
-			<![CDATA[ 러닝과 맛집을 소개하기 좋은 따뜻하고 가벼운 감성의 스킨입니다. ]]>
+			<![CDATA[ 러닝 코스와 맛집을 기록하는 블로그를 위한 스킨입니다. GPX 를 올리면 지도가 자동으로 그려지고, 마크다운 글이 예쁘게 정리됩니다. ]]>
 		</description>
 		<license>
 			<![CDATA[ MIT License ]]>

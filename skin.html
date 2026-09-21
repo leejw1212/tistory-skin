@@ -2,14 +2,18 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ff6b4a">
     <title>[##_page_title_##] :: [##_title_##]</title>
     <link rel="alternate" type="application/rss+xml" title="[##_title_##]" href="[##_rss_url_##]" />
-    <link rel="stylesheet" href="./style.css">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body id="[##_body_id_##]">
 <s_t3>
+    <div class="read-progress-track"><div id="read-progress" class="read-progress"></div></div>
+
     <div id="wrap">
         <!-- Header -->
         <header id="header">
@@ -17,38 +21,49 @@
                 <h1 class="logo">
                     <a href="[##_blog_link_##]">
                         <span class="logo-icon">🏃</span>
-                        [##_title_##]
+                        <span class="logo-text">[##_title_##]</span>
                     </a>
                 </h1>
-                <nav class="gnb">
+
+                <nav class="gnb" aria-label="주메뉴">
                     <ul>
                         <li><a href="/category/러닝코스"><span class="nav-icon">🗺️</span> 러닝코스</a></li>
                         <li><a href="/category/맛집"><span class="nav-icon">🍽️</span> 맛집</a></li>
                         <li><a href="/category/제품리뷰"><span class="nav-icon">📦</span> 제품리뷰</a></li>
                     </ul>
                 </nav>
-                <button class="mobile-menu-btn" aria-label="메뉴 열기">
-                    <div class="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </button>
+
+                <div class="header-tools">
+                    <form class="search-form" onsubmit="[##_search_onclick_submit_##]; return false;" role="search">
+                        <input type="text" name="[##_search_name_##]" value="[##_search_text_##]"
+                               placeholder="검색" aria-label="블로그 검색" />
+                        <button type="submit" aria-label="검색">🔍</button>
+                    </form>
+                    <button class="mobile-menu-btn" aria-label="메뉴 열기" aria-expanded="false">
+                        <span class="hamburger"><span></span><span></span><span></span></span>
+                    </button>
+                </div>
             </div>
         </header>
 
-        <!-- Mobile Navigation Drawer -->
-        <div class="mobile-nav">
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav-scrim" aria-hidden="true"></div>
+        <nav class="mobile-nav" aria-label="모바일 메뉴">
+            <form class="search-form mobile" onsubmit="[##_search_onclick_submit_##]; return false;" role="search">
+                <input type="text" name="[##_search_name_##]" value="[##_search_text_##]"
+                       placeholder="검색어를 입력하세요" aria-label="블로그 검색" />
+                <button type="submit" aria-label="검색">🔍</button>
+            </form>
             <a href="/category/러닝코스"><span class="nav-icon">🗺️</span> 러닝코스</a>
             <a href="/category/맛집"><span class="nav-icon">🍽️</span> 맛집</a>
             <a href="/category/제품리뷰"><span class="nav-icon">📦</span> 제품리뷰</a>
-        </div>
+            <a href="[##_rss_url_##]"><span class="nav-icon">📡</span> RSS 구독</a>
+        </nav>
 
-        <!-- Main Content -->
+        <!-- Main -->
         <main id="main">
             <div class="inner">
-                
-                <!-- Notice List -->
+
                 <s_notice_rep>
                     <div class="notice-wrap">
                         <a href="[##_notice_rep_link_##]" class="notice-link">
@@ -57,95 +72,117 @@
                         </a>
                     </div>
                 </s_notice_rep>
-                
-                <!-- Home Map Container (Canvas) -->
-                <div class="heatmap-container">
+
+                <!-- ============ Running Map ============ -->
+                <section class="heatmap-container" aria-label="러닝 코스 지도">
+                    <canvas id="route-canvas" aria-label="러닝 코스가 표시된 지도"></canvas>
+
                     <div class="map-overlay">
-                        <h2 class="map-title">🏃 나의 러닝 맵</h2>
+                        <div class="map-head">
+                            <h2 class="map-title">🏃 나의 러닝 맵</h2>
+                            <p class="map-summary">
+                                <strong id="map-total-distance">0</strong>km 달림 ·
+                                코스 <strong id="map-total-courses">0</strong> ·
+                                맛집 <strong id="map-total-restaurants">0</strong>
+                            </p>
+                        </div>
+
                         <div class="map-stats">
                             <div class="stat-group map-region-selector">
-                                <button class="map-stat-badge map-region-toggle" id="map-region-toggle">📍 지역</button>
-                                <div class="stat-dropdown map-region-dropdown" id="map-region-dropdown">
-                                    <button class="stat-item map-region-item" data-region="all">🗺️ 전체보기</button>
-                                    <button class="stat-item map-region-item" data-region="seoul">🏙️ 서울</button>
-                                    <button class="stat-item map-region-item" data-region="gyeonggi">🌳 경기</button>
-                                    <button class="stat-item map-region-item" data-region="incheon">🚢 인천</button>
-                                    <button class="stat-item map-region-item" data-region="busan">🌊 부산</button>
-                                    <button class="stat-item map-region-item" data-region="daegu">🏔️ 대구</button>
-                                    <button class="stat-item map-region-item" data-region="gwangju">🌾 광주</button>
-                                    <button class="stat-item map-region-item" data-region="daejeon">🔬 대전</button>
-                                    <button class="stat-item map-region-item" data-region="jeju">🍊 제주</button>
+                                <button type="button" class="map-stat-badge map-region-toggle" id="map-region-toggle" aria-haspopup="true">
+                                    📍 <span id="map-region-label">전체</span>
+                                </button>
+                                <div class="stat-dropdown map-region-dropdown" id="map-region-dropdown" role="menu">
+                                    <button type="button" class="stat-item map-region-item active" data-region="all">🗺️ 전체보기</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="seoul">🏙️ 서울</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="gyeonggi">🌳 경기</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="incheon">🚢 인천</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="busan">🌊 부산</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="daegu">🏔️ 대구</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="gwangju">🌾 광주</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="daejeon">🔬 대전</button>
+                                    <button type="button" class="stat-item map-region-item" data-region="jeju">🍊 제주</button>
                                 </div>
                             </div>
+
                             <div class="stat-group">
-                                <button class="map-stat-badge" id="btn-stat-routes">🏃 코스 <span class="region-count" id="count-routes">(0)</span></button>
-                                <div class="stat-dropdown" id="dropdown-routes">
-                                </div>
+                                <button type="button" class="map-stat-badge" id="btn-stat-routes" aria-haspopup="true">
+                                    🏃 코스 <span class="region-count" id="count-routes">(0)</span>
+                                </button>
+                                <div class="stat-dropdown" id="dropdown-routes" role="menu"></div>
                             </div>
+
                             <div class="stat-group">
-                                <button class="map-stat-badge" id="btn-stat-restaurants">🍽️ 맛집 <span class="region-count" id="count-restaurants">(0)</span></button>
-                                <div class="stat-dropdown" id="dropdown-restaurants">
-                                </div>
+                                <button type="button" class="map-stat-badge" id="btn-stat-restaurants" aria-haspopup="true">
+                                    🍽️ 맛집 <span class="region-count" id="count-restaurants">(0)</span>
+                                </button>
+                                <div class="stat-dropdown" id="dropdown-restaurants" role="menu"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Map Controls -->
+                    <div class="map-legend" aria-hidden="true">
+                        <span><i style="background:#37c98a"></i>5km 미만</span>
+                        <span><i style="background:#3d8bff"></i>5~10km</span>
+                        <span><i style="background:#ff6b4a"></i>10km 이상</span>
+                    </div>
+
                     <div class="map-controls">
                         <div class="map-zoom-controls">
-                            <button class="map-ctrl-btn" id="map-gps" aria-label="내 위치">🎯</button>
-                            <button class="map-ctrl-btn" id="map-zoom-in" aria-label="확대">+</button>
-                            <button class="map-ctrl-btn" id="map-zoom-out" aria-label="축소">−</button>
-                            <button class="map-ctrl-btn map-ctrl-reset" id="map-reset" aria-label="전체보기">⟳</button>
+                            <button type="button" class="map-ctrl-btn" id="map-gps" aria-label="내 위치 보기">🎯</button>
+                            <button type="button" class="map-ctrl-btn" id="map-zoom-in" aria-label="확대">+</button>
+                            <button type="button" class="map-ctrl-btn" id="map-zoom-out" aria-label="축소">−</button>
+                            <button type="button" class="map-ctrl-btn map-ctrl-reset" id="map-reset" aria-label="전체 보기">⟳</button>
                         </div>
                     </div>
 
-                    <canvas id="route-canvas"></canvas>
-                    <div id="map-tooltip" class="map-tooltip"></div>
-                </div>
+                    <div id="map-tooltip" class="map-tooltip" role="status"></div>
+                    <div id="map-hint" class="map-hint"></div>
+                    <div class="map-loading"><span class="map-spinner"></span> 지도를 그리는 중…</div>
+                    <p id="map-status" class="map-status"></p>
+                </section>
 
-                <!-- Article / List Container -->
+                <!-- ============ Content ============ -->
                 <div class="content-wrap">
-                    
-                    <!-- Search/Category Title -->
+
                     <s_list>
                         <div class="list-header">
                             <h2>'[##_list_conform_##]' 글 목록</h2>
                         </div>
                     </s_list>
 
-                    <!-- Homepage Sidebar Tabs (JS injected content) -->
+                    <!-- Homepage tabs -->
                     <div id="index-sidebar" class="index-sidebar">
-                        <div class="sidebar-tabs">
-                            <button class="tab-btn active" data-tab="running">🏃 코스</button>
-                            <button class="tab-btn" data-tab="food">🍽️ 맛집</button>
-                            <button class="tab-btn" data-tab="review">📦 리뷰</button>
+                        <div class="sidebar-tabs" role="tablist">
+                            <button type="button" class="tab-btn active" data-tab="running" role="tab">🏃 코스</button>
+                            <button type="button" class="tab-btn" data-tab="food" role="tab">🍽️ 맛집</button>
+                            <button type="button" class="tab-btn" data-tab="review" role="tab">📦 리뷰</button>
                         </div>
                         <div class="tab-content-wrap">
-                            <div class="tab-panel active" id="panel-running">
-                                <div class="loading-spinner">불러오는 중...</div>
+                            <div class="tab-panel active" id="panel-running" role="tabpanel">
+                                <div class="panel-skeleton"><i></i><i></i><i></i></div>
                             </div>
-                            <div class="tab-panel" id="panel-food">
-                                <div class="loading-spinner">불러오는 중...</div>
+                            <div class="tab-panel" id="panel-food" role="tabpanel">
+                                <div class="panel-skeleton"><i></i><i></i><i></i></div>
                             </div>
-                            <div class="tab-panel" id="panel-review">
-                                <div class="loading-spinner">불러오는 중...</div>
+                            <div class="tab-panel" id="panel-review" role="tabpanel">
+                                <div class="panel-skeleton"><i></i><i></i><i></i></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Article List (Grid Layout) -->
                     <div class="article-wrap original-list">
                         <s_article_rep>
+                            <!-- ---------- List ---------- -->
                             <s_index_article_rep>
                                 <article class="post-item">
                                     <a href="[##_article_rep_link_##]">
                                         <div class="thumb">
                                             <s_article_rep_thumbnail>
-                                                <img src="[##_article_rep_thumbnail_url_##]" alt="thumbnail">
+                                                <img src="[##_article_rep_thumbnail_url_##]" alt="" loading="lazy" decoding="async">
                                             </s_article_rep_thumbnail>
                                             <s_article_rep_thumbnail_none>
-                                                <div class="no-thumb">No Image</div>
+                                                <div class="no-thumb" aria-hidden="true">🏃</div>
                                             </s_article_rep_thumbnail_none>
                                         </div>
                                         <div class="info">
@@ -158,7 +195,7 @@
                                 </article>
                             </s_index_article_rep>
 
-                            <!-- Single Article View -->
+                            <!-- ---------- Single ---------- -->
                             <s_permalink_article_rep>
                                 <article class="post-single">
                                     <div class="post-header">
@@ -169,26 +206,40 @@
                                             <span class="date">📅 [##_article_rep_date_##]</span>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="post-content">
                                         [##_article_rep_desc_##]
                                     </div>
-                                    
+
+                                    <s_article_protected>
+                                        <div class="protected-box">
+                                            <p>🔒 보호된 글입니다. 비밀번호를 입력해 주세요.</p>
+                                            <form>
+                                                [##_article_password_##]
+                                            </form>
+                                        </div>
+                                    </s_article_protected>
+
                                     <s_tag_label>
                                         <div class="post-tags">
                                             [##_tag_label_rep_##]
                                         </div>
                                     </s_tag_label>
 
+                                    <div class="post-share">
+                                        <a class="share-btn" href="[##_rss_url_##]">📡 구독</a>
+                                        <button type="button" class="share-btn" data-share="link">🔗 링크 복사</button>
+                                    </div>
+
                                     <!-- Comments -->
                                     <div class="comments">
                                         <s_rp>
-                                            <h3>댓글</h3>
+                                            <h3>댓글 <span class="rp-count">[##_rp_count_##]</span></h3>
                                             <div class="comment-list">
                                                 <s_rp_container>
                                                     <ol>
                                                         <s_rp_rep>
-                                                            <li id='[##_rp_rep_id_##]'>
+                                                            <li id="[##_rp_rep_id_##]">
                                                                 <div class="comment-meta">
                                                                     <span class="name">[##_rp_rep_name_##]</span>
                                                                     <span class="date">[##_rp_rep_date_##]</span>
@@ -203,7 +254,7 @@
                                                     </ol>
                                                 </s_rp_container>
                                             </div>
-                                            
+
                                             <s_rp_input_form>
                                                 <div class="comment-form">
                                                     <s_rp_member>
@@ -211,11 +262,15 @@
                                                             <div class="guest-inputs">
                                                                 <input type="text" name="[##_rp_input_name_##]" value="[##_guest_name_##]" placeholder="이름" />
                                                                 <input type="password" maxlength="8" name="[##_rp_input_password_##]" value="[##_password_##]" placeholder="비밀번호" />
+                                                                <input type="text" name="[##_rp_input_homepage_##]" value="[##_guest_homepage_##]" placeholder="홈페이지 (선택)" />
                                                             </div>
                                                         </s_rp_guest>
                                                     </s_rp_member>
                                                     <textarea name="[##_rp_input_comment_##]" rows="4" placeholder="댓글을 남겨보세요 💬"></textarea>
                                                     <div class="submit-wrap">
+                                                        <label class="secret-check">
+                                                            <input type="checkbox" name="[##_rp_input_secret_##]" /> 비밀 댓글
+                                                        </label>
                                                         <button type="submit" onclick="[##_rp_onclick_submit_##]">등록</button>
                                                     </div>
                                                 </div>
@@ -225,45 +280,54 @@
                                 </article>
                             </s_permalink_article_rep>
                         </s_article_rep>
+
+                        <s_no_article>
+                            <div class="empty-state">
+                                <div class="empty-emoji">🏃‍♂️</div>
+                                <h3>아직 글이 없어요</h3>
+                                <p>첫 러닝 기록을 남겨보세요!</p>
+                                <a class="empty-link" href="[##_blog_link_##]">홈으로 돌아가기</a>
+                            </div>
+                        </s_no_article>
                     </div>
 
-                    <!-- Pagination -->
                     <s_paging>
-                        <div class="pagination">
+                        <nav class="pagination" aria-label="페이지 이동">
                             <a [##_prev_page_##] class="[##_no_more_prev_##] prev">← 이전</a>
                             <s_paging_rep>
                                 <a [##_paging_rep_link_##] class="num">[##_paging_rep_link_num_##]</a>
                             </s_paging_rep>
                             <a [##_next_page_##] class="[##_no_more_next_##] next">다음 →</a>
-                        </div>
+                        </nav>
                     </s_paging>
                 </div>
             </div>
         </main>
 
-        <!-- Footer Wave Divider -->
-        <div class="footer-wave">
+        <div class="footer-wave" aria-hidden="true">
             <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0,0 C300,60 900,0 1200,60 L1200,60 L0,60 Z" fill="#2d2d2d"/>
             </svg>
         </div>
 
-        <!-- Footer -->
         <footer id="footer">
             <div class="inner">
-                <div class="footer-running">🏃‍♂️ 🏃‍♀️ 🏃</div>
+                <div class="footer-running" aria-hidden="true">🏃‍♂️ 🏃‍♀️ 🏃</div>
+                <p class="footer-counter">
+                    Today <strong>[##_count_today_##]</strong> · Total <strong>[##_count_total_##]</strong>
+                </p>
                 <p class="copyright">
-                    &copy; [##_title_##]. All rights reserved. <br/>
+                    &copy; [##_title_##]. All rights reserved.<br/>
                     Designed with ❤️ by Warm Life Skin
                 </p>
             </div>
         </footer>
     </div>
 
-    <!-- Back to Top -->
-    <button class="back-to-top" aria-label="맨 위로">↑</button>
+    <button type="button" class="back-to-top" aria-label="맨 위로">↑</button>
 </s_t3>
-<script src="./images/mapData.js?v=6"></script>
-<script id="skin-path-helper" src="./images/script.js?v=6"></script>
+<script id="skin-map-script" src="./images/map.js?v=8"></script>
+<script id="skin-path-helper" src="./images/mapData.js?v=8"></script>
+<script src="./images/script.js?v=8"></script>
 </body>
 </html>
