@@ -35,13 +35,18 @@ images/
   ├─ rivers.json       주요 강줄기
   └─ parks.json        공원 · 호수
 tools/
+  ├─ build-post.mjs    ★ GPX + 사진 + 소감 → 글 초안 한 번에 (아래 참고)
   ├─ gpx-studio.html   ★ GPX 끌어다 놓기 → courses.json 만들기 (브라우저)
   ├─ build-courses.mjs ★ gpx/*.gpx → courses.json (명령어)
-  ├─ gpx-core.mjs      변환 공용 로직
+  ├─ gpx-core.mjs      변환 공용 로직 (거리 · 페이스 · 스플릿 · 폴리라인)
+  ├─ photo-prep.mjs    사진 리사이즈 · EXIF 제거 · 커버 후보 선정
+  ├─ exif.mjs          최소 EXIF 리더 (촬영 시각 · 회전 · GPS)
   ├─ build-studio.mjs  gpx-core 를 스튜디오에 인라인
   └─ preview.mjs       업로드 전 로컬 미리보기 생성
 templates/             글 양식 (러닝코스 · 맛집 · 제품리뷰)
-gpx/                   GPX 파일을 넣는 폴더
+gpx/                   GPX 파일을 넣는 폴더 (지도 데이터만 갱신할 때)
+runs/                  ★ 러닝 한 번치 재료 (GPX · 사진 · 소감)
+posts/                 ★ 만들어진 글 초안 + 가공된 사진
 ```
 
 ---
@@ -114,7 +119,50 @@ GPX 의 수천 개 좌표를 **Encoded Polyline** 으로 압축하고, 화면에
 
 ---
 
-## ✍️ 글쓰기 — 달리고 와서 발행까지
+## ⚡ 글 초안 자동 생성 (추천)
+
+GPX 와 사진, 소감만 있으면 글의 뼈대가 통째로 만들어집니다. **사진 순서도 신경 쓰지 않아도 됩니다.**
+
+```bash
+npm install                                   # 최초 1회 (사진 가공용 sharp)
+node tools/build-post.mjs runs/2026-09-21-여의도
+```
+
+```
+runs/2026-09-21-여의도/          →     posts/2026-09-21-여의도-한강공원-5k/
+  activity.gpx                            post.md       ← 글 초안
+  IMG_0001.jpg ... IMG_0008.jpg           data.json     ← 계산 결과
+  notes.md                                photos/       ← 1600px · EXIF 제거됨
+```
+
+무엇을 해주나요:
+
+| | |
+| --- | --- |
+| 📏 **숫자 자동 계산** | 거리 · 시간 · 평균 페이스 · 상승고도 · 난이도 · 지역 · **1km 구간 스플릿** |
+| 📸 **사진 자동 배치** | 촬영 시각과 GPX 시각을 맞춰 **사진이 코스 몇 km 지점인지** 계산하고 제자리에 넣습니다 |
+| 🔒 **위치정보 제거** | 사진의 EXIF GPS 를 지웁니다 — 집 근처 러닝 사진에서 사는 곳이 새지 않도록 |
+| 🖼️ **사진 호스팅** | 1600px 로 줄여 저장소에 두고 jsDelivr CDN 주소를 글에 박습니다 |
+| 🗺️ **지도 연결** | `images/courses.json` 을 갱신하고 본문에 `[course:아이디]` 를 넣습니다 |
+
+사진은 **찍은 시각으로** 자리를 찾아갑니다.
+
+- 달리기 **전**에 찍은 사진 → `🅿️ 주차 & 출발 지점`
+- 달리는 **중** → `🏃 코스 따라가기` 의 해당 km 구간
+- 완주 **후** → `📸 러닝 기록`
+
+남는 일은 `post.md` 의 `<!-- WRITE: ... -->` 를 채우는 것뿐입니다. 숫자와 사진은 이미 다 맞춰져 있습니다.
+
+자세한 사용법은 [`runs/README.md`](runs/README.md) 와 [`posts/README.md`](posts/README.md) 를 보세요.
+
+> ⚠️ 글을 발행하기 전에 **사진이 `main` 에 푸시돼 있어야** CDN 주소가 살아납니다.
+
+> 💡 발행 자체를 자동화하는 건 [TODO.md](TODO.md) 에 정리해 뒀습니다.
+> 티스토리 Open API 가 2024년에 종료돼서 브라우저 자동화 외에는 방법이 없습니다.
+
+---
+
+## ✍️ 글쓰기 — 손으로 쓸 때
 
 러닝코스 글 하나를 쓰는 전체 흐름입니다. 익숙해지면 10분이면 끝납니다.
 

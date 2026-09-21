@@ -1,0 +1,15 @@
+{
+  "name": "tistory-skin-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "달리고 먹고 스킨 — GPX/사진 → 글 초안 도구",
+  "scripts": {
+    "post": "node tools/build-post.mjs",
+    "courses": "node tools/build-courses.mjs",
+    "preview": "node tools/preview.mjs"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.34.0"
+  }
+}

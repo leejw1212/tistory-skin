@@ -199,6 +199,16 @@ export function formatPace(distanceKm, seconds) {
     return `${m}'${String(s).padStart(2, '0')}"`;
 }
 
+/**
+ * ISO 시각 → 지정 표준시 기준 날짜 (기본 한국 +540분)
+ * GPX 의 시각은 UTC 라서, 그대로 자르면 09시 이전 아침 러닝이 전날 날짜가 됩니다.
+ */
+export function localDateString(iso, offsetMin = 540) {
+    const ms = Date.parse(iso);
+    if (!Number.isFinite(ms)) return '';
+    return new Date(ms + offsetMin * 60000).toISOString().slice(0, 10);
+}
+
 export function formatDuration(seconds) {
     if (!seconds) return null;
     const m = Math.round(seconds / 60);
@@ -231,7 +241,7 @@ export function gpxToCourse(xml, file = 'course.gpx', meta = {}) {
         id: meta.id || slugify(file),
         title,
         link: meta.link || '',
-        date: meta.date || (firstTime ? firstTime.slice(0, 10) : ''),
+        date: meta.date || (firstTime ? localDateString(firstTime, meta.tzOffsetMin ?? 540) : ''),
         distance: Number(distance.toFixed(2)),
         region: meta.region || regionOf(mid.lat, mid.lon),
         difficulty: meta.difficulty || difficultyOf(distance, elevGain),
@@ -270,4 +280,121 @@ export function courseMarkdown(course, pace) {
         `[course:${course.id}]`,
         ''
     ].join('\n');
+}
+
+/* =========================================================================
+ * 구간 스플릿 · 시각으로 위치 찾기
+ *   사진을 코스의 어느 지점에 배치할지 계산하는 데 쓰입니다.
+ * ========================================================================= */
+
+/** 각 점까지의 누적 거리(km) 배열 — points 와 길이가 같습니다 */
+export function cumulativeDistances(points) {
+    const out = new Array(points.length);
+    let sum = 0;
+    out[0] = 0;
+    for (let i = 1; i < points.length; i++) {
+        sum += haversine(points[i - 1], points[i]);
+        out[i] = sum;
+    }
+    return out;
+}
+
+/**
+ * 1km(기본) 단위 스플릿 — [{ km, distance, seconds, pace }]
+ * 시각 정보가 없으면 빈 배열을 돌려줍니다.
+ */
+export function splits(points, unitKm = 1) {
+    const withTime = points.filter(p => p.time && Number.isFinite(Date.parse(p.time)));
+    if (withTime.length < 2) return [];
+
+    const cum = cumulativeDistances(withTime);
+    const t = withTime.map(p => Date.parse(p.time));
+    const total = cum[cum.length - 1];
+    const out = [];
+
+    let markIdx = 0;
+    for (let target = unitKm; ; target += unitKm) {
+        const last = target > total;
+        const endTarget = last ? total : target;
+
+        // endTarget 을 처음 넘어서는 점을 찾아 선형 보간으로 시각을 구한다
+        let i = markIdx;
+        while (i < cum.length - 1 && cum[i] < endTarget) i++;
+
+        let endTime;
+        if (i === 0) endTime = t[0];
+        else {
+            const span = cum[i] - cum[i - 1];
+            const ratio = span > 0 ? (endTarget - cum[i - 1]) / span : 0;
+            endTime = t[i - 1] + (t[i] - t[i - 1]) * ratio;
+        }
+
+        const startTime = out.length ? out[out.length - 1]._endTime : t[0];
+        const startDist = out.length ? out[out.length - 1]._endDist : 0;
+        const distance = endTarget - startDist;
+        const seconds = Math.round((endTime - startTime) / 1000);
+
+        if (distance > 0.01) {
+            out.push({
+                km: last ? Number(endTarget.toFixed(2)) : target,
+                distance: Number(distance.toFixed(2)),
+                seconds,
+                pace: formatPace(distance, seconds),
+                partial: last && Math.abs(endTarget - target) > 0.001,
+                _endTime: endTime,
+                _endDist: endTarget
+            });
+        }
+
+        markIdx = i;
+        if (last) break;
+        if (out.length > 200) break;   // 안전장치
+    }
+
+    return out.map(({ _endTime, _endDist, ...rest }) => rest);
+}
+
+/**
+ * 촬영 시각 → 코스 위 위치
+ * @returns { km, index, lat, lon, deltaSec } | null
+ *   deltaSec 은 가장 가까운 트랙포인트와의 시간차입니다 (클수록 신뢰도 낮음).
+ */
+export function locateByTime(points, date) {
+    if (!date) return null;
+    const target = date.getTime();
+    if (!Number.isFinite(target)) return null;
+
+    const idx = [];
+    const times = [];
+    points.forEach((p, i) => {
+        const ms = p.time ? Date.parse(p.time) : NaN;
+        if (Number.isFinite(ms)) { idx.push(i); times.push(ms); }
+    });
+    if (times.length < 2) return null;
+
+    let best = 0, bestDiff = Infinity;
+    for (let k = 0; k < times.length; k++) {
+        const diff = Math.abs(times[k] - target);
+        if (diff < bestDiff) { bestDiff = diff; best = k; }
+    }
+
+    const cum = cumulativeDistances(points);
+    const i = idx[best];
+    return {
+        km: Number(cum[i].toFixed(2)),
+        index: i,
+        lat: points[i].lat,
+        lon: points[i].lon,
+        deltaSec: Math.round(bestDiff / 1000)
+    };
+}
+
+/** 스플릿 배열 → 마크다운 표 */
+export function splitsMarkdown(list) {
+    if (!list.length) return '';
+    const rows = list.map(s => {
+        const label = s.partial ? `${s.km} km (마지막)` : `${s.km} km`;
+        return `| ${label} | ${s.pace || '—'} |`;
+    });
+    return ['| 구간 | 페이스 |', '| --- | --- |', ...rows].join('\n');
 }

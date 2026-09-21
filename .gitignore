@@ -2,3 +2,7 @@ preview/
 gpx/out/
 .DS_Store
 node_modules/
+
+# 러닝 글 도구
+runs/*/
+!runs/README.md
