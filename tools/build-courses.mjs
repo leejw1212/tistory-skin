@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 /* =========================================================================
- * gpx/*.gpx  →  images/courses.json
+ * gpx/*.tcx · gpx/*.gpx  →  images/courses.json
  * -------------------------------------------------------------------------
  *   사용법:  node tools/build-courses.mjs
  *
- *   1. gpx/ 폴더에 러닝 앱에서 내려받은 .gpx 파일을 넣습니다.
+ *   1. gpx/ 폴더에 활동 파일(.tcx 또는 .gpx)을 넣습니다.
+ *      애플 헬스 → RunGap → Dropbox 로 올라오는 건 .tcx 입니다.
  *   2. 이 스크립트를 실행하면
  *        - 거리 / 상승고도 / 소요시간 / 난이도 / 지역을 자동 계산하고
  *        - 좌표를 압축(Encoded Polyline)해 images/courses.json 을 만듭니다.
@@ -19,6 +20,7 @@ import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gpxToCourse, courseMarkdown, slugify, formatDuration } from './gpx-core.mjs';
+import { tcxToCourse, isTcx } from './tcx-core.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const GPX_DIR = join(ROOT, 'gpx');
@@ -39,9 +41,9 @@ function main() {
         process.exit(1);
     }
 
-    const files = readdirSync(GPX_DIR).filter(f => /\.gpx$/i.test(f)).sort();
+    const files = readdirSync(GPX_DIR).filter(f => /\.(tcx|gpx)$/i.test(f)).sort();
     if (!files.length) {
-        console.error('❌ gpx/ 폴더에 .gpx 파일이 없습니다.');
+        console.error('❌ gpx/ 폴더에 .tcx 또는 .gpx 파일이 없습니다.');
         process.exit(1);
     }
 
@@ -60,13 +62,23 @@ function main() {
 
         let result;
         try {
-            result = gpxToCourse(readFileSync(join(GPX_DIR, file), 'utf8'), file, { id, ...override });
+            const xml = readFileSync(join(GPX_DIR, file), 'utf8');
+            // 내용을 보고 TCX / GPX 를 고릅니다 (확장자만 믿지 않습니다)
+            result = isTcx(xml)
+                ? tcxToCourse(xml, file, { id, ...override })
+                : gpxToCourse(xml, file, { id, ...override });
         } catch (e) {
             console.warn(`⚠️  건너뜀 — ${e.message}`);
             continue;
         }
 
         const { course, rawPoints, keptPoints, pace } = result;
+
+        // 걷기·실내운동은 코스 목록에 넣지 않습니다
+        if (result.classification && result.classification.kind !== 'run') {
+            console.warn(`⚠️  건너뜀 — ${file}: ${result.classification.kind} (${result.classification.reason || ''})`);
+            continue;
+        }
 
         // 이전 빌드에서 손으로 채운 값은 유지
         if (!course.link && prev?.link) course.link = prev.link;
@@ -81,6 +93,7 @@ function main() {
             페이스: pace || '-',
             고도: course.elevGain != null ? `${course.elevGain}m` : '-',
             난이도: '★'.repeat(course.difficulty),
+            심박: result.heartRate?.avg ? `${result.heartRate.avg}` : '-',
             지역: course.region,
             점: `${rawPoints}→${keptPoints}`,
             글주소: course.link || '(미지정)'

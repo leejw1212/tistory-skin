@@ -45,8 +45,13 @@ node tools/publish-tistory.mjs posts/<폴더> [--visibility private]
 
 ## 📥 입력 자동화
 
-- [ ] **Dropbox 커넥터 연결 마무리** — 애플 헬스가 올리는 GPX 를 바로 집어오기 (현재 `connect_incomplete` 상태)
-- [ ] Dropbox 의 어느 폴더에 GPX 가 쌓이는지 경로 확인
+- [x] **Dropbox 커넥터 연결** — 완료
+- [x] **경로 확인** — `/앱/RunGap/export/` (ns_path `ns:15065913523//export`), 2019-04-30 부터 600개 이상
+- [x] **형식 확인** — GPX 가 아니라 **TCX** 였습니다. `tools/tcx-core.mjs` 로 지원 완료
+- [ ] **원본 TCX 1개로 파서 최종 확인** — 이그레스 정책이 `dl.dropboxusercontent.com` 을 막고
+      커넥터의 `fetch` 는 XML 태그를 지워서, 실제 파일로는 아직 검증하지 못했습니다.
+      파서는 TCX 표준 + 관찰된 구조로 작성하고 픽스처로 검증했습니다.
+- [ ] 1KB 미만 파일이 71% 입니다 (트랙 없는 기록) — 자동으로 거르고 있지만 주기적으로 확인
 - [ ] 사진·소감을 받는 경로 정하기 (프로젝트 채팅 첨부 / Gmail / Dropbox 같은 폴더)
 
 ## ✍️ 글 품질

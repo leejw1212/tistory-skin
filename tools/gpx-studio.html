@@ -111,7 +111,7 @@ table.rest input{padding:7px 10px;font-size:.84rem}
     <span class="emoji">📂</span>
     <strong>GPX 파일을 여기에 끌어다 놓으세요</strong>
     <span class="hint">여러 개를 한 번에 올려도 됩니다 · 클릭해서 선택할 수도 있어요</span>
-    <input type="file" id="file" accept=".gpx,application/gpx+xml" multiple hidden>
+    <input type="file" id="file" accept=".tcx,.gpx,application/gpx+xml" multiple hidden>
   </div>
 
   <div class="summary" id="summary" hidden>
@@ -158,7 +158,7 @@ table.rest input{padding:7px 10px;font-size:.84rem}
 <div class="toast" id="toast"></div>
 
 <script>
-/* ===== GPX_CORE_INLINE_START — tools/gpx-core.mjs 에서 자동 생성됩니다 ===== */
+/* ===== GPX_CORE_INLINE_START — tools/gpx-core.mjs + tcx-core.mjs 에서 자동 생성됩니다 ===== */
 /* =========================================================================
  * GPX → 코스 데이터 변환 공용 로직
  *   build-courses.mjs (Node) 와 gpx-studio.html (브라우저) 가 함께 사용합니다.
@@ -360,6 +360,16 @@ function formatPace(distanceKm, seconds) {
     return `${m}'${String(s).padStart(2, '0')}"`;
 }
 
+/**
+ * ISO 시각 → 지정 표준시 기준 날짜 (기본 한국 +540분)
+ * GPX 의 시각은 UTC 라서, 그대로 자르면 09시 이전 아침 러닝이 전날 날짜가 됩니다.
+ */
+function localDateString(iso, offsetMin = 540) {
+    const ms = Date.parse(iso);
+    if (!Number.isFinite(ms)) return '';
+    return new Date(ms + offsetMin * 60000).toISOString().slice(0, 10);
+}
+
 function formatDuration(seconds) {
     if (!seconds) return null;
     const m = Math.round(seconds / 60);
@@ -392,7 +402,7 @@ function gpxToCourse(xml, file = 'course.gpx', meta = {}) {
         id: meta.id || slugify(file),
         title,
         link: meta.link || '',
-        date: meta.date || (firstTime ? firstTime.slice(0, 10) : ''),
+        date: meta.date || (firstTime ? localDateString(firstTime, meta.tzOffsetMin ?? 540) : ''),
         distance: Number(distance.toFixed(2)),
         region: meta.region || regionOf(mid.lat, mid.lon),
         difficulty: meta.difficulty || difficultyOf(distance, elevGain),
@@ -433,6 +443,389 @@ function courseMarkdown(course, pace) {
     ].join('\n');
 }
 
+/* =========================================================================
+ * 구간 스플릿 · 시각으로 위치 찾기
+ *   사진을 코스의 어느 지점에 배치할지 계산하는 데 쓰입니다.
+ * ========================================================================= */
+
+/** 각 점까지의 누적 거리(km) 배열 — points 와 길이가 같습니다 */
+function cumulativeDistances(points) {
+    const out = new Array(points.length);
+    let sum = 0;
+    out[0] = 0;
+    for (let i = 1; i < points.length; i++) {
+        sum += haversine(points[i - 1], points[i]);
+        out[i] = sum;
+    }
+    return out;
+}
+
+/**
+ * 1km(기본) 단위 스플릿 — [{ km, distance, seconds, pace }]
+ * 시각 정보가 없으면 빈 배열을 돌려줍니다.
+ */
+function splits(points, unitKm = 1) {
+    const withTime = points.filter(p => p.time && Number.isFinite(Date.parse(p.time)));
+    if (withTime.length < 2) return [];
+
+    const cum = cumulativeDistances(withTime);
+    const t = withTime.map(p => Date.parse(p.time));
+    const total = cum[cum.length - 1];
+    const out = [];
+
+    let markIdx = 0;
+    for (let target = unitKm; ; target += unitKm) {
+        const last = target > total;
+        const endTarget = last ? total : target;
+
+        // endTarget 을 처음 넘어서는 점을 찾아 선형 보간으로 시각을 구한다
+        let i = markIdx;
+        while (i < cum.length - 1 && cum[i] < endTarget) i++;
+
+        let endTime;
+        if (i === 0) endTime = t[0];
+        else {
+            const span = cum[i] - cum[i - 1];
+            const ratio = span > 0 ? (endTarget - cum[i - 1]) / span : 0;
+            endTime = t[i - 1] + (t[i] - t[i - 1]) * ratio;
+        }
+
+        const startTime = out.length ? out[out.length - 1]._endTime : t[0];
+        const startDist = out.length ? out[out.length - 1]._endDist : 0;
+        const distance = endTarget - startDist;
+        const seconds = Math.round((endTime - startTime) / 1000);
+
+        if (distance > 0.01) {
+            out.push({
+                km: last ? Number(endTarget.toFixed(2)) : target,
+                distance: Number(distance.toFixed(2)),
+                seconds,
+                pace: formatPace(distance, seconds),
+                partial: last && Math.abs(endTarget - target) > 0.001,
+                _endTime: endTime,
+                _endDist: endTarget
+            });
+        }
+
+        markIdx = i;
+        if (last) break;
+        if (out.length > 200) break;   // 안전장치
+    }
+
+    return out.map(({ _endTime, _endDist, ...rest }) => rest);
+}
+
+/**
+ * 촬영 시각 → 코스 위 위치
+ * @returns { km, index, lat, lon, deltaSec } | null
+ *   deltaSec 은 가장 가까운 트랙포인트와의 시간차입니다 (클수록 신뢰도 낮음).
+ */
+function locateByTime(points, date) {
+    if (!date) return null;
+    const target = date.getTime();
+    if (!Number.isFinite(target)) return null;
+
+    const idx = [];
+    const times = [];
+    points.forEach((p, i) => {
+        const ms = p.time ? Date.parse(p.time) : NaN;
+        if (Number.isFinite(ms)) { idx.push(i); times.push(ms); }
+    });
+    if (times.length < 2) return null;
+
+    let best = 0, bestDiff = Infinity;
+    for (let k = 0; k < times.length; k++) {
+        const diff = Math.abs(times[k] - target);
+        if (diff < bestDiff) { bestDiff = diff; best = k; }
+    }
+
+    const cum = cumulativeDistances(points);
+    const i = idx[best];
+    return {
+        km: Number(cum[i].toFixed(2)),
+        index: i,
+        lat: points[i].lat,
+        lon: points[i].lon,
+        deltaSec: Math.round(bestDiff / 1000)
+    };
+}
+
+/** 스플릿 배열 → 마크다운 표 */
+function splitsMarkdown(list) {
+    if (!list.length) return '';
+    const rows = list.map(s => {
+        const label = s.partial ? `${s.km} km (마지막)` : `${s.km} km`;
+        return `| ${label} | ${s.pace || '—'} |`;
+    });
+    return ['| 구간 | 페이스 |', '| --- | --- |', ...rows].join('\n');
+}
+
+/* =========================================================================
+ * TCX → 코스 데이터 변환
+ * -------------------------------------------------------------------------
+ *   애플 헬스 → RunGap → Dropbox 로 올라오는 파일은 GPX 가 아니라 TCX 입니다.
+ *   TCX 는 GPX 보다 정보가 많습니다: 기기가 측정한 거리 · 심박 · 케이던스 · 칼로리.
+ *
+ *   의존성 없음. 정규식 기반 파서 (Node 에 DOMParser 가 없으므로)
+ *
+ *   ⚠️ 네임스페이스 접두사에 의존하지 않습니다.
+ *      RunGap 이 <Trackpoint> 로 쓰든 <ns3:Trackpoint> 로 쓰든 똑같이 읽습니다.
+ *      태그 이름으로만 찾으므로 요소 순서가 달라도 상관없습니다.
+ * ========================================================================= */
+
+
+/** 네임스페이스 접두사를 무시하는 태그 정규식 */
+function tagRe(name, flags = 'i') {
+    return new RegExp(`<(?:[\\w.-]+:)?${name}\\b[^>]*?(?:/>|>([\\s\\S]*?)<\\/(?:[\\w.-]+:)?${name}>)`, flags);
+}
+
+/** 첫 번째 <name> 의 내용 (없으면 null) */
+function tagText(xml, name) {
+    const m = xml.match(tagRe(name));
+    return m && m[1] != null ? m[1].trim() : null;
+}
+
+/** 첫 번째 <name> 의 숫자 값 */
+function tagNum(xml, name) {
+    const t = tagText(xml, name);
+    if (t == null) return null;
+    const v = parseFloat(t);
+    return Number.isFinite(v) ? v : null;
+}
+
+/** 모든 <name> 블록 */
+function tagBlocks(xml, name) {
+    const re = tagRe(name, 'gi');
+    const out = [];
+    let m;
+    while ((m = re.exec(xml)) !== null) out.push(m[1] || '');
+    return out;
+}
+
+/** <name attr="..."> 의 속성 값 */
+function tagAttr(xml, name, attr) {
+    const re = new RegExp(`<(?:[\\w.-]+:)?${name}\\b[^>]*?\\b${attr}\\s*=\\s*["']([^"']*)["']`, 'i');
+    const m = xml.match(re);
+    return m ? m[1] : null;
+}
+
+/**
+ * 심박 — <HeartRateBpm><Value>123</Value></HeartRateBpm>
+ * Lap 의 Average/Maximum 도 같은 구조라 감싼 태그 이름을 받습니다.
+ */
+function heartRate(xml, wrapper) {
+    const block = tagText(xml, wrapper);
+    if (block == null) return null;
+    const v = tagNum(block, 'Value');
+    return Number.isFinite(v) ? v : null;
+}
+
+/**
+ * TCX 텍스트 → { sport, startTime, points, laps, device }
+ *   points 는 gpx-core 의 함수들과 같은 모양입니다: { lat, lon, ele, time }
+ *   추가로 hr · cadence · speed · distance(기기 누적거리, m) 가 붙습니다.
+ */
+function parseTcx(xml) {
+    const activityBlocks = tagBlocks(xml, 'Activity');
+    // Activity 가 없으면 Course 형식일 수 있으니 전체를 한 덩어리로 본다
+    const body = activityBlocks.length ? activityBlocks.join('\n') : xml;
+
+    const sport = tagAttr(xml, 'Activity', 'Sport') || null;
+    const id = tagText(body, 'Id');
+
+    const laps = tagBlocks(body, 'Lap').map((lap, i) => ({
+        index: i,
+        startTime: tagAttr(xml, 'Lap', 'StartTime') && i === 0 ? tagAttr(xml, 'Lap', 'StartTime') : null,
+        seconds: tagNum(lap, 'TotalTimeSeconds'),
+        meters: tagNum(lap, 'DistanceMeters'),
+        maxSpeed: tagNum(lap, 'MaximumSpeed'),
+        calories: tagNum(lap, 'Calories'),
+        avgHr: heartRate(lap, 'AverageHeartRateBpm'),
+        maxHr: heartRate(lap, 'MaximumHeartRateBpm'),
+        intensity: tagText(lap, 'Intensity'),
+        trigger: tagText(lap, 'TriggerMethod')
+    }));
+
+    const points = [];
+    for (const tp of tagBlocks(body, 'Trackpoint')) {
+        const pos = tagText(tp, 'Position');
+        const lat = pos ? tagNum(pos, 'LatitudeDegrees') : null;
+        const lon = pos ? tagNum(pos, 'LongitudeDegrees') : null;
+        const time = tagText(tp, 'Time');
+
+        // 위치가 없는 트랙포인트(실내 운동, GPS 끊김)는 코스에 쓸 수 없습니다
+        if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+
+        const ext = tagText(tp, 'Extensions');
+        const tpx = ext ? tagText(ext, 'TPX') : null;
+
+        points.push({
+            lat,
+            lon,
+            ele: tagNum(tp, 'AltitudeMeters'),
+            time: time || null,
+            hr: heartRate(tp, 'HeartRateBpm'),
+            distance: tagNum(tp, 'DistanceMeters'),          // 기기가 준 누적거리 (m)
+            cadence: tpx ? tagNum(tpx, 'RunCadence') : null,
+            speed: tpx ? tagNum(tpx, 'Speed') : null
+        });
+    }
+
+    return {
+        sport,
+        id,
+        startTime: tagAttr(xml, 'Lap', 'StartTime') || id || (points[0] && points[0].time) || null,
+        device: tagText(xml, 'Name'),
+        laps,
+        points
+    };
+}
+
+/** 파일이 TCX 인지 (확장자가 아니라 내용으로 판별) */
+function isTcx(xml) {
+    return /<(?:[\w.-]+:)?TrainingCenterDatabase\b/i.test(xml) ||
+           /<(?:[\w.-]+:)?Trackpoint\b/i.test(xml);
+}
+
+/**
+ * 기기가 측정한 총 거리(km). GPS 좌표로 계산한 값보다 정확합니다.
+ * (애플워치는 보폭·가속도계를 함께 쓰므로 터널·고층 구간에서 특히 차이납니다)
+ * 랩 합계 → 마지막 트랙포인트 누적거리 → 좌표 계산 순으로 시도합니다.
+ */
+function deviceDistanceKm(parsed) {
+    const lapSum = parsed.laps.reduce((s, l) => s + (Number.isFinite(l.meters) ? l.meters : 0), 0);
+    if (lapSum > 0) return { km: lapSum / 1000, source: 'lap' };
+
+    const withDist = parsed.points.filter(p => Number.isFinite(p.distance));
+    if (withDist.length) {
+        const last = withDist[withDist.length - 1].distance;
+        if (last > 0) return { km: last / 1000, source: 'trackpoint' };
+    }
+
+    return { km: totalDistance(parsed.points), source: 'gps' };
+}
+
+/** 기기가 측정한 소요 시간(초) — 랩 합계 우선, 없으면 트랙포인트 시각 차 */
+function deviceDurationSec(parsed) {
+    const lapSum = parsed.laps.reduce((s, l) => s + (Number.isFinite(l.seconds) ? l.seconds : 0), 0);
+    if (lapSum > 0) return Math.round(lapSum);
+
+    const times = parsed.points.map(p => (p.time ? Date.parse(p.time) : NaN)).filter(Number.isFinite);
+    if (times.length < 2) return null;
+    return Math.round((Math.max(...times) - Math.min(...times)) / 1000);
+}
+
+/** 심박 요약 — { avg, max } (없으면 null) */
+function heartRateSummary(parsed) {
+    const lapAvg = parsed.laps.map(l => l.avgHr).filter(Number.isFinite);
+    const lapMax = parsed.laps.map(l => l.maxHr).filter(Number.isFinite);
+    if (lapAvg.length || lapMax.length) {
+        return {
+            avg: lapAvg.length ? Math.round(lapAvg.reduce((a, b) => a + b, 0) / lapAvg.length) : null,
+            max: lapMax.length ? Math.max(...lapMax) : null
+        };
+    }
+    const hrs = parsed.points.map(p => p.hr).filter(Number.isFinite);
+    if (!hrs.length) return null;
+    return {
+        avg: Math.round(hrs.reduce((a, b) => a + b, 0) / hrs.length),
+        max: Math.max(...hrs)
+    };
+}
+
+/** 평균 케이던스(spm). TCX 의 RunCadence 는 보통 한쪽 발 기준이라 2배가 실제 걸음수입니다. */
+function cadenceSummary(parsed, { doubled = true } = {}) {
+    const vals = parsed.points.map(p => p.cadence).filter(v => Number.isFinite(v) && v > 0);
+    if (!vals.length) return null;
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    return Math.round(doubled ? avg * 2 : avg);
+}
+
+function caloriesTotal(parsed) {
+    const sum = parsed.laps.reduce((s, l) => s + (Number.isFinite(l.calories) ? l.calories : 0), 0);
+    return sum > 0 ? Math.round(sum) : null;
+}
+
+/**
+ * 활동 분류 — 글로 쓸 만한 러닝인지 가려냅니다.
+ *   RunGap 은 걷기 · 실내운동 · 실수로 켠 1초짜리까지 전부 내보냅니다.
+ */
+function classify(parsed) {
+    const { km } = deviceDistanceKm(parsed);
+    const sec = deviceDurationSec(parsed) || 0;
+    const paceSecPerKm = km > 0 && sec > 0 ? sec / km : null;
+
+    if (!parsed.points.length) return { kind: 'no-gps', reason: '위치 기록이 없습니다 (실내운동이거나 GPS 미사용)' };
+    if (sec < 60 || km < 0.3) return { kind: 'too-short', reason: '너무 짧습니다 (실수로 켠 기록으로 보입니다)' };
+
+    const sportRaw = (parsed.sport || '').toLowerCase();
+    if (sportRaw.includes('bik') || sportRaw.includes('cycl')) return { kind: 'cycling', reason: 'Sport=' + parsed.sport };
+
+    // Sport 속성이 Running 이어도 애플워치는 걷기를 Running 으로 쓰는 경우가 있어 페이스로 한 번 더 봅니다
+    if (paceSecPerKm != null && paceSecPerKm > 480) {
+        return { kind: 'walk', reason: `페이스 ${Math.floor(paceSecPerKm / 60)}'${String(Math.round(paceSecPerKm % 60)).padStart(2, '0')}" — 걷기로 보입니다` };
+    }
+
+    return { kind: 'run', reason: null };
+}
+
+/* =========================================================================
+ * TCX → courses.json 항목  (gpx-core 의 gpxToCourse 와 같은 모양을 돌려줍니다)
+ * ========================================================================= */
+
+
+/**
+ * @param {string} xml   TCX 원본
+ * @param {string} file  파일명 (id / 제목 폴백)
+ * @param {object} meta  { id, title, link, date, tzOffsetMin } 수동 지정값
+ */
+function tcxToCourse(xml, file = 'activity.tcx', meta = {}) {
+    const parsed = parseTcx(xml);
+    const pts = parsed.points;
+    if (pts.length < 2) {
+        const c = classify(parsed);
+        throw new Error(`${file}: 좌표가 있는 트랙포인트가 없습니다 — ${c.reason || c.kind}`);
+    }
+
+    const dist = deviceDistanceKm(parsed);
+    const secs = deviceDurationSec(parsed);
+    const elevGain = elevationGain(pts);
+    const mid = pts[Math.floor(pts.length / 2)];
+    const slim = simplifyToBudget(pts, meta.budget || 320);
+    const tz = meta.tzOffsetMin ?? 540;
+    const firstTime = parsed.startTime || pts.find(p => p.time)?.time;
+
+    const course = {
+        id: meta.id || slugify(file),
+        title: meta.title || file.replace(/\.tcx$/i, ''),
+        link: meta.link || '',
+        date: meta.date || (firstTime ? localDateString(firstTime, tz) : ''),
+        distance: Number(dist.km.toFixed(2)),
+        region: meta.region || regionOf(mid.lat, mid.lon),
+        difficulty: meta.difficulty || difficultyOf(dist.km, elevGain),
+        bounds: bounds(pts).map(v => Number(v.toFixed(5))),
+        polyline: encodePolyline(slim)
+    };
+    if (elevGain != null) course.elevGain = elevGain;
+    if (secs != null) course.duration = secs;
+    if (meta.note) course.note = meta.note;
+
+    return {
+        course,
+        parsed,
+        rawPoints: pts.length,
+        keptPoints: slim.length,
+        pace: formatPace(dist.km, secs),
+        distanceSource: dist.source,
+        heartRate: heartRateSummary(parsed),
+        cadence: cadenceSummary(parsed),
+        calories: caloriesTotal(parsed),
+        classification: classify(parsed),
+        sport: parsed.sport,
+        device: parsed.device
+    };
+}
+
 /* ===== GPX_CORE_INLINE_END ===== */
 
 (function () {
@@ -469,14 +862,17 @@ function courseMarkdown(course, pace) {
   drop.addEventListener('drop', function (e) { handleFiles(e.dataTransfer.files); });
 
   function handleFiles(fileList) {
-    var files = Array.prototype.slice.call(fileList).filter(function (f) { return /\.gpx$/i.test(f.name); });
+    var files = Array.prototype.slice.call(fileList).filter(function (f) { return /\.(tcx|gpx)$/i.test(f.name); });
     if (!files.length) { toast('GPX 파일만 올릴 수 있어요'); return; }
     var pending = files.length;
     files.forEach(function (f) {
       var reader = new FileReader();
       reader.onload = function () {
         try {
-          var res = gpxToCourse(reader.result, f.name, {});
+          // 애플 헬스(RunGap)는 TCX 로 내보냅니다 — 내용을 보고 알아서 고릅니다
+          var res = isTcx(reader.result)
+              ? tcxToCourse(reader.result, f.name, {})
+              : gpxToCourse(reader.result, f.name, {});
           var existing = courses.findIndex(function (c) { return c.course.id === res.course.id; });
           if (existing > -1) courses[existing] = res;
           else courses.push(res);

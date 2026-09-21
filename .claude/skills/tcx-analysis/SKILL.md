@@ -1,0 +1,114 @@
+---
+name: tcx-analysis
+description: 애플 헬스(RunGap)가 Dropbox 에 올리는 TCX 활동 파일을 읽고 분석할 때 사용합니다. 러닝 기록에서 거리·페이스·심박·케이던스를 뽑거나, 쌓인 활동 중 글로 쓸 만한 러닝을 골라내거나, TCX 구조를 파악해야 할 때 씁니다. "오늘 러닝 분석해줘", "이번 달 얼마나 뛰었지", "TCX 파일 뭐가 들어있어" 같은 요청이 해당됩니다.
+---
+
+# TCX 활동 파일 분석
+
+이 블로그의 러닝 기록은 **애플 헬스 → RunGap → Dropbox** 로 올라옵니다.
+GPX 가 아니라 **TCX** 입니다. TCX 는 GPX 보다 정보가 많습니다.
+
+## 파일이 있는 곳
+
+```
+Dropbox: /앱/RunGap/export/          (ns_path: ns:15065913523//export)
+파일명:  2026-09-21_08-28-48_hk_1789946928.tcx
+         └─ 현지시각(KST) ─┘  │    └─ 시작 시각의 유닉스 타임스탬프
+                              └─ hk = HealthKit
+```
+
+파일명 앞의 날짜·시각은 **이미 한국 시간**입니다. 파일 안의 `<Time>` 은 UTC 입니다.
+
+## 먼저 이것부터 — 대부분은 글감이 아닙니다
+
+RunGap 은 애플 헬스의 활동을 **전부** 내보냅니다. 걷기, 실내운동, 실수로 켠 1초짜리까지.
+
+| 크기 | 정체 | 비율(600개 표본) |
+| --- | --- | --- |
+| **1KB 미만** | 트랙이 없는 기록 (실내운동 · GPS 미사용 · 오작동) | **71%** |
+| 1~50KB | 아주 짧은 활동 | 3% |
+| 50KB 이상 | GPS 가 찍힌 실제 활동 | 26% |
+
+**1KB 미만은 열어볼 필요도 없습니다.** 크기로 먼저 거르세요.
+
+## 분석 도구
+
+```bash
+node tools/tcx-report.mjs <폴더>                    # 요약 + 분류
+node tools/tcx-report.mjs <폴더> --runs             # 러닝만
+node tools/tcx-report.mjs <폴더> --since 2026-09-01 # 기간 지정
+node tools/tcx-report.mjs <폴더> --json             # 기계가 읽을 형식
+```
+
+코드로 직접 다룰 때는 `tools/tcx-core.mjs`:
+
+```js
+import { parseTcx, deviceDistanceKm, heartRateSummary, classify } from './tools/tcx-core.mjs';
+
+const p = parseTcx(readFileSync(file, 'utf8'));
+classify(p).kind          // 'run' | 'walk' | 'cycling' | 'no-gps' | 'too-short'
+deviceDistanceKm(p)       // { km, source: 'lap' | 'trackpoint' | 'gps' }
+heartRateSummary(p)       // { avg, max }
+```
+
+## TCX 에 들어 있는 것
+
+```
+Activity[Sport]
+  Id                                     활동 시작 시각
+  Lap[StartTime]
+    TotalTimeSeconds  DistanceMeters     ← 기기가 잰 값. GPS 계산보다 정확합니다
+    MaximumSpeed  Calories
+    AverageHeartRateBpm/Value  MaximumHeartRateBpm/Value
+    Track
+      Trackpoint (보통 1초 간격)
+        Time                             UTC
+        Position/LatitudeDegrees, LongitudeDegrees
+        AltitudeMeters  DistanceMeters   누적 거리
+        HeartRateBpm/Value
+        Extensions/TPX/Speed, RunCadence
+  Creator/Name                           예: Apple Watch Series 9
+```
+
+## 함정 — 미리 알아두면 시간을 아낍니다
+
+**거리는 `DistanceMeters` 를 쓰세요.** GPS 좌표로 계산하면 실제보다 짧게 나옵니다.
+애플워치는 가속도계·보폭을 함께 써서 터널이나 고층 건물 사이에서도 거리를 유지합니다.
+`deviceDistanceKm()` 이 랩 → 트랙포인트 → GPS 순으로 알아서 고릅니다.
+
+**랩은 보통 1개입니다.** RunGap 은 구간을 나눠주지 않습니다.
+km 별 스플릿이 필요하면 `gpx-core.mjs` 의 `splits()` 로 직접 계산해야 합니다.
+
+**`Sport="Running"` 을 믿지 마세요.** 걷기도 Running 으로 찍혀 나옵니다.
+`classify()` 가 페이스(8분/km 초과면 걷기)로 한 번 더 걸러냅니다.
+
+**`RunCadence` 는 한쪽 발 기준입니다.** 실제 걸음수는 2배입니다.
+`cadenceSummary()` 가 2배로 돌려줍니다.
+
+**날짜는 KST 로 변환하세요.** `<Time>` 이 UTC 라 그대로 자르면
+오전 9시 이전 러닝이 전날로 기록됩니다. `localDateString(iso, 540)` 을 쓰세요.
+
+**네임스페이스 접두사는 무시하세요.** `<Trackpoint>` 일 수도 `<ns3:Trackpoint>` 일 수도 있습니다.
+`tcx-core.mjs` 의 파서는 접두사와 무관하게 태그 이름으로만 찾습니다.
+
+## 이 환경에서의 제약
+
+**Dropbox 커넥터의 `fetch` 는 XML 태그를 지우고 텍스트만 돌려줍니다.**
+값은 보이지만 어느 태그였는지는 안 보입니다. 들여쓰기 깊이로 구조를 유추할 수는 있습니다.
+속성(`Sport`, `StartTime`)은 아예 사라집니다.
+
+**`download_link` 의 URL 은 받을 수 없습니다.**
+`dl.dropboxusercontent.com` 이 조직 이그레스 정책에 막혀 있습니다. 우회하지 마세요.
+
+따라서 **원본 XML 이 필요하면 사용자에게 스레드로 파일을 올려달라고 하세요.**
+목록 조회(`list_folder`)와 메타데이터는 정상 동작하므로, 크기 기반 분류와 파일명 분석은
+커넥터만으로 충분합니다.
+
+## 글로 이어질 때
+
+분석이 끝나 실제 글을 만들 거라면 `tools/build-post.mjs` 로 넘깁니다.
+TCX 를 넣으면 심박·케이던스·칼로리까지 정보 표에 자동으로 들어갑니다.
+
+```bash
+node tools/build-post.mjs runs/2026-09-21-여의도
+```

@@ -7,15 +7,17 @@
  *     node tools/build-post.mjs runs/... --cdn-ref main --tz 540
  *
  *   입력 폴더 구성 (파일 이름은 자유):
- *     activity.gpx      GPX 1개                     — 애플 헬스 → Dropbox 에서 받은 파일
+ *     activity.tcx      TCX 1개                     — 애플 헬스 → RunGap → Dropbox
+ *                       (GPX 도 그대로 받습니다)
  *     IMG_*.jpg         사진 여러 장                 — 순서 상관 없음, 촬영 시각으로 배치됩니다
  *     notes.md          소감·메모 (선택)             — 글의 "다녀온 소감" 재료
  *     meta.json         제목·주차·급수대 등 (선택)
  *
  *   하는 일:
- *     1. GPX 에서 거리·시간·페이스·상승고도·난이도·구간 스플릿 계산
+ *     1. 거리·시간·페이스·상승고도·난이도·구간 스플릿 계산
+ *        TCX 면 기기가 측정한 거리와 심박·케이던스·칼로리까지 가져옵니다
  *     2. 사진을 1600px 로 줄이고 EXIF(위치정보 포함) 제거          ← 중요
- *     3. 촬영 시각 ↔ GPX 시각을 맞춰 사진이 코스 몇 km 지점인지 계산
+ *     3. 촬영 시각 ↔ 트랙 시각을 맞춰 사진이 코스 몇 km 지점인지 계산
  *     4. 출발 전 / 달리는 중 / 끝난 뒤 로 나눠 글의 제자리에 배치
  *     5. images/courses.json 갱신 (지도에 코스 추가)
  *     6. post.md 초안 + data.json 출력
@@ -32,6 +34,7 @@ import {
     gpxToCourse, parseGpx, splits, splitsMarkdown, locateByTime,
     formatDuration, formatPace, totalDistance, slugify, REGIONS
 } from './gpx-core.mjs';
+import { tcxToCourse, isTcx, classify, parseTcx } from './tcx-core.mjs';
 import { listPhotos, prepPhoto, rankCovers, ensureDir, niceName, loadSharp } from './photo-prep.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -95,7 +98,7 @@ function photoLine(p) {
     return `![${caption}](${p.url})`;
 }
 
-function infoTable(course, pace, meta) {
+function infoTable(course, pace, meta, extra = {}) {
     const stars = '★'.repeat(course.difficulty) + '☆'.repeat(5 - course.difficulty);
     const ask = (key, hint) => meta[key] || WRITE(hint);
     const rows = [
@@ -105,12 +108,20 @@ function infoTable(course, pace, meta) {
         ['🏃 페이스', pace || WRITE('평균 페이스')],
         ['↗️ 상승고도', course.elevGain != null ? `${course.elevGain} m` : WRITE('상승고도')],
         ['⛰️ 난이도', stars],
+    ];
+    // TCX 에서만 나오는 값 — 있을 때만 줄을 넣습니다
+    if (extra.heartRate && extra.heartRate.avg) {
+        rows.push(['❤️ 심박', `평균 ${extra.heartRate.avg}` + (extra.heartRate.max ? ` · 최고 ${extra.heartRate.max} bpm` : ' bpm')]);
+    }
+    if (extra.cadence) rows.push(['👟 케이던스', `${extra.cadence} spm`]);
+    if (extra.calories) rows.push(['🔥 칼로리', `${extra.calories} kcal`]);
+    rows.push(
         ['🛣️ 노면', ask('surface', '노면 — 우레탄 / 보도블록 / 흙길')],
         ['🅿️ 주차', ask('parking', '주차장 이름 · 요금 · 혼잡 시간')],
         ['🚇 접근성', ask('transit', '가까운 역 · 출구 · 도보 시간')],
         ['🚰 급수대', ask('water', '개수 또는 위치')],
         ['🚻 화장실', ask('toilet', '개수 또는 위치')]
-    ];
+    );
     return [
         '## 📍 코스 정보',
         '',
@@ -122,10 +133,10 @@ function infoTable(course, pace, meta) {
     ].join('\n');
 }
 
-function buildMarkdown({ course, pace, meta, before, during, after, splitList, segments, notes }) {
+function buildMarkdown({ course, pace, meta, before, during, after, splitList, segments, notes, extra }) {
     const out = [];
 
-    out.push(infoTable(course, pace, meta), '');
+    out.push(infoTable(course, pace, meta, extra), '');
     out.push(`> 📌 **한 줄 요약** — ${WRITE('이 코스를 한 문장으로')}`, '', '---', '');
 
     /* 주차 & 출발 지점 — 달리기 시작 전에 찍은 사진 */
@@ -208,30 +219,44 @@ async function main() {
         process.exit(1);
     }
 
-    /* --- GPX --- */
-    const gpxFiles = readdirSync(inDir).filter(f => /\.gpx$/i.test(f));
-    if (!gpxFiles.length) {
-        console.error(`❌ ${args.dir} 에 .gpx 파일이 없습니다.`);
+    /* --- 활동 파일 (TCX 우선, GPX 도 허용) --- */
+    const actFiles = readdirSync(inDir)
+        .filter(f => /\.(tcx|gpx)$/i.test(f))
+        .sort((a, b) => (/\.tcx$/i.test(b) ? 1 : 0) - (/\.tcx$/i.test(a) ? 1 : 0));
+    if (!actFiles.length) {
+        console.error(`❌ ${args.dir} 에 .tcx 또는 .gpx 파일이 없습니다.`);
         process.exit(1);
     }
-    if (gpxFiles.length > 1) console.warn(`⚠️  GPX 가 ${gpxFiles.length}개입니다 — ${gpxFiles[0]} 만 씁니다.`);
+    if (actFiles.length > 1) console.warn(`⚠️  활동 파일이 ${actFiles.length}개입니다 — ${actFiles[0]} 만 씁니다.`);
 
-    const gpxPath = join(inDir, gpxFiles[0]);
-    const xml = readFileSync(gpxPath, 'utf8');
-    const parsed = parseGpx(xml);
+    const actFile = actFiles[0];
+    const xml = readFileSync(join(inDir, actFile), 'utf8');
+    const useTcx = isTcx(xml);
 
     const meta = readJson(join(inDir, 'meta.json'), {});
     const notesPath = ['notes.md', 'notes.txt', '소감.md'].map(f => join(inDir, f)).find(existsSync);
     const notes = notesPath ? readFileSync(notesPath, 'utf8').trim() : '';
 
-    const { course, pace, rawPoints, keptPoints } = gpxToCourse(xml, gpxFiles[0], {
-        id: meta.id || slugify(meta.title || parsed.name || basename(inDir)),
-        title: meta.title || parsed.name || basename(inDir),
+    // TCX 는 기기가 잰 거리·심박·케이던스가 들어 있어 그대로 씁니다.
+    const convert = useTcx ? tcxToCourse : gpxToCourse;
+    const fallbackName = useTcx ? null : parseGpx(xml).name;
+    const result = convert(xml, actFile, {
+        id: meta.id || slugify(meta.title || fallbackName || basename(inDir)),
+        title: meta.title || fallbackName || basename(inDir),
         link: meta.link || '',
-        date: meta.date || ''
+        date: meta.date || '',
+        tzOffsetMin: args.tz
     });
+    const { course, pace, rawPoints, keptPoints } = result;
 
-    const points = parsed.points;
+    const points = useTcx ? result.parsed.points : parseGpx(xml).points;
+
+    // 걷기·실내운동·실수로 켠 기록이면 글로 쓸 게 못 됩니다 — 막지는 않고 알려만 줍니다
+    const kind = useTcx ? result.classification : null;
+    if (kind && kind.kind !== 'run') {
+        console.warn(`\n⚠️  이 활동은 "${kind.kind}" 로 보입니다 — ${kind.reason || ''}`);
+        console.warn('    러닝 글로 쓰실 거면 파일을 다시 확인해 주세요.\n');
+    }
     const times = points.map(p => (p.time ? Date.parse(p.time) : NaN)).filter(Number.isFinite);
     const startMs = times.length ? Math.min(...times) : null;
     const endMs = times.length ? Math.max(...times) : null;
@@ -319,15 +344,30 @@ async function main() {
     const covers = rankCovers(photos, course.distance).slice(0, 3);
 
     /* --- 글 초안 --- */
-    const md = buildMarkdown({ course, pace, meta, before, during, after, splitList, segments, notes });
+    const extra = useTcx
+        ? { heartRate: result.heartRate, cadence: result.cadence, calories: result.calories }
+        : {};
+    const md = buildMarkdown({ course, pace, meta, before, during, after, splitList, segments, notes, extra });
     writeFileSync(join(outDir, 'post.md'), md, 'utf8');
 
     /* --- Claude / 사람이 참고할 계산 결과 --- */
     const data = {
         generated: new Date().toISOString(),
-        source: { gpx: gpxFiles[0], dir: args.dir, notes: notesPath ? basename(notesPath) : null },
+        source: {
+            file: actFile,
+            format: useTcx ? 'tcx' : 'gpx',
+            dir: args.dir,
+            notes: notesPath ? basename(notesPath) : null,
+            device: useTcx ? result.device : null,
+            sport: useTcx ? result.sport : null,
+            distanceSource: useTcx ? result.distanceSource : 'gps',
+            classification: useTcx ? result.classification : null
+        },
         course,
         pace,
+        heartRate: useTcx ? result.heartRate : null,
+        cadence: useTcx ? result.cadence : null,
+        calories: useTcx ? result.calories : null,
         points: { raw: rawPoints, kept: keptPoints },
         startedAt: startMs ? new Date(startMs).toISOString() : null,
         finishedAt: endMs ? new Date(endMs).toISOString() : null,
@@ -368,8 +408,14 @@ async function main() {
         페이스: pace || '-',
         상승고도: course.elevGain != null ? `${course.elevGain} m` : '-',
         난이도: '★'.repeat(course.difficulty),
-        지역: REGIONS[course.region]?.label || course.region
+        지역: REGIONS[course.region]?.label || course.region,
+        ...(useTcx && result.heartRate?.avg ? { 심박: `${result.heartRate.avg} bpm` } : {}),
+        ...(useTcx && result.cadence ? { 케이던스: `${result.cadence} spm` } : {})
     });
+    if (useTcx) {
+        const src = { lap: '기기 측정(랩)', trackpoint: '기기 측정(트랙포인트)', gps: 'GPS 좌표 계산' }[result.distanceSource];
+        console.log(`📐 거리 출처: ${src}${result.device ? ` · ${result.device}` : ''}`);
+    }
 
     const gpsCount = photos.filter(p => p.hadGps).length;
     console.log(`📷 사진 ${photos.length}장 — 출발 전 ${before.length} · 달리는 중 ${during.length} · 끝난 뒤 ${after.length}`);
