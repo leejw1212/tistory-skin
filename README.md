@@ -35,7 +35,7 @@ images/
   ├─ rivers.json       주요 강줄기
   └─ parks.json        공원 · 호수
 tools/
-  ├─ build-post.mjs    ★ GPX + 사진 + 소감 → 글 초안 한 번에 (아래 참고)
+  ├─ build-post.mjs    ★ TCX + 사진 + 소감 → 글 초안 한 번에 (아래 참고)
   ├─ gpx-studio.html   ★ TCX/GPX 끌어다 놓기 → courses.json 만들기 (브라우저)
   ├─ build-courses.mjs ★ gpx/*.tcx → courses.json (명령어)
   ├─ tcx-core.mjs      ★ TCX 파서 (기기 거리 · 심박 · 케이던스 · 활동 분류)
@@ -43,6 +43,7 @@ tools/
   ├─ gpx-core.mjs      변환 공용 로직 (거리 · 페이스 · 스플릿 · 폴리라인)
   ├─ photo-prep.mjs    사진 리사이즈 · EXIF 제거 · 커버 후보 선정
   ├─ exif.mjs          최소 EXIF 리더 (촬영 시각 · 회전 · GPS)
+  ├─ drive-import.mjs  구글 드라이브에서 받은 사진 → 러닝 폴더 (날짜로 거르기)
   ├─ build-studio.mjs  gpx-core 를 스튜디오에 인라인
   └─ preview.mjs       업로드 전 로컬 미리보기 생성
 templates/             글 양식 (러닝코스 · 맛집 · 제품리뷰)
@@ -125,7 +126,7 @@ GPX 의 수천 개 좌표를 **Encoded Polyline** 으로 압축하고, 화면에
 
 ## ⚡ 글 초안 자동 생성 (추천)
 
-GPX 와 사진, 소감만 있으면 글의 뼈대가 통째로 만들어집니다. **사진 순서도 신경 쓰지 않아도 됩니다.**
+TCX 와 사진, 소감만 있으면 글의 뼈대가 통째로 만들어집니다. **사진 순서도 신경 쓰지 않아도 됩니다.**
 
 ```bash
 npm install                                   # 최초 1회 (사진 가공용 sharp)
