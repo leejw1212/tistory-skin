@@ -7,6 +7,7 @@
   "scripts": {
     "post": "node tools/build-post.mjs",
     "courses": "node tools/build-courses.mjs",
+    "link": "node tools/link-course.mjs",
     "preview": "node tools/preview.mjs"
   },
   "optionalDependencies": {

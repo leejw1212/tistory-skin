@@ -19,8 +19,27 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { gpxToCourse, courseMarkdown, slugify, formatDuration } from './gpx-core.mjs';
+import { gpxToCourse, courseMarkdown, slugify, formatDuration, REGIONS } from './gpx-core.mjs';
 import { tcxToCourse, isTcx } from './tcx-core.mjs';
+
+/* RunGap 이 내보내는 이름: 2026-09-21_08-28-48_hk_1789946928.tcx
+   그대로 두면 지도에 이 문자열이 코스 이름으로 뜹니다. 읽을 수 있게 바꿉니다. */
+const RUNGAP = /^(\d{4})-(\d{2})-(\d{2})_(\d{2})-(\d{2})-\d{2}_[a-z]+_\d+$/i;
+
+function stemOf(file) { return file.replace(/\.(tcx|gpx)$/i, ''); }
+
+/** RunGap 파일명 → run-2026-09-21-0828 (파일명만으로 정해집니다) */
+function prettyId(file) {
+    const m = stemOf(file).match(RUNGAP);
+    return m ? `run-${m[1]}-${m[2]}-${m[3]}-${m[4]}${m[5]}` : null;
+}
+
+/** 빌드된 코스 → "2026-09-21 경기 4K" — 장소명은 아직 못 붙이므로 날짜·지역·거리로 */
+function prettyTitle(course) {
+    const region = REGIONS[course.region]?.label || '';
+    const km = String(Number(course.distance.toFixed(1))).replace(/\.0$/, '');
+    return [course.date, region, `${km}K`].filter(Boolean).join(' ');
+}
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const GPX_DIR = join(ROOT, 'gpx');
@@ -41,9 +60,19 @@ function main() {
         process.exit(1);
     }
 
-    const files = readdirSync(GPX_DIR).filter(f => /\.(tcx|gpx)$/i.test(f)).sort();
+    // sample* 은 저장소에 딸려 오는 예시입니다. 실제 지도에는 넣지 않습니다.
+    // 예시까지 보고 싶으면 --with-sample 을 주세요.
+    const withSample = process.argv.includes('--with-sample');
+    const all = readdirSync(GPX_DIR).filter(f => /\.(tcx|gpx)$/i.test(f)).sort();
+    const files = withSample ? all : all.filter(f => !/^sample/i.test(f));
+
     if (!files.length) {
-        console.error('❌ gpx/ 폴더에 .tcx 또는 .gpx 파일이 없습니다.');
+        if (all.length) {
+            console.error('❌ gpx/ 에 예시 파일(sample*)밖에 없습니다.');
+            console.error('   본인 활동 파일(.tcx 또는 .gpx)을 넣거나, 예시로 시험만 하려면 --with-sample 을 주세요.');
+        } else {
+            console.error('❌ gpx/ 폴더에 .tcx 또는 .gpx 파일이 없습니다.');
+        }
         process.exit(1);
     }
 
@@ -56,8 +85,8 @@ function main() {
     const rows = [];
 
     for (const file of files) {
-        const id = slugify(file);
-        const override = metaCourses[file] || metaCourses[id] || {};
+        const id = prettyId(file) || slugify(file);
+        const override = metaCourses[file] || metaCourses[id] || metaCourses[slugify(file)] || {};
         const prev = prevById.get(override.id || id);
 
         let result;
@@ -83,7 +112,13 @@ function main() {
         // 이전 빌드에서 손으로 채운 값은 유지
         if (!course.link && prev?.link) course.link = prev.link;
         if (!course.note && prev?.note) course.note = prev.note;
-        if (!override.title && prev?.titleLocked) course.title = prev.title;
+        if (!override.title && prev?.titleLocked) {
+            course.title = prev.title;
+            course.titleLocked = true;
+        } else if (!override.title && course.title === stemOf(file)) {
+            // 이름을 아무도 정해주지 않았습니다 — 파일명 대신 읽을 수 있는 걸로
+            course.title = prettyTitle(course);
+        }
 
         courses.push(course);
         rows.push({
@@ -125,17 +160,16 @@ function main() {
     console.log(`\n✅ images/courses.json 생성 완료 — 코스 ${courses.length}개 · 총 ${totalKm.toFixed(1)}km · 맛집 ${restaurants.length}곳`);
     console.log(`   파일 크기: ${(JSON.stringify(output).length / 1024).toFixed(1)} KB`);
     console.log(`📝 글에 붙여넣을 표: gpx/out/*.md`);
-    console.log(`\n다음 단계 → 티스토리 [스킨 편집 > 파일 업로드] 에 images/courses.json 을 올리세요.`);
-
     const missing = courses.filter(c => !c.link);
     if (missing.length) {
-        console.log(`\nℹ️  글 주소가 비어 있는 코스 ${missing.length}개 — 글을 발행한 뒤 gpx/meta.json 에 이렇게 적어주세요:`);
-        console.log(JSON.stringify({
-            courses: Object.fromEntries(missing.slice(0, 2).map(c => [c.id, { link: '/12' }]))
-        }, null, 2));
-        console.log('   link 는 글을 발행하면 생기는 주소입니다 — 예: /12 또는 /entry/여의도-한강-5k');
-        console.log('   (비워두면 지도에서 코스를 눌렀을 때 제목으로 블로그 내 검색이 열립니다)');
+        const one = missing[0];
+        console.log(`\nℹ️  글에 연결되지 않은 코스가 ${missing.length}개 있습니다.`);
+        console.log(`   글을 먼저 발행하고 받은 번호를 넣으세요 — 그래야 업로드를 한 번만 합니다.`);
+        console.log(`\n   node tools/link-course.mjs ${one.id} 213 --title "여의도 한강 4K"`);
+        console.log(`\n   (연결하지 않으면 지도에서 코스를 눌렀을 때 제목으로 블로그 내 검색이 열립니다)`);
     }
+
+    console.log(`\n마지막 → 티스토리 [스킨 편집 > 파일 업로드] 에 images/courses.json 을 올리세요.`);
 }
 
 main();

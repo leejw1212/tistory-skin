@@ -10,12 +10,30 @@
 node tools/build-courses.mjs
 ```
 
-- `images/courses.json` 이 만들어집니다 → 티스토리 [스킨 편집 → 파일 업로드] 에 올리세요.
+- `images/courses.json` 이 만들어집니다.
 - `gpx/out/<아이디>.md` 에 글에 붙여넣을 표가 생깁니다.
+- 예시 파일(`sample*`)은 빠집니다. 예시로 시험만 하려면 `--with-sample` 을 주세요.
+- **여기 넣은 활동 원본은 커밋되지 않습니다.** 집 근처 좌표와 심박이 그대로 들어 있어서
+  `.gitignore` 로 막아뒀습니다. 지도에 나가는 건 `courses.json` 의 단순화된 경로뿐입니다.
+
+## 글을 먼저 발행하세요 — 업로드를 한 번만 하려면
+
+지도 데이터에는 글 주소가 들어갑니다. 그래서 순서가 이렇습니다.
+
+```bash
+node tools/build-courses.mjs                    # 1. 지도 데이터 만들기
+#                                                 2. 티스토리에 글 발행 → 번호 확인
+node tools/link-course.mjs 여의도 213 --title "여의도 한강 4K"   # 3. 번호·이름 넣기
+#                                                 4. courses.json 한 번만 업로드
+```
+
+`link-course.mjs` 는 아무 인자 없이 실행하면 코스 목록과 연결 상태를 보여줍니다.
+코스는 아이디 전체를 적지 않아도 되고, 글 주소는 `213` · `/213` · 전체 URL 아무거나 됩니다.
+정한 이름과 주소는 `gpx/meta.json` 에도 같이 적히므로 **다시 빌드해도 남습니다.**
 
 ## meta.json (선택)
 
-글 주소나 제목을 직접 지정하고 싶을 때만 `gpx/meta.json` 을 만드세요.
+`link-course.mjs` 가 알아서 적어주지만, 직접 손으로 적어도 됩니다.
 
 ```json
 {

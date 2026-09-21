@@ -1,84 +1,25 @@
 {
   "version": 1,
-  "_note": "샘플 데이터입니다. tools/gpx-studio.html 에 본인 GPX 를 올리거나 node tools/build-courses.mjs 를 실행해 교체하세요.",
-  "generated": "2026-09-21T00:30:12.335Z",
+  "generated": "2026-09-21T20:27:01.602Z",
   "courses": [
     {
-      "id": "여의도-한강공원-5k",
-      "title": "여의도 한강공원 5K",
-      "link": "/12",
-      "date": "2026-09-14",
-      "distance": 7.33,
-      "region": "seoul",
-      "difficulty": 2,
-      "bounds": [
-        37.51892,
-        126.91765,
-        37.53608,
-        126.94835
-      ],
-      "polyline": "wn`dF_pyeWyBm@}BW_CB}B`@wBbAoBbBcB|BwArCmA`DaAhD}@jDy@fD{@dDaA~CeA~CkA~CoAfDmAnDiA|D{@fEk@pEWxE?zEVxEj@pEz@fEhAzDlApDnAfDjA~CdA~C`A~Cz@bDx@hD|@jD`AfDlAbDvArCbB|BnBbBvBbA|B`@~BB|BWxBm@rB{@lBcAhBeAfBaAfB}@lBw@nBy@tB}@vBgAvBwApBkBhBcCzA{CjAqDt@cEb@qENuE@yEEuEKoEIkEGgE?gEFgEHkEJoEDwEAwEOwEc@oEu@cEkAqD{A{CiBcCqBmBwBwAwBeAuB}@oBy@mBw@gB}@gBaAiBeAmBcAsB{@",
-      "elevGain": 21,
-      "duration": 1800
-    },
-    {
-      "id": "올림픽공원-한-바퀴",
-      "title": "올림픽공원 한 바퀴",
+      "id": "run-2026-09-21-0828",
+      "title": "2026-09-21 경기 4K",
       "link": "",
-      "date": "2026-09-07",
-      "distance": 4.77,
-      "region": "seoul",
+      "date": "2026-09-21",
+      "distance": 4.01,
+      "region": "gyeonggi",
       "difficulty": 1,
       "bounds": [
-        37.5141,
-        127.11275,
-        37.5266,
-        127.13125
+        37.33132,
+        127.23843,
+        37.34444,
+        127.25013
       ],
-      "polyline": "_c_dFwg}fWcBa@eBOgBDeB`@}Ax@uApAkAdB_AnBy@tBq@tBq@pBs@lBw@hB{@hB_AlB}@tBw@|Bk@fC]pCIrCHrC\\nCj@hCv@|B|@tB~@lBz@hBv@hBr@lBp@pBp@tBx@tB~@nBjAdBtApA|Ax@dB`@fBDdBObBa@|Am@zAo@tAq@tAk@vAe@zAc@|Ae@~Ak@`By@xAiArA{AbAoBr@aCb@kCPqCDsCCqCGkCEgCAeC@eCDgCFmCBoCEsCQqCc@kCs@aCcAoBsA{AyAkAaBw@_Bk@}Ae@{Ac@wAg@uAi@uAq@{Ao@}Am@",
-      "elevGain": 23,
-      "duration": 1440
-    },
-    {
-      "id": "남산-순환로-10k",
-      "title": "남산 순환로 10K",
-      "link": "",
-      "date": "2026-08-30",
-      "distance": 8.94,
-      "region": "seoul",
-      "difficulty": 2,
-      "bounds": [
-        37.5404,
-        126.97255,
-        37.56318,
-        127.00745
-      ],
-      "polyline": "wdedFs}dfWaCqAgC_AkCe@mCEiCZeC|@yB`BkB~B_BxCoAhDcArDw@vDq@pDo@jDq@~Cw@tCaAhCmA`CwA~BaB`CgBdCgBpCeB|CyAlDiAvDs@dEYhE?lEXjEr@dEhAvDxAlDdB|CfBpCfBdC`B`CvA~BlA`C`AhCv@tCp@~Cn@hDp@rDv@vDbArDnAhD~AvCjB`CxB~AdC~@hCZlCEjCe@fC_A`CqAxB}ApB_BjByAfBqAfBcAjBs@nBg@tB[~BWdCWlC_@lCo@jCaAbC{AvBuBdBmCpAgDx@yDb@gELqEEqEUqE]kEa@aE]yDWqDKkD?kDJkDVqD\\yD`@aE\\kETqEDsEMoEc@gEy@{DqAeDeBmCwBuBcC{AkCaAmCo@mC_@eCW_CWuB[oBg@kBs@gBcAgBqAkB{AqB}AyB}A",
-      "elevGain": 22,
-      "duration": 3720
+      "polyline": "uy|bFiotgWZAzAOp@Cp@A^Cd@BhAGj@?nAJnAPX@L@`@J\\NPFt@LV@j@AdCF|AF^?v@Ad@BLBh@Nb@B\\FhAZb@DHBPJLDNB`@DZPp@Fr@Nl@Jl@PPJV\\Nb@J\\Ll@Pl@L\\N\\Pj@Tn@^pAn@hBHb@Vr@T|@\\bA^lAH\\p@pBpArE\\`A`@tA`AbDp@`C^jAPl@Vx@^dATXXf@P^`@dADHB@@A?CCGS[y@_B[i@KUMe@Ue@Kc@]_AQw@cAeD[gAk@eBYcAOq@a@mAW_A[}@{@wCc@oAg@iBq@sBYcA}AqEUe@Wy@Qe@Ug@KOMWGGIESIi@IoA[OCYAIAQGq@WeAYiAWm@Ky@SMC}AGo@@}@GaACkAAoACa@E_@Iu@U_BQa@Ii@G}@I_A?]FiEHwAJM@",
+      "elevGain": 3,
+      "duration": 1422
     }
   ],
-  "restaurants": [
-    {
-      "title": "여의도 ○○버거",
-      "url": "/13",
-      "lat": 37.5265,
-      "lon": 126.9315,
-      "desc": "러닝 후 단백질 충전"
-    },
-    {
-      "title": "올림픽공원 브런치",
-      "url": "/14",
-      "lat": 37.5195,
-      "lon": 127.126,
-      "desc": "주말 아침 러닝 뒤에"
-    },
-    {
-      "title": "남산 칼국수",
-      "url": "",
-      "lat": 37.554,
-      "lon": 126.988,
-      "desc": "언덕 달리고 뜨끈하게"
-    }
-  ]
+  "restaurants": []
 }
