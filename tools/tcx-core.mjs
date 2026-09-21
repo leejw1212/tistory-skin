@@ -41,6 +41,21 @@ function tagBlocks(xml, name) {
     return out;
 }
 
+/** 모든 <name> 블록을 여는 태그와 함께 — { open, inner } */
+function tagBlocksWithOpen(xml, name) {
+    const re = new RegExp(`(<(?:[\\w.-]+:)?${name}\\b[^>]*>)([\\s\\S]*?)<\\/(?:[\\w.-]+:)?${name}>`, 'gi');
+    const out = [];
+    let m;
+    while ((m = re.exec(xml)) !== null) out.push({ open: m[1], inner: m[2] || '' });
+    return out;
+}
+
+/** 여는 태그 문자열에서 속성 값 */
+function attrOf(openTag, attr) {
+    const m = openTag.match(new RegExp(`\\b${attr}\\s*=\\s*["']([^"']*)["']`, 'i'));
+    return m ? m[1] : null;
+}
+
 /** <name attr="..."> 의 속성 값 */
 function tagAttr(xml, name, attr) {
     const re = new RegExp(`<(?:[\\w.-]+:)?${name}\\b[^>]*?\\b${attr}\\s*=\\s*["']([^"']*)["']`, 'i');
@@ -72,9 +87,9 @@ export function parseTcx(xml) {
     const sport = tagAttr(xml, 'Activity', 'Sport') || null;
     const id = tagText(body, 'Id');
 
-    const laps = tagBlocks(body, 'Lap').map((lap, i) => ({
+    const laps = tagBlocksWithOpen(body, 'Lap').map(({ open, inner: lap }, i) => ({
         index: i,
-        startTime: tagAttr(xml, 'Lap', 'StartTime') && i === 0 ? tagAttr(xml, 'Lap', 'StartTime') : null,
+        startTime: attrOf(open, 'StartTime'),
         seconds: tagNum(lap, 'TotalTimeSeconds'),
         meters: tagNum(lap, 'DistanceMeters'),
         maxSpeed: tagNum(lap, 'MaximumSpeed'),
@@ -156,13 +171,18 @@ export function deviceDurationSec(parsed) {
 
 /** 심박 요약 — { avg, max } (없으면 null) */
 export function heartRateSummary(parsed) {
-    const lapAvg = parsed.laps.map(l => l.avgHr).filter(Number.isFinite);
+    // 랩마다 길이가 다르므로 시간으로 가중평균을 냅니다.
+    // 5초짜리 마지막 랩이 30분치 평균을 끌어당기면 안 됩니다.
+    const weighted = parsed.laps.filter(l => Number.isFinite(l.avgHr));
     const lapMax = parsed.laps.map(l => l.maxHr).filter(Number.isFinite);
-    if (lapAvg.length || lapMax.length) {
-        return {
-            avg: lapAvg.length ? Math.round(lapAvg.reduce((a, b) => a + b, 0) / lapAvg.length) : null,
-            max: lapMax.length ? Math.max(...lapMax) : null
-        };
+    if (weighted.length || lapMax.length) {
+        let avg = null;
+        if (weighted.length) {
+            const totalW = weighted.reduce((s, l) => s + (Number.isFinite(l.seconds) && l.seconds > 0 ? l.seconds : 1), 0);
+            const sum = weighted.reduce((s, l) => s + l.avgHr * (Number.isFinite(l.seconds) && l.seconds > 0 ? l.seconds : 1), 0);
+            avg = Math.round(sum / totalW);
+        }
+        return { avg, max: lapMax.length ? Math.max(...lapMax) : null };
     }
     const hrs = parsed.points.map(p => p.hr).filter(Number.isFinite);
     if (!hrs.length) return null;
@@ -178,6 +198,30 @@ export function cadenceSummary(parsed, { doubled = true } = {}) {
     if (!vals.length) return null;
     const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
     return Math.round(doubled ? avg * 2 : avg);
+}
+
+/**
+ * 기기가 나눠준 랩을 구간 스플릿으로 변환합니다.
+ * 애플워치는 보통 1km 마다 자동으로 랩을 끊습니다. 그 값이 직접 보간한 것보다 정확합니다.
+ * 랩이 1개뿐이면(짧은 활동) null 을 돌려주니, 그때는 gpx-core 의 splits() 를 쓰세요.
+ */
+export function lapSplits(parsed) {
+    const usable = parsed.laps.filter(l => Number.isFinite(l.meters) && Number.isFinite(l.seconds) && l.meters > 1);
+    if (usable.length < 2) return null;
+
+    let cum = 0;
+    return usable.map((l, i) => {
+        cum += l.meters / 1000;
+        return {
+            km: Number(cum.toFixed(2)),
+            distance: Number((l.meters / 1000).toFixed(2)),
+            seconds: Math.round(l.seconds),
+            pace: formatPace(l.meters / 1000, l.seconds),
+            hr: l.avgHr ?? null,
+            // 마지막 랩은 1km 를 못 채우고 끝나는 조각인 경우가 많습니다
+            partial: l.meters < 900 && i === usable.length - 1
+        };
+    });
 }
 
 export function caloriesTotal(parsed) {
@@ -267,4 +311,19 @@ export function tcxToCourse(xml, file = 'activity.tcx', meta = {}) {
         sport: parsed.sport,
         device: parsed.device
     };
+}
+
+/** 랩 스플릿 → 마크다운 표 (심박이 있으면 같이) */
+export function lapSplitsMarkdown(list) {
+    if (!list || !list.length) return '';
+    const hasHr = list.some(s => Number.isFinite(s.hr));
+    const head = hasHr ? '| 구간 | 페이스 | 심박 |' : '| 구간 | 페이스 |';
+    const sep = hasHr ? '| --- | --- | --- |' : '| --- | --- |';
+    const rows = list.map(s => {
+        const label = s.partial ? `${s.km} km (마지막)` : `${s.km} km`;
+        return hasHr
+            ? `| ${label} | ${s.pace || '—'} | ${Number.isFinite(s.hr) ? s.hr : '—'} |`
+            : `| ${label} | ${s.pace || '—'} |`;
+    });
+    return [head, sep, ...rows].join('\n');
 }

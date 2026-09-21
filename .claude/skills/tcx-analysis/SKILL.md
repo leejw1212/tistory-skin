@@ -56,19 +56,22 @@ heartRateSummary(p)       // { avg, max }
 ```
 Activity[Sport]
   Id                                     활동 시작 시각
-  Lap[StartTime]
+  Lap[StartTime]              ← 1km 마다 여러 개 (아래 참고)
     TotalTimeSeconds  DistanceMeters     ← 기기가 잰 값. GPS 계산보다 정확합니다
     MaximumSpeed  Calories
     AverageHeartRateBpm/Value  MaximumHeartRateBpm/Value
     Track
       Trackpoint (보통 1초 간격)
         Time                             UTC
-        Position/LatitudeDegrees, LongitudeDegrees
+        Position/LatitudeDegrees, LongitudeDegrees   ← 없을 수 있음
         AltitudeMeters  DistanceMeters   누적 거리
         HeartRateBpm/Value
-        Extensions/TPX/Speed, RunCadence
-  Creator/Name                           예: Apple Watch Series 9
+        Extensions/TPX/RunCadence, Speed ← Speed 는 없을 수 있음
+  Creator/Name                           ← 통째로 없을 수 있음
 ```
+
+실측(2019-04-30 파일, 3.03km): 트랙포인트 944개 중 **939개만 Position 을 가집니다.**
+출발 직후 GPS 가 잡히기 전 몇 개는 `<Time>` 과 심박만 있습니다. 그 점들은 건너뛰세요.
 
 ## 함정 — 미리 알아두면 시간을 아낍니다
 
@@ -76,8 +79,14 @@ Activity[Sport]
 애플워치는 가속도계·보폭을 함께 써서 터널이나 고층 건물 사이에서도 거리를 유지합니다.
 `deviceDistanceKm()` 이 랩 → 트랙포인트 → GPS 순으로 알아서 고릅니다.
 
-**랩은 보통 1개입니다.** RunGap 은 구간을 나눠주지 않습니다.
-km 별 스플릿이 필요하면 `gpx-core.mjs` 의 `splits()` 로 직접 계산해야 합니다.
+**랩은 보통 1km 자동 랩입니다 — 이걸 스플릿으로 쓰세요.**
+3km 러닝이면 랩이 4개(1km·1km·1km·나머지 조각) 나옵니다.
+기기가 끊어준 값이라 직접 보간한 것보다 정확합니다. `lapSplits()` 를 쓰세요.
+랩이 1개뿐인 짧은 활동에서는 `null` 을 돌려주므로, 그때만 `gpx-core.mjs` 의 `splits()` 로 넘어갑니다.
+
+**심박 평균은 시간 가중으로 내세요.** 랩마다 길이가 다릅니다.
+5초짜리 마지막 조각 랩을 30분치와 똑같이 평균 내면 값이 틀어집니다.
+(실측에서 단순평균 170 vs 가중평균 167) `heartRateSummary()` 가 처리합니다.
 
 **`Sport="Running"` 을 믿지 마세요.** 걷기도 Running 으로 찍혀 나옵니다.
 `classify()` 가 페이스(8분/km 초과면 걷기)로 한 번 더 걸러냅니다.
@@ -88,8 +97,12 @@ km 별 스플릿이 필요하면 `gpx-core.mjs` 의 `splits()` 로 직접 계산
 **날짜는 KST 로 변환하세요.** `<Time>` 이 UTC 라 그대로 자르면
 오전 9시 이전 러닝이 전날로 기록됩니다. `localDateString(iso, 540)` 을 쓰세요.
 
-**네임스페이스 접두사는 무시하세요.** `<Trackpoint>` 일 수도 `<ns3:Trackpoint>` 일 수도 있습니다.
+**네임스페이스 접두사는 무시하세요.** 실측 파일은 접두사 대신 TPX 에 기본 xmlns 를 다시 선언합니다
+(`<TPX xmlns="…/ActivityExtension/v2">`). 다른 기기는 `<ns3:TPX>` 로 씁니다.
 `tcx-core.mjs` 의 파서는 접두사와 무관하게 태그 이름으로만 찾습니다.
+
+**없을 수 있는 것들에 대비하세요.** 실측 파일에는 `<Creator>`(기기 이름)와 `<Speed>` 가 아예 없었습니다.
+`RunCadence` 만 있고 `Speed` 는 없는 경우가 정상입니다.
 
 ## 이 환경에서의 제약
 
@@ -103,6 +116,9 @@ km 별 스플릿이 필요하면 `gpx-core.mjs` 의 `splits()` 로 직접 계산
 따라서 **원본 XML 이 필요하면 사용자에게 스레드로 파일을 올려달라고 하세요.**
 목록 조회(`list_folder`)와 메타데이터는 정상 동작하므로, 크기 기반 분류와 파일명 분석은
 커넥터만으로 충분합니다.
+
+> 파서는 실제 파일(`2019-04-30_10-19-02_hk_1556587142.tcx`, 3.03km · 랩 4개 · 트랙포인트 944개)로
+> 검증했습니다. 랩 값 · 거리 · 시간 · 날짜가 원본과 정확히 일치합니다.
 
 ## 글로 이어질 때
 

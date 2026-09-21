@@ -34,7 +34,7 @@ import {
     gpxToCourse, parseGpx, splits, splitsMarkdown, locateByTime,
     formatDuration, formatPace, totalDistance, slugify, REGIONS
 } from './gpx-core.mjs';
-import { tcxToCourse, isTcx, classify, parseTcx } from './tcx-core.mjs';
+import { tcxToCourse, isTcx, lapSplits, lapSplitsMarkdown } from './tcx-core.mjs';
 import { listPhotos, prepPhoto, rankCovers, ensureDir, niceName, loadSharp } from './photo-prep.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -133,7 +133,7 @@ function infoTable(course, pace, meta, extra = {}) {
     ].join('\n');
 }
 
-function buildMarkdown({ course, pace, meta, before, during, after, splitList, segments, notes, extra }) {
+function buildMarkdown({ course, pace, meta, before, during, after, splitTable, segments, notes, extra }) {
     const out = [];
 
     out.push(infoTable(course, pace, meta, extra), '');
@@ -161,8 +161,8 @@ function buildMarkdown({ course, pace, meta, before, during, after, splitList, s
         }
         out.push(WRITE(`${label} 구간 — 노면 · 사람 · 풍경`), '');
     });
-    if (splitList.length >= 2) {
-        out.push('### ⏱️ 구간 페이스', '', splitsMarkdown(splitList), '');
+    if (splitTable) {
+        out.push('### ⏱️ 구간 페이스', '', splitTable, '');
     }
     out.push('---', '');
 
@@ -260,7 +260,12 @@ async function main() {
     const times = points.map(p => (p.time ? Date.parse(p.time) : NaN)).filter(Number.isFinite);
     const startMs = times.length ? Math.min(...times) : null;
     const endMs = times.length ? Math.max(...times) : null;
-    const splitList = splits(points, 1);
+    // 기기가 1km 마다 랩을 끊어줬으면 그 값을 씁니다 — 직접 보간한 것보다 정확합니다
+    const deviceLaps = useTcx ? lapSplits(result.parsed) : null;
+    const splitList = deviceLaps || splits(points, 1);
+    const splitTable = deviceLaps
+        ? lapSplitsMarkdown(deviceLaps)
+        : (splitList.length >= 2 ? splitsMarkdown(splitList) : '');
 
     /* --- 사진 --- */
     const slug = `${course.date || new Date().toISOString().slice(0, 10)}-${course.id}`;
@@ -347,7 +352,7 @@ async function main() {
     const extra = useTcx
         ? { heartRate: result.heartRate, cadence: result.cadence, calories: result.calories }
         : {};
-    const md = buildMarkdown({ course, pace, meta, before, during, after, splitList, segments, notes, extra });
+    const md = buildMarkdown({ course, pace, meta, before, during, after, splitTable, segments, notes, extra });
     writeFileSync(join(outDir, 'post.md'), md, 'utf8');
 
     /* --- Claude / 사람이 참고할 계산 결과 --- */
@@ -372,6 +377,7 @@ async function main() {
         startedAt: startMs ? new Date(startMs).toISOString() : null,
         finishedAt: endMs ? new Date(endMs).toISOString() : null,
         splits: splitList,
+        splitsSource: deviceLaps ? 'device-lap' : 'computed',
         segments: segments.map(s => ({ from: s.from, to: s.to, photos: s.photos.map(p => p.name) })),
         photos: photos.map(p => ({
             name: p.name, url: p.url, km: p.km, phase: p.phase,
@@ -415,6 +421,7 @@ async function main() {
     if (useTcx) {
         const src = { lap: '기기 측정(랩)', trackpoint: '기기 측정(트랙포인트)', gps: 'GPS 좌표 계산' }[result.distanceSource];
         console.log(`📐 거리 출처: ${src}${result.device ? ` · ${result.device}` : ''}`);
+        console.log(`⏱️ 구간 페이스: ${deviceLaps ? `기기 랩 ${deviceLaps.length}개` : '직접 계산 (랩이 1개뿐)'}`);
     }
 
     const gpsCount = photos.filter(p => p.hadGps).length;
