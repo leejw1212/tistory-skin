@@ -74,7 +74,9 @@ npm install
 
 ## 사진을 구글 드라이브에 두는 경우
 
-사진을 직접 끌어다 넣는 대신, 구글 드라이브 폴더에 올려두고 날짜로 가져올 수 있습니다.
+사진을 직접 끌어다 넣는 대신, 구글 드라이브의 **`러닝기록`** 폴더에 올려두면 날짜로 가져옵니다.
+([폴더 열기](https://drive.google.com/drive/folders/1jbVrQCDX-cs3sz4NbR1whOHJThy2Fdty))
+
 드라이브에서 받은 사진은 `{ id, title, mimeType, content }` 모양의 JSON 으로 떨어지는데,
 `content` 가 base64 라서 그대로는 사진이 아닙니다. 되돌려 넣는 도구입니다.
 
