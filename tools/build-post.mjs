@@ -36,6 +36,7 @@ import {
 } from './gpx-core.mjs';
 import { tcxToCourse, isTcx, lapSplits, lapSplitsMarkdown } from './tcx-core.mjs';
 import { listPhotos, prepPhoto, rankCovers, ensureDir, niceName, loadSharp } from './photo-prep.mjs';
+import { publishHint } from './link-course.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const COURSES_JSON = join(ROOT, 'images', 'courses.json');
@@ -268,7 +269,9 @@ async function main() {
         : (splitList.length >= 2 ? splitsMarkdown(splitList) : '');
 
     /* --- 사진 --- */
-    const slug = `${course.date || new Date().toISOString().slice(0, 10)}-${course.id}`;
+    // runs/2026-09-21-여의도 처럼 폴더 이름이 이미 날짜로 시작하면 날짜를 또 붙이지 않습니다
+    const day = course.date || new Date().toISOString().slice(0, 10);
+    const slug = course.id.startsWith(day) ? course.id : `${day}-${course.id}`;
     const outDir = ensureDir(join(ROOT, 'posts', slug));
     const photoDir = ensureDir(join(outDir, 'photos'));
 
@@ -396,6 +399,16 @@ async function main() {
     const others = (prev.courses || []).filter(c => c.id !== course.id);
     const existing = (prev.courses || []).find(c => c.id === course.id);
     if (!course.link && existing?.link) course.link = existing.link;   // 발행 후 적어둔 글 주소는 지키기
+
+    // 같은 날 러닝이 다른 아이디로 이미 들어 있으면 지도에 두 번 그려집니다.
+    // build-courses.mjs 로 먼저 넣어둔 경우가 대부분입니다 (아이디 규칙이 다릅니다).
+    const sameDay = others.filter(c => c.date && c.date === course.date);
+    if (sameDay.length) {
+        console.warn(`\n⚠️  ${course.date} 코스가 이미 ${sameDay.length}개 있습니다 — 지도에 겹쳐 그려집니다.`);
+        for (const c of sameDay) console.warn(`      ${c.id}  (${c.title} · ${c.distance}km)`);
+        console.warn(`    이 글의 코스는 "${course.id}" 입니다.`);
+        console.warn(`    겹치는 쪽을 images/courses.json 에서 지우세요.`);
+    }
     const merged = {
         version: 1,
         generated: new Date().toISOString(),
@@ -437,7 +450,11 @@ async function main() {
         console.log(`\n⚠️  사진 주소가 @${args.cdnRef} 를 가리킵니다. 지금 브랜치는 ${branch} 입니다.`);
         console.log(`    ${args.cdnRef} 에 합쳐 푸시한 뒤에 글을 발행하세요. (아니면 --cdn-ref ${branch})`);
     }
-    console.log(`\n다음 단계 → post.md 의 <!-- WRITE: ... --> 를 채우고, images/courses.json 을 티스토리에 올리세요.`);
+    console.log(`\n다음 단계`);
+    console.log(`   1. post.md 의 <!-- WRITE: ... --> 를 채웁니다`);
+    console.log(`   2. 티스토리에 붙여넣어 발행하고 글 번호를 확인합니다`);
+    console.log(`   3. node tools/link-course.mjs ${course.id} <글번호>`);
+    console.log(`   4. ${publishHint()}`);
 }
 
 main().catch(e => { console.error('❌', e.stack || e.message); process.exit(1); });
