@@ -1,0 +1,110 @@
+{
+  "generated": "2026-09-22T04:13:21.572Z",
+  "source": {
+    "file": "activity.tcx",
+    "format": "tcx",
+    "dir": "runs/2026-09-21-아침러닝",
+    "notes": null,
+    "device": null,
+    "sport": "Running",
+    "distanceSource": "lap",
+    "classification": {
+      "kind": "run",
+      "reason": null
+    }
+  },
+  "course": {
+    "id": "2026-09-21-아침러닝",
+    "title": "2026-09-21-아침러닝",
+    "link": "",
+    "date": "2026-09-21",
+    "distance": 4.01,
+    "region": "gyeonggi",
+    "difficulty": 1,
+    "bounds": [
+      37.33132,
+      127.23843,
+      37.34444,
+      127.25013
+    ],
+    "polyline": "uy|bFiotgWZAzAOp@Cp@A^Cd@BhAGj@?nAJnAPX@L@`@J\\NPFt@LV@j@AdCF|AF^?v@Ad@BLBh@Nb@B\\FhAZb@DHBPJLDNB`@DZPp@Fr@Nl@Jl@PPJV\\Nb@J\\Ll@Pl@L\\N\\Pj@Tn@^pAn@hBHb@Vr@T|@\\bA^lAH\\p@pBpArE\\`A`@tA`AbDp@`C^jAPl@Vx@^dATXXf@P^`@dADHB@@A?CCGS[y@_B[i@KUMe@Ue@Kc@]_AQw@cAeD[gAk@eBYcAOq@a@mAW_A[}@{@wCc@oAg@iBq@sBYcA}AqEUe@Wy@Qe@Ug@KOMWGGIESIi@IoA[OCYAIAQGq@WeAYiAWm@Ky@SMC}AGo@@}@GaACkAAoACa@E_@Iu@U_BQa@Ii@G}@I_A?]FiEHwAJM@",
+    "elevGain": 3,
+    "duration": 1422
+  },
+  "pace": "5'54\"",
+  "heartRate": {
+    "avg": 149,
+    "max": 182
+  },
+  "cadence": 180,
+  "calories": 302,
+  "points": {
+    "raw": 1425,
+    "kept": 139
+  },
+  "startedAt": "2026-09-20T23:28:49.000Z",
+  "finishedAt": "2026-09-20T23:52:33.000Z",
+  "splits": [
+    {
+      "km": 0.99,
+      "distance": 0.99,
+      "seconds": 394,
+      "pace": "6'36\"",
+      "hr": 138,
+      "partial": false
+    },
+    {
+      "km": 2,
+      "distance": 1,
+      "seconds": 358,
+      "pace": "5'57\"",
+      "hr": 147,
+      "partial": false
+    },
+    {
+      "km": 2.99,
+      "distance": 1,
+      "seconds": 334,
+      "pace": "5'35\"",
+      "hr": 154,
+      "partial": false
+    },
+    {
+      "km": 4,
+      "distance": 1.01,
+      "seconds": 331,
+      "pace": "5'30\"",
+      "hr": 160,
+      "partial": false
+    },
+    {
+      "km": 4.01,
+      "distance": 0.01,
+      "seconds": 5,
+      "pace": "5'49\"",
+      "hr": 160,
+      "partial": true
+    }
+  ],
+  "splitsSource": "device-lap",
+  "segments": [
+    {
+      "from": 0,
+      "to": 1.5,
+      "photos": []
+    },
+    {
+      "from": 1.5,
+      "to": 3,
+      "photos": []
+    },
+    {
+      "from": 3,
+      "to": 4.01,
+      "photos": []
+    }
+  ],
+  "photos": [],
+  "coverCandidates": [],
+  "notes": ""
+}

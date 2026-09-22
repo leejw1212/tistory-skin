@@ -398,7 +398,12 @@ async function main() {
     const prev = readJson(COURSES_JSON, { version: 1, courses: [], restaurants: [] });
     const others = (prev.courses || []).filter(c => c.id !== course.id);
     const existing = (prev.courses || []).find(c => c.id === course.id);
-    if (!course.link && existing?.link) course.link = existing.link;   // 발행 후 적어둔 글 주소는 지키기
+    // 발행 후 적어둔 글 주소와, link-course.mjs 로 정한 코스 이름은 지킵니다
+    if (!course.link && existing?.link) course.link = existing.link;
+    if (!meta.title && existing?.titleLocked) {
+        course.title = existing.title;
+        course.titleLocked = true;
+    }
 
     // 같은 날 러닝이 다른 아이디로 이미 들어 있으면 지도에 두 번 그려집니다.
     // build-courses.mjs 로 먼저 넣어둔 경우가 대부분입니다 (아이디 규칙이 다릅니다).

@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "generated": "2026-09-22T04:07:27.461Z",
+  "generated": "2026-09-22T04:13:21.572Z",
   "courses": [
     {
-      "id": "run-2026-09-21-0828",
-      "title": "2026-09-21 경기 4K",
+      "id": "2026-09-21-아침러닝",
+      "title": "9월 21일 아침 4K",
       "link": "",
       "date": "2026-09-21",
       "distance": 4.01,
@@ -18,7 +18,8 @@
       ],
       "polyline": "uy|bFiotgWZAzAOp@Cp@A^Cd@BhAGj@?nAJnAPX@L@`@J\\NPFt@LV@j@AdCF|AF^?v@Ad@BLBh@Nb@B\\FhAZb@DHBPJLDNB`@DZPp@Fr@Nl@Jl@PPJV\\Nb@J\\Ll@Pl@L\\N\\Pj@Tn@^pAn@hBHb@Vr@T|@\\bA^lAH\\p@pBpArE\\`A`@tA`AbDp@`C^jAPl@Vx@^dATXXf@P^`@dADHB@@A?CCGS[y@_B[i@KUMe@Ue@Kc@]_AQw@cAeD[gAk@eBYcAOq@a@mAW_A[}@{@wCc@oAg@iBq@sBYcA}AqEUe@Wy@Qe@Ug@KOMWGGIESIi@IoA[OCYAIAQGq@WeAYiAWm@Ky@SMC}AGo@@}@GaACkAAoACa@E_@Iu@U_BQa@Ii@G}@I_A?]FiEHwAJM@",
       "elevGain": 3,
-      "duration": 1422
+      "duration": 1422,
+      "titleLocked": true
     }
   ],
   "restaurants": []
