@@ -23,7 +23,7 @@
  *     - gpx/meta.json         다음에 빌드해도 연결이 남게 하는 기록.
  * ========================================================================= */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, realpathSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -41,6 +41,18 @@ function readJson(path, fallback) {
 
 function writeJson(path, value) {
     writeFileSync(path, JSON.stringify(value, null, 2) + '\n', 'utf8');
+}
+
+/** mapData.js 의 coursesUrl 이 채워져 있으면 푸시가 곧 반영입니다 */
+export function publishHint() {
+    try {
+        const js = readFileSync(join(ROOT, 'images', 'mapData.js'), 'utf8');
+        const m = js.match(/^\s*coursesUrl\s*:\s*['"]([^'"]+)['"]/m);
+        if (m && m[1].trim()) {
+            return `images/courses.json 을 커밋하고 푸시하세요. 5분쯤 뒤 지도에 반영됩니다.`;
+        }
+    } catch { /* 못 읽으면 예전 방식으로 안내합니다 */ }
+    return `티스토리 [스킨 편집 > 파일 업로드] 에 images/courses.json 을 올리세요.`;
 }
 
 /** 213 · /213 · https://블로그/213 · /entry/제목  →  /213 꼴로 */
@@ -189,7 +201,10 @@ function main() {
     } else {
         console.log(`\n✅ 모든 코스가 글에 연결됐습니다.`);
     }
-    console.log(`\n다음 단계 → 티스토리 [스킨 편집 > 파일 업로드] 에 images/courses.json 을 올리세요.`);
+    console.log(`\n다음 단계 → ${publishHint()}`);
 }
 
-main();
+// 다른 도구가 publishHint() 만 가져다 쓸 수 있도록, 직접 실행할 때만 돕니다
+if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
+    main();
+}

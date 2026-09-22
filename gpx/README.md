@@ -16,7 +16,7 @@ node tools/build-courses.mjs
 - **여기 넣은 활동 원본은 커밋되지 않습니다.** 집 근처 좌표와 심박이 그대로 들어 있어서
   `.gitignore` 로 막아뒀습니다. 지도에 나가는 건 `courses.json` 의 단순화된 경로뿐입니다.
 
-## 글을 먼저 발행하세요 — 업로드를 한 번만 하려면
+## 글을 먼저 발행하세요
 
 지도 데이터에는 글 주소가 들어갑니다. 그래서 순서가 이렇습니다.
 
@@ -24,8 +24,12 @@ node tools/build-courses.mjs
 node tools/build-courses.mjs                    # 1. 지도 데이터 만들기
 #                                                 2. 티스토리에 글 발행 → 번호 확인
 node tools/link-course.mjs 여의도 213 --title "여의도 한강 4K"   # 3. 번호·이름 넣기
-#                                                 4. courses.json 한 번만 업로드
+git add images/courses.json && git commit -m "🗺️ …" && git push   # 4. 푸시
 ```
+
+4번이 푸시인 이유는 `images/mapData.js` 의 `coursesUrl` 때문입니다. 지도가 스킨 파일 대신
+저장소에서 직접 읽으므로 스킨 편집을 열 필요가 없습니다. 반영까지 5분쯤 걸립니다.
+(`coursesUrl` 을 비워두면 예전처럼 `courses.json` 을 스킨에 업로드하는 방식으로 돌아갑니다)
 
 `link-course.mjs` 는 아무 인자 없이 실행하면 코스 목록과 연결 상태를 보여줍니다.
 코스는 아이디 전체를 적지 않아도 되고, 글 주소는 `213` · `/213` · 전체 URL 아무거나 됩니다.

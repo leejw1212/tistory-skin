@@ -21,6 +21,7 @@ import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gpxToCourse, courseMarkdown, slugify, formatDuration, REGIONS } from './gpx-core.mjs';
 import { tcxToCourse, isTcx } from './tcx-core.mjs';
+import { publishHint } from './link-course.mjs';
 
 /* RunGap 이 내보내는 이름: 2026-09-21_08-28-48_hk_1789946928.tcx
    그대로 두면 지도에 이 문자열이 코스 이름으로 뜹니다. 읽을 수 있게 바꿉니다. */
@@ -164,12 +165,12 @@ function main() {
     if (missing.length) {
         const one = missing[0];
         console.log(`\nℹ️  글에 연결되지 않은 코스가 ${missing.length}개 있습니다.`);
-        console.log(`   글을 먼저 발행하고 받은 번호를 넣으세요 — 그래야 업로드를 한 번만 합니다.`);
+        console.log(`   글을 먼저 발행하고 받은 번호를 넣으세요 — 그래야 지도를 한 번만 갱신합니다.`);
         console.log(`\n   node tools/link-course.mjs ${one.id} 213 --title "여의도 한강 4K"`);
         console.log(`\n   (연결하지 않으면 지도에서 코스를 눌렀을 때 제목으로 블로그 내 검색이 열립니다)`);
     }
 
-    console.log(`\n마지막 → 티스토리 [스킨 편집 > 파일 업로드] 에 images/courses.json 을 올리세요.`);
+    console.log(`\n마지막 → ${publishHint()}`);
 }
 
 main();

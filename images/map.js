@@ -309,8 +309,23 @@
         })).then(function (list) { return list.filter(Boolean); });
     }
 
+    /* courses.json 을 어디서 읽을지.
+       mapData.js 에 coursesUrl 이 있으면 거기서 먼저 받고, 못 받으면
+       스킨에 올려둔 파일로 되돌아갑니다. CDN 이 잠깐 죽어도 지도는 뜹니다. */
+    function fetchCourseData() {
+        var skinFile = BASE + 'courses.json';
+        var remote = (window.MAP_DATA && window.MAP_DATA.coursesUrl) || '';
+        if (!remote) return getJson(skinFile);
+
+        return getJson(remote).then(function (data) {
+            if (data) return data;
+            if (window.console) console.warn('[러닝맵] coursesUrl 을 읽지 못해 스킨 파일로 대신합니다:', remote);
+            return getJson(skinFile);
+        });
+    }
+
     function loadCourses() {
-        return getJson(BASE + 'courses.json').then(function (data) {
+        return fetchCourseData().then(function (data) {
             var fromJson = [];
             var restaurants = [];
 
