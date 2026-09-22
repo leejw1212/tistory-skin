@@ -134,11 +134,68 @@ function infoTable(course, pace, meta, extra = {}) {
     ].join('\n');
 }
 
-function buildMarkdown({ course, pace, meta, before, during, after, splitTable, segments, notes, extra }) {
+/** 스플릿을 읽어 페이스가 어떻게 흘렀는지 한 문단으로 */
+function paceStory(splitList, extra) {
+    if (!Array.isArray(splitList) || splitList.length < 2) return '';
+
+    // 마지막 자투리 구간(0.01km 같은 것)은 흐름을 볼 때 빼야 합니다
+    const full = splitList.filter(s => !s.partial && s.distance >= 0.5);
+    if (full.length < 2) return '';
+
+    const secPerKm = s => s.seconds / s.distance;
+    const first = secPerKm(full[0]);
+    const last = secPerKm(full[full.length - 1]);
+    const diff = Math.round(first - last);           // 양수면 뒤로 갈수록 빨라진 것
+
+    const fastest = full.reduce((a, b) => (secPerKm(b) < secPerKm(a) ? b : a));
+    const slowest = full.reduce((a, b) => (secPerKm(b) > secPerKm(a) ? b : a));
+    const spread = Math.round(secPerKm(slowest) - secPerKm(fastest));
+
+    const mmss = (sec) => {
+        const n = Math.abs(sec);
+        const m = Math.floor(n / 60), s = n % 60;
+        if (!m) return `${s}초`;
+        return s ? `${m}분 ${s}초` : `${m}분`;
+    };
+    const lines = [];
+
+    // 매 구간 빨라졌는지 / 느려졌는지
+    const monotonic = full.every((s, i) => i === 0 || secPerKm(s) < secPerKm(full[i - 1]));
+    const slowing = full.every((s, i) => i === 0 || secPerKm(s) > secPerKm(full[i - 1]));
+
+    if (monotonic && full.length >= 3) {
+        lines.push(`**1km 마다 계속 빨라진 네거티브 스플릿입니다.** 첫 구간과 마지막 구간의 차이가 ${mmss(diff)}입니다.`);
+    } else if (diff >= 10) {
+        lines.push(`뒤로 갈수록 빨라졌습니다. 첫 구간보다 마지막 구간이 ${mmss(diff)} 빠릅니다.`);
+    } else if (slowing && full.length >= 3) {
+        lines.push(`구간마다 조금씩 느려졌습니다. 첫 구간과 마지막 구간의 차이가 ${mmss(diff)}입니다.`);
+    } else if (spread <= 15) {
+        lines.push(`처음부터 끝까지 페이스가 고르게 유지됐습니다. 가장 빠른 구간과 느린 구간의 차이가 ${mmss(spread)}뿐입니다.`);
+    } else {
+        lines.push(`가장 빠른 구간은 ${fastest.pace}, 가장 느린 구간은 ${slowest.pace} 였습니다.`);
+    }
+
+    // 심박이 구간마다 있으면 흐름을 덧붙입니다
+    const hrs = full.map(s => s.hr).filter(Number.isFinite);
+    if (hrs.length >= 2) {
+        const rise = hrs[hrs.length - 1] - hrs[0];
+        if (rise >= 8) lines.push(`심박은 ${hrs[0]} 에서 ${hrs[hrs.length - 1]} 까지 올라갔습니다.`);
+        else if (rise <= -8) lines.push(`심박은 ${hrs[0]} 에서 ${hrs[hrs.length - 1]} 로 내려갔습니다.`);
+        else lines.push(`심박은 ${Math.min(...hrs)}~${Math.max(...hrs)} 사이에서 안정적이었습니다.`);
+    }
+    if (extra?.cadence) lines.push(`평균 케이던스는 ${extra.cadence} spm 이었습니다.`);
+
+    return lines.join(' ');
+}
+
+function buildMarkdown({ course, pace, meta, before, during, after, splitTable, splitList, segments, notes, extra }) {
     const out = [];
 
     out.push(infoTable(course, pace, meta, extra), '');
-    out.push(`> 📌 **한 줄 요약** — ${WRITE('이 코스를 한 문장으로')}`, '', '---', '');
+
+    /* 요약 — 글 전체를 짧게. 스크롤하기 전에 이것만 읽어도 되도록 */
+    out.push('## 📝 요약', '');
+    out.push(WRITE('이 글 전체를 세 줄로. 어떤 코스인지 · 어떻게 달렸는지 · 추천하는지'), '', '---', '');
 
     /* 주차 & 출발 지점 — 달리기 시작 전에 찍은 사진 */
     out.push('## 🅿️ 주차 & 출발 지점', '');
@@ -152,20 +209,27 @@ function buildMarkdown({ course, pace, meta, before, during, after, splitTable, 
     out.push(WRITE('차에서 내려 출발 지점까지 어떻게 가는지'), '');
     out.push(`> 🚇 **대중교통** — ${meta.transit || WRITE('노선 · 역 · 출구 · 도보 시간')}`, '', '---', '');
 
-    /* 코스 따라가기 — 달리는 중에 찍은 사진을 구간별로 */
+    /* 코스 따라가기 — 사진과 풍경으로 쓰는 후기. 숫자는 페이스 분석으로 갑니다 */
     out.push('## 🏃 코스 따라가기', '');
-    segments.forEach((seg, i) => {
+    segments.forEach((seg) => {
         const label = `${seg.from} ~ ${seg.to}km`;
         out.push(`### ${label}${seg.name ? ` · ${seg.name}` : ''}`, '');
         if (seg.photos.length) {
             out.push(seg.photos.map(photoLine).join('\n'), '');
+            out.push(WRITE(`위 사진에 맞춰 — 어떤 풍경이었는지 · 노면 · 사람은 많았는지`), '');
+        } else {
+            out.push(WRITE(`${label} 구간 — 어떤 풍경이었는지 · 노면 · 사람은 많았는지 (사진 없음)`), '');
         }
-        out.push(WRITE(`${label} 구간 — 노면 · 사람 · 풍경`), '');
     });
-    if (splitTable) {
-        out.push('### ⏱️ 구간 페이스', '', splitTable, '');
-    }
     out.push('---', '');
+
+    /* 페이스 분석 — 숫자는 여기 한곳에 모읍니다 */
+    if (splitTable) {
+        out.push('## ⏱️ 페이스 분석', '', splitTable, '');
+        const story = paceStory(splitList, extra);
+        if (story) out.push(story, '');
+        out.push(WRITE('이렇게 달린 이유나 그때 몸이 어땠는지 (없으면 이 줄을 지우세요)'), '', '---', '');
+    }
 
     /* 난이도 & 추천 */
     const easy = course.difficulty <= 2;
@@ -355,7 +419,7 @@ async function main() {
     const extra = useTcx
         ? { heartRate: result.heartRate, cadence: result.cadence, calories: result.calories }
         : {};
-    const md = buildMarkdown({ course, pace, meta, before, during, after, splitTable, segments, notes, extra });
+    const md = buildMarkdown({ course, pace, meta, before, during, after, splitTable, splitList, segments, notes, extra });
     writeFileSync(join(outDir, 'post.md'), md, 'utf8');
 
     /* --- Claude / 사람이 참고할 계산 결과 --- */
