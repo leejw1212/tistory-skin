@@ -2581,6 +2581,11 @@ body.nav-locked { overflow: hidden; }
 .toc-rail { display: none; }
 
 @media (min-width: 1100px) {
+    /* 글 상세에서는 목차 칸을 CSS 로 처음부터 비워 둔다. script.js 가 나중에
+       칸을 만들면 그 전에 넓은 본문 폭으로 크기를 잡은 애드센스 광고가
+       오른쪽에서 잘린다. 목차가 없는 글은 script.js 가 no-toc-rail 로 칸을
+       거둔다 (본문이 넓어지는 쪽은 광고가 잘리지 않는다). */
+    #tt-body-page .article-wrap:not(.no-toc-rail),
     .article-wrap.has-toc-rail {
         display: grid;
         grid-template-columns: minmax(0, 1fr) 232px;

@@ -286,7 +286,12 @@
     /* 5-1. 제목에 id 부여 + 목차 생성 */
     function initToc(content) {
         var heads = $$('h2, h3', content).filter(function (h) { return h.textContent.trim(); });
-        if (heads.length < 3) return;
+        if (heads.length < 3) {
+            // style.css 가 미리 비워 둔 목차 칸을 거둔다
+            var wrap = content.closest('.article-wrap');
+            if (wrap) wrap.classList.add('no-toc-rail');
+            return;
+        }
 
         var used = {};
         var items = heads.map(function (h) {
@@ -863,7 +868,11 @@
     /* 6-6. 포스트 초기화 */
     function initPost() {
         var content = $('.post-content');
-        if (!content) return;
+        if (!content) {
+            // 보호 글 등 본문이 없으면 미리 비워 둔 목차 칸도 거둔다
+            $$('#tt-body-page .article-wrap').forEach(function (w) { w.classList.add('no-toc-rail'); });
+            return;
+        }
 
         contentRoot(content);   // 래퍼 구조를 건드리기 전에 본문 루트를 먼저 확정
         initToc(content);
