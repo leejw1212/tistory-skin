@@ -104,7 +104,29 @@
       "photos": []
     }
   ],
-  "photos": [],
-  "coverCandidates": [],
-  "notes": ""
+  "photos": [
+    { "name": "01.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/01.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "02.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/02.jpg", "width": 1600, "height": 1200, "landscape": true },
+    { "name": "03.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/03.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "04.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/04.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "05.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/05.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "06.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/06.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "07.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/07.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "08.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/08.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "09.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/09.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "10.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/10.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "11.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/11.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "12.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/12.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "13.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/13.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "14.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/14.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "15.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/15.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "16.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/16.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "17.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/17.jpg", "width": 1200, "height": 1600, "landscape": false },
+    { "name": "18.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/18.jpg", "width": 1200, "height": 1600, "landscape": false }
+  ],
+  "coverCandidates": [
+    { "name": "02.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/02.jpg", "note": "유일한 가로 사진 — 주차장에서 코스로 이어지는 방향" },
+    { "name": "15.jpg", "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/15.jpg", "note": "뷰가 좋은 구간" }
+  ],
+  "notes": "사진 18장은 build-post.mjs 파이프라인이 아니라 수동으로 넣었습니다 — 이 환경의 sharp 가 HEIC 픽셀 디코드를 지원하지 않아(libheif 코덱 플러그인 누락) python3 pillow-heif 로 변환했습니다. EXIF/GPS 는 저장 시 자동으로 빠집니다."
 }

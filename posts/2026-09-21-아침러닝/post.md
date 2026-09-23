@@ -33,7 +33,17 @@
 
 ## 🅿️ 주차 & 출발 지점
 
-아파트 쪽에 공영주차장이 있습니다. 차를 대고 산책로로 바로 내려가면 됩니다.
+외대로 25번길을 따라 쭉 가면 공영주차장이 나옵니다. 차로 오신다면 여기 대는 게 가장 편합니다.
+
+![외대로 25번길 공영주차장](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/01.jpg)
+
+주차하고 내려오면 아래 사진 방향으로 이동하면 바로 러닝 코스로 이어집니다.
+
+![주차장에서 코스로 이어지는 방향](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/02.jpg)
+
+경안천교 옆으로 산책로에 내려가는 길목이 있습니다. 여기로 내려가면 바로 코스가 시작됩니다.
+
+![경안천교 옆 산책로 진입로](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/03.jpg)
 
 > 🚇 **대중교통** — 대중교통으로 찾아오기는 쉽지 않은 위치입니다. 차로 오시는 걸 권합니다.
 
@@ -45,21 +55,57 @@
 **우레탄 직선 구간이 계속 이어지고** 고도차가 거의 없어서 (누적 상승 3m),
 갈림길이나 오르막에 신경 쓸 일 없이 처음부터 끝까지 페이스에만 집중할 수 있습니다.
 
-### 0 ~ 1.5km
+### 출발 ~ 1.2km
 
-아침 공기가 정말 맑습니다. 촌캉스 온 것 같은 기분이 드는 동네라, 시작부터 숨 쉬는 게 편합니다.
+용인 경안천 종점 방향으로 러닝을 시작합니다. 지도에는 1.2km 까지라고 나오는데, 이 부근까지는 차가 거의 다니지 않아서 편하게 달릴 수 있습니다.
 
-노면은 우레탄입니다. 무릎에 부담이 덜해서 천천히 몸을 푸는 구간으로 쓰기 좋습니다.
+![러닝 시작 지점](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/04.jpg)
+![달리는 중의 풍경](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/05.jpg)
+![달리는 중의 풍경](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/06.jpg)
+![달리는 중의 풍경](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/07.jpg)
 
-### 1.5 ~ 3km · 반환점
+### 작은 다리를 지나며
 
-산책로가 찻길과 만나는 곳을 기준으로 삼아 돌았습니다. 따로 표지판을 찾을 필요 없이 눈에 바로 들어와서 반환점 잡기가 편합니다.
+작은 다리를 하나 지나면서부터 차가 조금씩 지나다니기 시작하고, 도로 포장 상태도 살짝 안 좋아집니다.
 
-### 3 ~ 4.01km
+![다리를 지나면서 노면이 달라지기 시작하는 구간](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/08.jpg)
+![노면 상태를 볼 수 있는 구간](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/09.jpg)
 
-아침마다 나와서 뛰는 주민분들을 종종 마주칩니다. 그 페이스에 자연스럽게 끌려가는 구간입니다.
+오른쪽으로는 비닐하우스가 이어져서 촌캉스 온 듯한 분위기가 물씬 납니다.
 
-돌아오는 길이라 풍경은 같지만, 해가 조금 더 올라와 있어 분위기가 다릅니다.
+![오른쪽 비닐하우스가 보이는 구간](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/10.jpg)
+
+이 지점에서 계속 내려가면 경기광주역 방향으로 길이 쭉 이어집니다.
+
+![경기광주역 방향으로 이어지는 지점](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/11.jpg)
+![달리는 중의 풍경](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/12.jpg)
+
+### 반환점
+
+작은 다리를 하나 더 넘으면서, 찻길과 만나는 이 지점에서 반환했습니다.
+
+![다리를 넘으며 반환한 지점](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/13.jpg)
+
+### 돌아오는 길
+
+돌아오는 길엔 아주 작은 업힐이 하나 있습니다. 부담될 정도는 아니고 살짝 몸을 깨워주는 정도입니다.
+
+![작은 업힐 구간](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/14.jpg)
+
+뷰가 정말 좋은 구간이 이어집니다.
+
+![뷰가 좋은 구간](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/15.jpg)
+![달리는 중의 풍경](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/16.jpg)
+
+### 도착
+
+도착 지점입니다. 이 경안천 코스는 반대 방향(상류 쪽)으로 22.8km 를 더 가면 경안천이 시작되는 지점이 나온다고 합니다.
+
+![도착 지점](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/17.jpg)
+
+다리 밑에는 원래 용인의 마스코트인 용 그림이 그려져 있는데, 아침이라 그런지 이날은 잘 보이지 않았습니다.
+
+![다리 밑 벽화 — 아침엔 잘 안 보이는 용인 마스코트](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-21-아침러닝/photos/18.jpg)
 
 ---
 
