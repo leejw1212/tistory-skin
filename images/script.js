@@ -253,29 +253,80 @@
                        escapeHtml(it.text) + '</a></li>';
             }).join('') + '</ol>';
 
-        content.insertBefore(toc, content.firstChild);
+        // 넓은 화면: 글 오른쪽에 따라다니는 목차 / 좁은 화면: 본문 맨 위
+        var article = content.closest('.post-single');
+        var rail = null;
+        if (article && article.parentNode) {
+            rail = document.createElement('aside');
+            rail.className = 'toc-rail';
+            article.parentNode.insertBefore(rail, article.nextSibling);
+            article.parentNode.classList.add('has-toc-rail');
+        }
+
+        var wide = window.matchMedia && window.matchMedia('(min-width: 1100px)');
+        function place() {
+            if (rail && wide && wide.matches) {
+                if (toc.parentNode !== rail) rail.appendChild(toc);
+            } else if (toc.parentNode !== content) {
+                content.insertBefore(toc, content.firstChild);
+            }
+        }
+        place();
+        if (wide) {
+            if (wide.addEventListener) wide.addEventListener('change', place);
+            else if (wide.addListener) wide.addListener(place);
+        }
 
         var toggle = $('.toc-toggle', toc);
         toggle.addEventListener('click', function () {
+            if (toc.parentNode === rail) return;
             var open = toc.classList.toggle('collapsed');
             toggle.setAttribute('aria-expanded', String(!open));
         });
 
-        // 스크롤 위치에 따라 현재 항목 강조
-        if (window.IntersectionObserver) {
-            var links = {};
-            $$('a', toc).forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
-            var spy = new IntersectionObserver(function (entries) {
-                entries.forEach(function (e) {
-                    var a = links[e.target.id];
-                    if (a && e.isIntersecting) {
-                        $$('a.active', toc).forEach(function (x) { x.classList.remove('active'); });
-                        a.classList.add('active');
-                    }
-                });
-            }, { rootMargin: '-80px 0px -70% 0px' });
-            items.forEach(function (it) { spy.observe(it.el); });
+        // 스크롤 위치에 따라 지금 읽는 항목 강조 (지나온 항목은 따로 표시)
+        var links = $$('a', toc);
+        var current = -2;
+        var ticking = false;
+
+        function spy() {
+            ticking = false;
+            var line = 120;   // 고정 헤더(64px) 아래 이 선을 지난 마지막 제목이 지금 읽는 곳
+            var idx = -1;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].el.getBoundingClientRect().top <= line) idx = i;
+                else break;
+            }
+            var doc = document.documentElement;
+            if (idx >= 0 && window.innerHeight + (window.scrollY || window.pageYOffset) >= doc.scrollHeight - 2) {
+                // 맨 아래까지 내렸는데 마지막 절이 짧아 선을 못 넘은 경우
+                var end = items[items.length - 1].el.getBoundingClientRect().top;
+                if (end < window.innerHeight) idx = items.length - 1;
+            }
+            if (idx === current) return;
+            current = idx;
+            links.forEach(function (a, i) {
+                a.classList.toggle('active', i === idx);
+                a.classList.toggle('passed', i < idx);
+                if (i === idx) a.setAttribute('aria-current', 'true');
+                else a.removeAttribute('aria-current');
+            });
+
+            // 목차가 길어 오른쪽 칸 안에서 스크롤될 때 현재 항목이 보이도록
+            if (idx >= 0 && toc.parentNode === rail && rail.scrollHeight > rail.clientHeight) {
+                var a = links[idx];
+                var top = a.getBoundingClientRect().top - rail.getBoundingClientRect().top + rail.scrollTop;
+                if (top < rail.scrollTop + 40 || top + a.offsetHeight > rail.scrollTop + rail.clientHeight - 40) {
+                    rail.scrollTop = top - rail.clientHeight / 2;
+                }
+            }
         }
+
+        window.addEventListener('scroll', function () {
+            if (!ticking) { ticking = true; requestAnimationFrame(spy); }
+        }, { passive: true });
+        window.addEventListener('resize', function () { current = -2; spy(); });
+        spy();
     }
 
     /* 5-2. 인용구 → 콜아웃 */

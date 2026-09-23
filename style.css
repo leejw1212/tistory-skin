@@ -2529,6 +2529,10 @@ body.nav-locked { overflow: hidden; }
 
 .post-toc.collapsed .toc-list { display: none; }
 
+/* 본문 안(좁은 화면)에서는 .post-content ol 의 번호·여백이 덮어쓰지 않게 */
+.post-content .toc-list { list-style: none; margin: 14px 0 0; padding: 0; }
+.post-content .toc-list li { margin: 0; }
+
 .toc-list li { margin: 0; }
 .toc-list li::before { display: none; }
 .toc-list .toc-l3 { padding-left: 16px; }
@@ -2551,6 +2555,44 @@ body.nav-locked { overflow: hidden; }
     font-weight: 700;
     border-left-color: var(--primary);
     background: #fff;
+}
+
+/* 넓은 화면: 글 오른쪽에 따라다니는 목차 */
+.toc-rail { display: none; }
+
+@media (min-width: 1100px) {
+    .article-wrap.has-toc-rail {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 232px;
+        gap: 28px;
+        align-items: start;
+    }
+
+    .toc-rail {
+        display: block;
+        position: sticky;
+        top: 88px;
+        max-height: calc(100vh - 112px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+    }
+
+    .toc-rail .post-toc {
+        margin: 0;
+        padding: 16px 12px 16px 14px;
+        background: var(--bg-card);
+        box-shadow: var(--shadow-md);
+        border-color: var(--border-light);
+    }
+
+    .toc-rail .toc-toggle { cursor: default; padding-left: 6px; }
+    .toc-rail .toc-toggle::after { display: none; }
+    .toc-rail .toc-list { margin-top: 10px; }
+    .toc-rail .toc-list .toc-l3 { padding-left: 12px; }
+    .toc-rail .toc-list a { font-size: .84rem; line-height: 1.45; padding: 5px 8px; }
+    .toc-rail .toc-list a.passed { border-left-color: #ffd3c4; }
+    .toc-rail .toc-list a.active { background: #fff3ef; }
 }
 
 /* =========================================================================
