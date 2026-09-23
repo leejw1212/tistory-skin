@@ -19,25 +19,6 @@
       "polyline": "}{|bFeotgWG@eBGW@yANg@Dq@JqALOBg@LYJm@NyAb@QBw@\\k@XoBjAk@Z[Jg@Jq@NqAf@s@Zu@b@i@`@c@`@YRMLq@`AaAvB}@bBq@xAe@nAuA|Cw@lBY`ASz@Kz@G\\Ev@Kz@Mh@KVETQh@IPIJYp@QXORYTKFy@\\i@Ro@J_@HWDs@D_@Fg@B}AJkAFq@HeBLa@JK?M?W@W?SB]E[@gAGc@G_AEQ@YCk@GWGc@Ok@KSIwAc@eAWQIo@QgBk@_@MUKUOSUWc@KIGAY@[BE??ABA^C^?F@HDN^PRPN\\RPDd@Rp@PNF`@NbAVdAZ^Jd@NXJZD|@VhAJp@@f@FVDZBTBf@@~@?z@EPCx@EtAObHe@lAQn@OfA[v@[JGLMNSLUd@cAVu@^qABQ@UD[FcAJa@Fm@ZuAPi@D[R[f@cA|@uBVm@Zu@ZgAHSR_@V]\\s@j@kA\\m@d@s@dAeAJITMh@g@j@YjA_@\\OxA[^GXKv@e@xBuAt@YTGx@Yl@Qv@Qx@UZG`@CzAM^G|AOdA@b@@v@?",
       "elevGain": 6,
       "duration": 1958
-    },
-    {
-      "id": "2026-09-21-아침러닝",
-      "title": "경안천 4K",
-      "link": "",
-      "date": "2026-09-21",
-      "distance": 4.01,
-      "region": "gyeonggi",
-      "difficulty": 1,
-      "bounds": [
-        37.33132,
-        127.23843,
-        37.34444,
-        127.25013
-      ],
-      "polyline": "uy|bFiotgWZAzAOp@Cp@A^Cd@BhAGj@?nAJnAPX@L@`@J\\NPFt@LV@j@AdCF|AF^?v@Ad@BLBh@Nb@B\\FhAZb@DHBPJLDNB`@DZPp@Fr@Nl@Jl@PPJV\\Nb@J\\Ll@Pl@L\\N\\Pj@Tn@^pAn@hBHb@Vr@T|@\\bA^lAH\\p@pBpArE\\`A`@tA`AbDp@`C^jAPl@Vx@^dATXXf@P^`@dADHB@@A?CCGS[y@_B[i@KUMe@Ue@Kc@]_AQw@cAeD[gAk@eBYcAOq@a@mAW_A[}@{@wCc@oAg@iBq@sBYcA}AqEUe@Wy@Qe@Ug@KOMWGGIESIi@IoA[OCYAIAQGq@WeAYiAWm@Ky@SMC}AGo@@}@GaACkAAoACa@E_@Iu@U_BQa@Ii@G}@I_A?]FiEHwAJM@",
-      "elevGain": 3,
-      "duration": 1422,
-      "titleLocked": true
     }
   ],
   "restaurants": []
