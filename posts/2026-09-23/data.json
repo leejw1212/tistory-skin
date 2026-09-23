@@ -1,0 +1,118 @@
+{
+  "generated": "2026-09-23T03:48:03.667Z",
+  "source": {
+    "file": "activity.tcx",
+    "format": "tcx",
+    "dir": "runs/2026-09-23",
+    "notes": null,
+    "device": null,
+    "sport": "Running",
+    "distanceSource": "lap",
+    "classification": {
+      "kind": "run",
+      "reason": null
+    }
+  },
+  "course": {
+    "id": "2026-09-23",
+    "title": "2026-09-23",
+    "link": "",
+    "date": "2026-09-23",
+    "distance": 5.06,
+    "region": "gyeonggi",
+    "difficulty": 2,
+    "bounds": [
+      37.34461,
+      127.23977,
+      37.36339,
+      127.25
+    ],
+    "polyline": "}{|bFeotgWG@eBGW@yANg@Dq@JqALOBg@LYJm@NyAb@QBw@\\k@XoBjAk@Z[Jg@Jq@NqAf@s@Zu@b@i@`@c@`@YRMLq@`AaAvB}@bBq@xAe@nAuA|Cw@lBY`ASz@Kz@G\\Ev@Kz@Mh@KVETQh@IPIJYp@QXORYTKFy@\\i@Ro@J_@HWDs@D_@Fg@B}AJkAFq@HeBLa@JK?M?W@W?SB]E[@gAGc@G_AEQ@YCk@GWGc@Ok@KSIwAc@eAWQIo@QgBk@_@MUKUOSUWc@KIGAY@[BE??ABA^C^?F@HDN^PRPN\\RPDd@Rp@PNF`@NbAVdAZ^Jd@NXJZD|@VhAJp@@f@FVDZBTBf@@~@?z@EPCx@EtAObHe@lAQn@OfA[v@[JGLMNSLUd@cAVu@^qABQ@UD[FcAJa@Fm@ZuAPi@D[R[f@cA|@uBVm@Zu@ZgAHSR_@V]\\s@j@kA\\m@d@s@dAeAJITMh@g@j@YjA_@\\OxA[^GXKv@e@xBuAt@YTGx@Yl@Qv@Qx@UZG`@CzAM^G|AOdA@b@@v@?",
+    "elevGain": 6,
+    "duration": 1958
+  },
+  "pace": "6'27\"",
+  "heartRate": {
+    "avg": 151,
+    "max": 177
+  },
+  "cadence": 176,
+  "calories": 389,
+  "points": {
+    "raw": 1962,
+    "kept": 191
+  },
+  "startedAt": "2026-09-23T02:02:05.000Z",
+  "finishedAt": "2026-09-23T02:34:46.000Z",
+  "splits": [
+    {
+      "km": 1,
+      "distance": 1,
+      "seconds": 405,
+      "pace": "6'44\"",
+      "hr": 139,
+      "partial": false
+    },
+    {
+      "km": 2,
+      "distance": 1,
+      "seconds": 377,
+      "pace": "6'17\"",
+      "hr": 148,
+      "partial": false
+    },
+    {
+      "km": 3,
+      "distance": 1,
+      "seconds": 384,
+      "pace": "6'23\"",
+      "hr": 152,
+      "partial": false
+    },
+    {
+      "km": 4,
+      "distance": 1,
+      "seconds": 388,
+      "pace": "6'28\"",
+      "hr": 156,
+      "partial": false
+    },
+    {
+      "km": 5,
+      "distance": 1,
+      "seconds": 381,
+      "pace": "6'20\"",
+      "hr": 159,
+      "partial": false
+    },
+    {
+      "km": 5.06,
+      "distance": 0.06,
+      "seconds": 24,
+      "pace": "6'32\"",
+      "hr": 160,
+      "partial": true
+    }
+  ],
+  "splitsSource": "device-lap",
+  "segments": [
+    {
+      "from": 0,
+      "to": 1.5,
+      "photos": []
+    },
+    {
+      "from": 1.5,
+      "to": 3,
+      "photos": []
+    },
+    {
+      "from": 3,
+      "to": 5.06,
+      "photos": []
+    }
+  ],
+  "photos": [],
+  "coverCandidates": [],
+  "notes": ""
+}
