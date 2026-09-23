@@ -160,6 +160,16 @@
             var panel = document.getElementById('panel-' + key);
             if (!panel) return;
 
+            // 전체: 홈 페이지가 이미 받아 온 최신 글 목록을 그대로 쓴다 (추가 요청 없음)
+            if (key === 'all') {
+                paint(panel, $$('.original-list .post-item').slice(0, 8).map(function (p) {
+                    var c = p.cloneNode(true);
+                    c.classList.remove('reveal', 'is-visible');
+                    return c.outerHTML;
+                }).join(''));
+                return;
+            }
+
             var cacheKey = 'wl:cat:' + key;
             var cached = cacheGet(cacheKey);
             if (cached != null) { paint(panel, cached); return; }
@@ -210,9 +220,9 @@
             });
         });
 
-        load('running');
+        load('all');
         // 나머지 탭은 잠시 뒤 미리 로드 (첫 화면 렌더 방해 금지)
-        setTimeout(function () { load('food'); load('review'); }, 1200);
+        setTimeout(function () { load('running'); load('food'); load('review'); }, 1200);
     }
 
     /* =====================================================================

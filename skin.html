@@ -154,12 +154,16 @@
                     <!-- Homepage tabs -->
                     <div id="index-sidebar" class="index-sidebar">
                         <div class="sidebar-tabs" role="tablist">
-                            <button type="button" class="tab-btn active" data-tab="running" role="tab">🏃 코스</button>
+                            <button type="button" class="tab-btn active" data-tab="all" role="tab">📰 전체</button>
+                            <button type="button" class="tab-btn" data-tab="running" role="tab">🏃 코스</button>
                             <button type="button" class="tab-btn" data-tab="food" role="tab">🍽️ 맛집</button>
                             <button type="button" class="tab-btn" data-tab="review" role="tab">📦 리뷰</button>
                         </div>
                         <div class="tab-content-wrap">
-                            <div class="tab-panel active" id="panel-running" role="tabpanel">
+                            <div class="tab-panel active" id="panel-all" role="tabpanel">
+                                <div class="panel-skeleton"><i></i><i></i><i></i></div>
+                            </div>
+                            <div class="tab-panel" id="panel-running" role="tabpanel">
                                 <div class="panel-skeleton"><i></i><i></i><i></i></div>
                             </div>
                             <div class="tab-panel" id="panel-food" role="tabpanel">
