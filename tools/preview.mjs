@@ -159,7 +159,9 @@ function build(kind) {
         '[##_prev_page_##]': 'href="#"',
         '[##_next_page_##]': 'href="#"',
         '[##_count_today_##]': '128',
-        '[##_count_total_##]': '24,931'
+        '[##_count_total_##]': '24,931',
+        // 실제로는 티스토리가 애드센스 광고 코드를 넣는 자리. 미리보기에선 크기만 보여 준다.
+        '[##_revenue_list_upper_##]': '<div style="height:100px;display:grid;place-items:center;border:1px dashed #d4cfc6;border-radius:12px;color:#aaa;font-size:.85rem">광고 (목록 상단)</div>'
     };
     for (const [k, v] of Object.entries(vars)) s = s.split(k).join(v);
     return s.replace(/\[##_[a-z0-9_]+_##\]/g, '');

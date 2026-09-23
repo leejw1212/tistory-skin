@@ -622,6 +622,23 @@ img {
     background: #d4cfc6;
 }
 
+/* 목록 상단 광고: 홈에서는 지도·목록 아래 전체 폭 한 줄 */
+.list-ad {
+    margin: 0 0 32px;
+    text-align: center;
+    min-width: 0;
+}
+
+.list-ad:empty {
+    display: none;
+}
+
+#tt-body-index .list-ad {
+    order: 1; /* 문서 순서상 목록 앞이지만 그리드에서는 맨 뒤 행으로 */
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
 /* Hide unneeded elements on Index */
 #tt-body-index .list-header,
 #tt-body-index .original-list,
