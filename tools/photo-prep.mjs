@@ -14,7 +14,7 @@ import { join, extname, basename } from 'node:path';
 import { readExif } from './exif.mjs';
 
 export const PHOTO_EXT = /\.(jpe?g|png|heic|heif|webp)$/i;
-export const MAX_EDGE = 1600;
+export const MAX_EDGE = 800;
 export const JPEG_QUALITY = 82;
 
 let sharpModule;
