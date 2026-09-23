@@ -899,6 +899,9 @@ img {
     line-height: 1.6;
 }
 
+/* 러닝 글 미리보기를 소감으로 바꾸는 동안 표 내용이 잠깐 비치지 않게 */
+.post-item .summary.excerpt-pending { visibility: hidden; }
+
 .post-item .date {
     font-size: 0.8rem;
     color: var(--text-faint);

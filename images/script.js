@@ -215,6 +215,64 @@
         setTimeout(function () { load('food'); load('review'); }, 1200);
     }
 
+    /* 4-1. 글 목록의 러닝 글 미리보기 → '다녀온 소감'
+     *   티스토리 요약은 본문 앞부분(코스 정보 표)을 잘라 쓰므로,
+     *   러닝 글은 글을 불러와 소감 절의 문단으로 바꿔 보여 준다. */
+    function feelingsExcerpt(html) {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var content = $('.post-content', doc);
+        if (!content) return '';
+        var head = $$('h2', content).filter(function (h) { return h.textContent.indexOf('소감') > -1; })[0];
+        if (!head) return '';
+        var paras = [], quotes = [];
+        for (var n = head.nextElementSibling; n && !/^H[12]$/.test(n.tagName); n = n.nextElementSibling) {
+            var text = n.textContent.replace(/\s+/g, ' ').trim();
+            if (!text) continue;
+            (n.tagName === 'BLOCKQUOTE' ? quotes : paras).push(text);
+        }
+        return (paras.length ? paras : quotes).join(' ').slice(0, 240);
+    }
+
+    function initListExcerpts() {
+        if (document.body.id === 'tt-body-index' || document.body.id === 'tt-body-page') return;
+        var cards = $$('.original-list .post-item').filter(function (item) {
+            var cat = $('.category', item);
+            return cat && cat.dataset.cat === 'running' && $('a', item) && $('.summary', item);
+        });
+        if (!cards.length) return;
+
+        function fill(item) {
+            var summary = $('.summary', item);
+            var url = $('a', item).href;
+            var cacheKey = 'wl:excerpt:' + url;
+            var done = function (text) {
+                if (text) summary.textContent = text;
+                summary.classList.remove('excerpt-pending');
+            };
+            var cached = cacheGet(cacheKey);
+            if (cached != null) { done(cached); return; }
+            summary.classList.add('excerpt-pending');
+            fetch(url, { credentials: 'same-origin' })
+                .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+                .then(function (html) {
+                    var text = feelingsExcerpt(html);
+                    cacheSet(cacheKey, text);
+                    done(text);
+                })
+                .catch(function () { done(''); });
+        }
+
+        if (!window.IntersectionObserver) { cards.forEach(fill); return; }
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (!e.isIntersecting) return;
+                io.unobserve(e.target);
+                fill(e.target);
+            });
+        }, { rootMargin: '300px 0px' });
+        cards.forEach(function (item) { io.observe(item); });
+    }
+
     /* =====================================================================
      * 5. 마크다운 본문 꾸미기
      * ===================================================================== */
@@ -892,6 +950,7 @@
         initCategories();
         initReveal();
         initSidebarTabs();
+        initListExcerpts();
         initPost();
     });
 })();
