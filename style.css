@@ -2790,6 +2790,82 @@ body.nav-locked { overflow: hidden; }
     color: var(--text-secondary);
 }
 
+/* 티스토리 '○○ 카테고리의 다른 글' — 기본 CSS 가 색을 !important 로 박아 넣어 덮어씁니다 */
+.post-content .another_category {
+    margin: 40px 0 0;
+    padding: 20px 22px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius);
+    background: var(--bg-card);
+    box-shadow: var(--shadow-sm);
+}
+.post-content .another_category h4 {
+    margin: 0 0 10px !important;
+    padding: 0 0 12px !important;
+    border-bottom: 1px solid var(--border-light) !important;
+    font-size: 1rem !important;
+    font-weight: 800;
+    color: var(--text-primary) !important;
+}
+.post-content .another_category h4 a {
+    color: var(--primary) !important;
+    border: none !important;
+    text-decoration: none;
+    background: none;
+}
+.post-content .another_category table {
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    border: none !important;
+    border-collapse: collapse;
+    display: table;
+}
+.post-content .another_category tr { display: table-row; background: none; border: none; margin: 0; padding: 0; }
+.post-content .another_category tr:hover { background: none; }
+.post-content .another_category th,
+.post-content .another_category td {
+    display: table-cell;
+    padding: 10px 0 !important;
+    border: none !important;
+    border-top: 1px dashed var(--border-light) !important;
+    background: none !important;
+    font-size: .92rem;
+    font-weight: 400;
+    text-align: left;
+    white-space: normal;
+    word-break: keep-all;
+    vertical-align: middle;
+}
+.post-content .another_category tr:first-child th,
+.post-content .another_category tr:first-child td { border-top: none !important; }
+.post-content .another_category th::before,
+.post-content .another_category td::before { content: none !important; }
+.post-content .another_category th a {
+    color: var(--text-primary) !important;
+    text-decoration: none;
+    border: none !important;
+    background: none !important;
+}
+.post-content .another_category th a.current {
+    color: var(--primary) !important;
+    font-weight: 700;
+}
+.post-content .another_category th span {
+    margin-left: 4px;
+    color: var(--text-faint) !important;
+    font-size: .8rem;
+}
+.post-content .another_category td {
+    width: 1%;
+    padding-left: 12px !important;
+    text-align: right;
+    white-space: nowrap;
+    color: var(--text-muted) !important;
+    font-size: .82rem;
+    font-variant-numeric: tabular-nums;
+}
+
 /* 본문 코스 지도 */
 .course-map {
     margin: 32px 0;
@@ -3173,11 +3249,16 @@ body.nav-locked { overflow: hidden; }
     .nearby-block { padding: 22px 18px; }
     .nearby-grid { grid-template-columns: 1fr; }
 
-    /* 표를 카드로 */
-    .post-content .table-scroll { border: none; background: none; }
-    .post-content table { min-width: 0; border: none; }
-    .post-content thead { display: none; }
-    .post-content tbody tr {
+    /* 표 — 칸이 적으면 좁은 표로 */
+    .post-content table { min-width: 0; font-size: .88rem; }
+    .post-content th,
+    .post-content td { padding: 9px 10px; }
+
+    /* 칸이 많은 표만 카드로 */
+    .post-content .table-scroll:has(.table-cards) { border: none; background: none; }
+    .post-content table.table-cards { border: none; }
+    .post-content .table-cards thead { display: none; }
+    .post-content .table-cards tbody tr {
         display: block;
         margin-bottom: 12px;
         background: #fff;
@@ -3185,7 +3266,7 @@ body.nav-locked { overflow: hidden; }
         border-radius: var(--radius-sm);
         padding: 6px 4px;
     }
-    .post-content tbody td {
+    .post-content .table-cards tbody td {
         display: flex;
         justify-content: space-between;
         gap: 14px;
@@ -3193,13 +3274,13 @@ body.nav-locked { overflow: hidden; }
         padding: 8px 14px;
         font-size: .92rem;
     }
-    .post-content tbody td::before {
+    .post-content .table-cards tbody td::before {
         content: attr(data-label);
         font-weight: 700;
         color: var(--text-muted);
         flex-shrink: 0;
     }
-    .post-content tbody td:not([data-label])::before { content: none; }
+    .post-content .table-cards tbody td:not([data-label])::before { content: none; }
 }
 
 @media (max-width: 480px) {
