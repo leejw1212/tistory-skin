@@ -1,0 +1,440 @@
+{
+  "generated": "2026-09-26T11:12:16.657Z",
+  "source": {
+    "file": "activity.tcx",
+    "format": "tcx",
+    "dir": "runs/2026-09-26",
+    "notes": null,
+    "device": null,
+    "sport": "Running",
+    "distanceSource": "lap",
+    "classification": {
+      "kind": "run",
+      "reason": null
+    }
+  },
+  "course": {
+    "id": "2026-09-26",
+    "title": "수지구청 8K",
+    "link": "",
+    "date": "2026-09-26",
+    "distance": 8.01,
+    "region": "gyeonggi",
+    "difficulty": 2,
+    "bounds": [
+      37.31359,
+      127.06344,
+      37.32205,
+      127.10123
+    ],
+    "polyline": "cfxbFiyvfW\\Tb@Vb@X\\P^Rt@f@~ClBLHZb@Zl@Xp@Zd@R^r@~Af@~@FJXZfAbBx@dAP^j@pAd@z@JPXV\\RjBt@z@Z\\J\\P^ZPRf@bAFTFbABvA@pAFnA?fBBfAAZIh@En@Af@?\\Az@@nBHdAAz@DVL`@DN@P?`@B\\Hp@Jp@J`@Pj@Pb@\\rALnAFd@D|@GlCEd@Gb@[lAKXQ`@St@ETKx@GZOd@Gl@Y`AWhA[tAS~@Wx@I`@Sj@CNAPC`@Cb@ATF`BLn@@TOeAMmA@c@Hs@AS?CEEIECBCDC\\AVBr@Ah@D`@CdA@PHd@Bn@NnD?d@IdAMdASpAIl@Kr@Eb@UjA_@fBKp@UpAG^Qt@Yt@Ob@]v@[fACXMp@K`AQ`A?NH\\ANGL_@h@kAvAw@pAuBvE_BtCi@x@Yl@m@dAc@bAi@dASj@Un@IZEZ?XBH@@@AAm@@UBQH[Re@Jc@Na@vAmCVc@Xm@f@y@f@}@h@aA\\s@`@aAfBmDl@u@x@y@V_@DO@Q?KGS?KNs@@K@]PkAJ_@`@mAf@gAH]Nc@Ja@XqB\\{BPq@Ji@V}B\\mBL{@NaADe@@u@C{@EsBCWUy@?Q?w@Gu@EqA@]B_@Jq@f@mBVqAT{@Fc@Lk@XeAr@wBH]L_ADc@b@cCNmAB]By@AmAAYK{@[aBMq@AK@KNQ@I?CMi@SmAIy@Cw@Mw@CW?}@E_AC{@?eBA[Dm@@}@Dq@E{A@uACq@BoA@{@QuBEWIWSi@IMGGa@[g@Y}Ao@iAm@YGQIUOk@k@aA_BOQ]g@q@uAi@aAc@_AoBqDISOc@c@{@Ua@OQy@i@gB}@YSe@WwB}A]S]Wc@WQOk@o@SUQYQ_@[}@Ic@Ge@A][{DCs@Iw@?_@",
+    "elevGain": 49,
+    "duration": 2862
+  },
+  "pace": "5'57\"",
+  "heartRate": {
+    "avg": 163,
+    "max": 181
+  },
+  "cadence": 178,
+  "calories": 619,
+  "points": {
+    "raw": 2862,
+    "kept": 299
+  },
+  "startedAt": "2026-09-26T09:15:14.000Z",
+  "finishedAt": "2026-09-26T10:02:58.000Z",
+  "splits": [
+    {
+      "km": 1,
+      "distance": 1,
+      "seconds": 376,
+      "pace": "6'17\"",
+      "hr": 146,
+      "partial": false
+    },
+    {
+      "km": 1.99,
+      "distance": 1,
+      "seconds": 360,
+      "pace": "6'00\"",
+      "hr": 157,
+      "partial": false
+    },
+    {
+      "km": 2.99,
+      "distance": 1,
+      "seconds": 371,
+      "pace": "6'11\"",
+      "hr": 162,
+      "partial": false
+    },
+    {
+      "km": 4,
+      "distance": 1.01,
+      "seconds": 362,
+      "pace": "6'00\"",
+      "hr": 166,
+      "partial": false
+    },
+    {
+      "km": 5,
+      "distance": 1,
+      "seconds": 364,
+      "pace": "6'04\"",
+      "hr": 167,
+      "partial": false
+    },
+    {
+      "km": 6,
+      "distance": 1,
+      "seconds": 337,
+      "pace": "5'36\"",
+      "hr": 169,
+      "partial": false
+    },
+    {
+      "km": 7,
+      "distance": 1,
+      "seconds": 339,
+      "pace": "5'40\"",
+      "hr": 170,
+      "partial": false
+    },
+    {
+      "km": 8,
+      "distance": 1,
+      "seconds": 350,
+      "pace": "5'51\"",
+      "hr": 171,
+      "partial": false
+    },
+    {
+      "km": 8.01,
+      "distance": 0.02,
+      "seconds": 4,
+      "pace": "4'17\"",
+      "hr": 171,
+      "partial": true
+    }
+  ],
+  "splitsSource": "device-lap",
+  "segments": [
+    {
+      "from": 0,
+      "to": 2.5,
+      "photos": [
+        "08-img-2571.jpg",
+        "09-img-2572.jpg",
+        "10-img-2576.jpg",
+        "11-img-2578.jpg"
+      ]
+    },
+    {
+      "from": 2.5,
+      "to": 5,
+      "photos": [
+        "12-img-2583.jpg",
+        "13-img-2585.jpg"
+      ]
+    },
+    {
+      "from": 5,
+      "to": 8.01,
+      "photos": [
+        "14-img-2588.jpg",
+        "15-img-2593.jpg"
+      ]
+    }
+  ],
+  "photos": [
+    {
+      "name": "01-img-2561.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/01-img-2561.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:02:13.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 781,
+      "landscape": true,
+      "width": 800,
+      "height": 600,
+      "kb": 59,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "02-img-2563.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/02-img-2563.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:02:39.000Z",
+      "exifOffset": null,
+      "deltaSec": 755,
+      "landscape": false,
+      "width": 734,
+      "height": 800,
+      "kb": 83,
+      "gpsStripped": false,
+      "metadataStripped": true
+    },
+    {
+      "name": "03-img-2564.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/03-img-2564.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:06:25.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 529,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 70,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "04-img-2565.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/04-img-2565.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:07:12.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 482,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 63,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "05-img-2567.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/05-img-2567.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:09:36.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 338,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 83,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "06-img-2569.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/06-img-2569.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:12:35.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 159,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 124,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "07-img-2570.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/07-img-2570.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-26T09:14:13.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 61,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 69,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "08-img-2571.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/08-img-2571.jpg",
+      "km": 0.05,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:15:34.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 1,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 76,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "09-img-2572.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/09-img-2572.jpg",
+      "km": 0.37,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:17:36.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 104,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "10-img-2576.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/10-img-2576.jpg",
+      "km": 1.64,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:25:36.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 63,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "11-img-2578.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/11-img-2578.jpg",
+      "km": 2.23,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:29:14.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 65,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "12-img-2583.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/12-img-2583.jpg",
+      "km": 3.88,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:39:48.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 84,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "13-img-2585.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/13-img-2585.jpg",
+      "km": 4.35,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:42:43.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 79,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "14-img-2588.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/14-img-2588.jpg",
+      "km": 5.21,
+      "phase": "during",
+      "takenAt": "2026-09-26T09:47:39.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 41,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "15-img-2593.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/15-img-2593.jpg",
+      "km": 7.48,
+      "phase": "during",
+      "takenAt": "2026-09-26T10:00:57.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 37,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "16-img-2595.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/16-img-2595.jpg",
+      "km": 7.84,
+      "phase": "after",
+      "takenAt": "2026-09-26T10:04:44.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 106,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 44,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "17-img-2624.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/17-img-2624.jpg",
+      "km": 7.84,
+      "phase": "after",
+      "takenAt": "2026-09-26T10:15:47.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 769,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 61,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "18-img-2627.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/18-img-2627.jpg",
+      "km": 7.84,
+      "phase": "after",
+      "takenAt": "2026-09-26T10:51:55.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 2937,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 79,
+      "gpsStripped": true,
+      "metadataStripped": true
+    }
+  ],
+  "coverCandidates": [
+    {
+      "name": "01-img-2561.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/01-img-2561.jpg",
+      "score": 72
+    },
+    {
+      "name": "02-img-2563.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/02-img-2563.jpg",
+      "score": 33
+    },
+    {
+      "name": "03-img-2564.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-26/photos/03-img-2564.jpg",
+      "score": 32
+    }
+  ],
+  "notes": ""
+}
