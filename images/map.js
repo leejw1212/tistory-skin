@@ -412,6 +412,9 @@
             }).observe(host);
         }
         document.addEventListener('visibilitychange', resume);
+        [canvas, base].forEach(function (c) {
+            c.addEventListener('contextrestored', function () { baseViewport = null; requestFrame(); });
+        });
 
         /* ---------------- 크기 / DPR ---------------- */
         function resize() {
@@ -1110,6 +1113,9 @@
             if (!(W > 0) || !(H > 0)) return;
             // 화면 밖이거나 탭이 숨겨졌으면 멈춥니다. 다시 보이면 이어서 그립니다.
             if (!onScreen || document.hidden) { paused = true; return; }
+            // iOS 는 메모리가 부족하거나 탭이 뒤로 가면 캔버스 컨텍스트를 버렸다 되살리는데,
+            // 그때 배율(setTransform)이 초기화돼 지도가 1/4 크기로 그려집니다. 매 프레임 다시 겁니다.
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
             // 코스 위를 달리는 점 같은 상시 애니메이션은 30fps 면 충분합니다.
             if (!flight && !interacting && !hovered && now - lastDraw < 32 && courses.every(function (c) { return c.animProgress >= 1; })) {

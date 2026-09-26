@@ -473,7 +473,10 @@
     function initTables(content) {
         $$('table', content).forEach(function (table) {
             if (table.parentElement.classList.contains('table-scroll')) return;
+            if (table.closest('.another_category')) return;   // 티스토리 '다른 글' 목록은 표가 아닙니다
             var heads = $$('thead th', table).map(function (th) { return th.textContent.trim(); });
+            // 칸이 많은 표만 모바일에서 카드로 펼칩니다. 페이스 표처럼 3칸 이하면 표 그대로가 더 읽기 쉽습니다.
+            if (heads.length > 3) table.classList.add('table-cards');
             if (heads.length) {
                 $$('tbody tr', table).forEach(function (tr) {
                     $$('td', tr).forEach(function (td, i) {
