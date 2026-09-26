@@ -399,12 +399,30 @@
         var frameQueued = false;
         var flight = null;        // 뷰포트 이동 애니메이션
         var t0 = performance.now();
+        var lastDraw = 0;
+        var onScreen = true;
+        var paused = false;
+        function resume() {
+            if (paused && onScreen && !document.hidden) { paused = false; requestFrame(); }
+        }
+        if (window.IntersectionObserver) {
+            new IntersectionObserver(function (entries) {
+                onScreen = entries[entries.length - 1].isIntersecting;
+                resume();
+            }).observe(host);
+        }
+        document.addEventListener('visibilitychange', resume);
 
         /* ---------------- 크기 / DPR ---------------- */
         function resize() {
             var rect = host.getBoundingClientRect();
             if (rect.width < 2 || rect.height < 2) return false;
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            var nextDpr = Math.min(window.devicePixelRatio || 1, 2);
+            // 크기가 그대로면 캔버스를 다시 만들지 않습니다.
+            // 폰에서는 스크롤할 때마다 주소창이 숨었다 나타나며 resize 가 쏟아지는데,
+            // 그때마다 캔버스를 새로 잡고 베이스 지도를 다시 그리면 화면이 멈추고 탭이 죽습니다.
+            if (rect.width === W && rect.height === H && nextDpr === dpr) return false;
+            dpr = nextDpr;
             W = rect.width;
             H = rect.height;
             canvas.width = Math.round(W * dpr);
@@ -1090,6 +1108,15 @@
         function frame(now) {
             frameQueued = false;
             if (!(W > 0) || !(H > 0)) return;
+            // 화면 밖이거나 탭이 숨겨졌으면 멈춥니다. 다시 보이면 이어서 그립니다.
+            if (!onScreen || document.hidden) { paused = true; return; }
+
+            // 코스 위를 달리는 점 같은 상시 애니메이션은 30fps 면 충분합니다.
+            if (!flight && !interacting && !hovered && now - lastDraw < 32 && courses.every(function (c) { return c.animProgress >= 1; })) {
+                requestFrame();
+                return;
+            }
+            lastDraw = now;
 
             // 뷰포트 이동 애니메이션
             if (flight) {
