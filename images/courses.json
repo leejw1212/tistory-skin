@@ -1,7 +1,26 @@
 {
   "version": 1,
-  "generated": "2026-09-23T03:48:03.667Z",
+  "generated": "2026-09-26T11:12:16.658Z",
   "courses": [
+    {
+      "id": "2026-09-26",
+      "title": "수지구청 8K",
+      "link": "",
+      "date": "2026-09-26",
+      "distance": 8.01,
+      "region": "gyeonggi",
+      "difficulty": 2,
+      "bounds": [
+        37.31359,
+        127.06344,
+        37.32205,
+        127.10123
+      ],
+      "polyline": "cfxbFiyvfW\\Tb@Vb@X\\P^Rt@f@~ClBLHZb@Zl@Xp@Zd@R^r@~Af@~@FJXZfAbBx@dAP^j@pAd@z@JPXV\\RjBt@z@Z\\J\\P^ZPRf@bAFTFbABvA@pAFnA?fBBfAAZIh@En@Af@?\\Az@@nBHdAAz@DVL`@DN@P?`@B\\Hp@Jp@J`@Pj@Pb@\\rALnAFd@D|@GlCEd@Gb@[lAKXQ`@St@ETKx@GZOd@Gl@Y`AWhA[tAS~@Wx@I`@Sj@CNAPC`@Cb@ATF`BLn@@TOeAMmA@c@Hs@AS?CEEIECBCDC\\AVBr@Ah@D`@CdA@PHd@Bn@NnD?d@IdAMdASpAIl@Kr@Eb@UjA_@fBKp@UpAG^Qt@Yt@Ob@]v@[fACXMp@K`AQ`A?NH\\ANGL_@h@kAvAw@pAuBvE_BtCi@x@Yl@m@dAc@bAi@dASj@Un@IZEZ?XBH@@@AAm@@UBQH[Re@Jc@Na@vAmCVc@Xm@f@y@f@}@h@aA\\s@`@aAfBmDl@u@x@y@V_@DO@Q?KGS?KNs@@K@]PkAJ_@`@mAf@gAH]Nc@Ja@XqB\\{BPq@Ji@V}B\\mBL{@NaADe@@u@C{@EsBCWUy@?Q?w@Gu@EqA@]B_@Jq@f@mBVqAT{@Fc@Lk@XeAr@wBH]L_ADc@b@cCNmAB]By@AmAAYK{@[aBMq@AK@KNQ@I?CMi@SmAIy@Cw@Mw@CW?}@E_AC{@?eBA[Dm@@}@Dq@E{A@uACq@BoA@{@QuBEWIWSi@IMGGa@[g@Y}Ao@iAm@YGQIUOk@k@aA_BOQ]g@q@uAi@aAc@_AoBqDISOc@c@{@Ua@OQy@i@gB}@YSe@WwB}A]S]Wc@WQOk@o@SUQYQ_@[}@Ic@Ge@A][{DCs@Iw@?_@",
+      "elevGain": 49,
+      "duration": 2862,
+      "titleLocked": true
+    },
     {
       "id": "2026-09-23",
       "title": "경안천 5K",
