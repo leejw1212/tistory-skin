@@ -142,6 +142,46 @@
                     <p id="map-status" class="map-status"></p>
                 </section>
 
+                <!-- ============ My Sites ============ -->
+                <!-- 홈에서만 지도·목록 아래 전체 폭으로 보인다.
+                     사이트를 늘리거나 바꾸려면 <li> 하나를 복사해 아이콘·이름·설명·주소만 고치면 된다.
+                     검색엔진이 링크를 읽을 수 있게 스크립트 대신 HTML 에 직접 적어 둔다. -->
+                <section class="my-sites" aria-labelledby="my-sites-title">
+                    <h2 class="my-sites-title" id="my-sites-title">🔗 나의 다른 사이트</h2>
+                    <ul class="my-sites-list">
+                        <li>
+                            <a class="site-card" href="https://example.tistory.com" target="_blank" rel="noopener">
+                                <span class="site-icon" aria-hidden="true">✈️</span>
+                                <span class="site-body">
+                                    <strong class="site-name">여행 블로그</strong>
+                                    <span class="site-desc">주말마다 다녀온 곳 기록</span>
+                                </span>
+                                <span class="site-arrow" aria-hidden="true">↗</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="site-card" href="https://example2.tistory.com" target="_blank" rel="noopener">
+                                <span class="site-icon" aria-hidden="true">💻</span>
+                                <span class="site-body">
+                                    <strong class="site-name">개발 블로그</strong>
+                                    <span class="site-desc">일하며 배운 것 정리</span>
+                                </span>
+                                <span class="site-arrow" aria-hidden="true">↗</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="site-card" href="https://www.instagram.com/" target="_blank" rel="noopener">
+                                <span class="site-icon" aria-hidden="true">📷</span>
+                                <span class="site-body">
+                                    <strong class="site-name">인스타그램</strong>
+                                    <span class="site-desc">러닝 사진 모음</span>
+                                </span>
+                                <span class="site-arrow" aria-hidden="true">↗</span>
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+
                 <!-- ============ List Ad ============ -->
                 <!-- 티스토리 관리 > 수익 > 애드센스 '목록 상단' 광고가 들어오는 자리.
                      홈에서는 지도·목록 아래 전체 폭 한 줄, 카테고리 목록에서는 목록 위에 보인다.
