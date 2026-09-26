@@ -788,7 +788,11 @@
             canvas.classList.remove('is-dragging');
         });
 
-        window.addEventListener('resize', function () { map.resize(); });
+        var rt;
+        window.addEventListener('resize', function () {
+            clearTimeout(rt);
+            rt = setTimeout(function () { map.resize(); }, 140);
+        });
     }
 
     function formatDuration(sec) {
