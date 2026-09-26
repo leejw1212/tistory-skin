@@ -378,6 +378,9 @@
         opts = opts || {};
         var ctx = canvas.getContext('2d');
         var host = canvas.parentElement;
+        // still: 글 속 지도처럼 한 번 그리고 멈추는 지도. 흐르는 점선·달리는 점·맥박 없이,
+        // 확대/축소/드래그할 때만 다시 그립니다.
+        var still = !!opts.still;
 
         // 베이스 레이어(오프스크린) — 뷰포트보다 넉넉하게 그려서 팬 중 여백이 안 보이게
         var BASE_PAD = 1.35;
@@ -559,6 +562,17 @@
             var P = CONFIG.palette;
             var bv = baseViewport;
             var pr = function (lat, lon) { return baseProject(lat, lon, bv, bw, bh); };
+
+            /* --- 멈춘 지도(글 속 지도): 해안선·강 데이터 없이 육지 바탕만 --- */
+            if (still) {
+                var plain = bctx.createLinearGradient(0, 0, bw * 0.3, bh);
+                plain.addColorStop(0, P.landTop);
+                plain.addColorStop(1, P.landBottom);
+                bctx.fillStyle = plain;
+                bctx.fillRect(0, 0, bw, bh);
+                paperGrain(bctx, bw, bh);
+                return;
+            }
 
             /* --- 바다 --- */
             var sea = bctx.createLinearGradient(0, 0, bw * 0.3, bh);
@@ -887,7 +901,7 @@
                 ctx.beginPath(); tracePartial(ctx, pts, c.cumLen, prog); ctx.stroke();
 
                 // 4) 흐르는 점선 + 달려가는 점 — "달리는 중" 느낌
-                if (active && prog >= 1) {
+                if (active && prog >= 1 && !still) {
                     ctx.save();
                     ctx.strokeStyle = 'rgba(255,255,255,.9)';
                     ctx.lineWidth = 2.4;
@@ -912,7 +926,7 @@
                 // 5) 시작점 마커 (맥박)
                 if (prog > 0.02) {
                     var pulse = 0.5 + 0.5 * Math.sin((now - t0) / 480);
-                    if (active) {
+                    if (active && !still) {
                         ctx.beginPath();
                         ctx.arc(s.x, s.y, 8 + pulse * 6, 0, Math.PI * 2);
                         ctx.fillStyle = c.tier.glow.replace(/[\d.]+\)$/, (0.22 - pulse * 0.14).toFixed(2) + ')');
@@ -1105,6 +1119,7 @@
             for (var i = 0; i < courses.length; i++) {
                 if (courses[i].animProgress < 1) return true;
             }
+            if (still) return false;
             return courses.length > 0 || (hovered && hovered.type === 'restaurant');
         }
 

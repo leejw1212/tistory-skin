@@ -735,7 +735,7 @@
     }
 
     /* 6-3. 본문 지도 */
-    function renderCourseMap(container, course, geoBundle) {
+    function renderCourseMap(container, course, extra) {
         container.innerHTML =
             '<div class="course-map-inner">' +
             '  <canvas></canvas>' +
@@ -753,14 +753,13 @@
             '</div>';
 
         var canvas = $('canvas', container);
-        var map = window.RunMapEngine.create(canvas);
-        map.setGeo(geoBundle.geo, geoBundle.rivers, geoBundle.parks);
-        map.setData({ courses: [course], restaurants: geoBundle.restaurants || [] });
+        var map = window.RunMapEngine.create(canvas, { still: true });
+        map.setData({ courses: [course], restaurants: extra.restaurants || [] });
 
         var fit = map.computeFit(course.bounds, 0.18);
         map.setHome(fit);
         map.setViewport(fit);
-        course.animProgress = reduceMotion ? 1 : 0;
+        course.animProgress = 1;
         map.requestFrame();
 
         $$('button', $('.course-map-controls', container)).forEach(function (b) {
@@ -921,10 +920,11 @@
                     else content.insertBefore(mount, content.firstChild);
                 }
                 mount.classList.add('is-pending');
-                loadGeoWhenVisible(mount, function (bundle) {
+                // 글 속 지도는 코스 주변만 확대해 보여 줘서 해안선·강 데이터가 거의 안 보입니다.
+                // 무거운 배경 데이터(약 440KB)는 받지 않고 코스만 그립니다.
+                whenVisible(mount, function () {
                     mount.classList.remove('is-pending');
-                    bundle.restaurants = data.restaurants;
-                    renderCourseMap(mount, course, bundle);
+                    renderCourseMap(mount, course, { restaurants: data.restaurants });
                 });
             } else if (explicit) {
                 explicit.remove();
@@ -936,24 +936,10 @@
         });
     }
 
-    var geoBundlePromise = null;
-    function loadGeoWhenVisible(el, cb) {
-        var start = function () {
-            if (!geoBundlePromise) {
-                var base = window.RunMapUtil.skinPath;
-                var j = function (n) {
-                    return fetch(base + n, { credentials: 'same-origin' })
-                        .then(function (r) { return r.ok ? r.json() : null; })
-                        .catch(function () { return null; });
-                };
-                geoBundlePromise = Promise.all([j('korea.json'), j('rivers.json'), j('parks.json')])
-                    .then(function (r) { return { geo: r[0], rivers: r[1], parks: r[2] }; });
-            }
-            geoBundlePromise.then(cb);
-        };
-        if (!window.IntersectionObserver) { start(); return; }
+    function whenVisible(el, cb) {
+        if (!window.IntersectionObserver) { cb(); return; }
         var io = new IntersectionObserver(function (entries) {
-            if (entries[0].isIntersecting) { io.disconnect(); start(); }
+            if (entries[0].isIntersecting) { io.disconnect(); cb(); }
         }, { rootMargin: '300px' });
         io.observe(el);
     }
