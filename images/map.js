@@ -1333,18 +1333,23 @@
             map.setGeo(geo, rivers, parks);
             map.setData(data);
 
-            var b = data.courses.length
-                ? data.courses.reduce(function (acc, c) {
+            // 첫 화면은 코스와 맛집 핀이 모두 들어오게 잡습니다
+            var boxes = data.courses.map(function (c) { return c.bounds; })
+                .concat(data.restaurants.map(function (r) {
+                    return { minLat: r.lat, maxLat: r.lat, minLon: r.lon, maxLon: r.lon };
+                }));
+            var b = boxes.length
+                ? boxes.reduce(function (acc, x) {
                     return {
-                        minLat: Math.min(acc.minLat, c.bounds.minLat),
-                        maxLat: Math.max(acc.maxLat, c.bounds.maxLat),
-                        minLon: Math.min(acc.minLon, c.bounds.minLon),
-                        maxLon: Math.max(acc.maxLon, c.bounds.maxLon)
+                        minLat: Math.min(acc.minLat, x.minLat),
+                        maxLat: Math.max(acc.maxLat, x.maxLat),
+                        minLon: Math.min(acc.minLon, x.minLon),
+                        maxLon: Math.max(acc.maxLon, x.maxLon)
                     };
                 }, { minLat: 90, maxLat: -90, minLon: 180, maxLon: -180 })
                 : { minLat: 33.0, maxLat: 38.7, minLon: 125.9, maxLon: 129.8 };
 
-            var fit = map.computeFit(b, data.courses.length ? 0.15 : 0.04);
+            var fit = map.computeFit(b, boxes.length ? 0.15 : 0.04);
             map.setHome(fit);
             map.setViewport(fit);
 

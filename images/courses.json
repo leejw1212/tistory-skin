@@ -41,5 +41,15 @@
       "titleLocked": true
     }
   ],
-  "restaurants": []
+  "restaurants": [
+    {
+      "id": "2026-09-27-8corgi",
+      "title": "8코기네 카페",
+      "url": "",
+      "lat": 37.51169,
+      "lon": 127.53317,
+      "desc": "웰시코기 8마리가 사는 양평 애견동반 카페",
+      "region": "gyeonggi"
+    }
+  ]
 }
