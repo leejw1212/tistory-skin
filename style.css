@@ -639,6 +639,68 @@ img {
     margin: 0;
 }
 
+/* 방문자 그래프: 홈에서만, 지도·목록 아래 '나의 다른 사이트' 위 전체 폭 */
+.visitor-stats {
+    display: none;
+}
+
+#tt-body-index .visitor-stats {
+    display: block;
+    order: 1; /* 문서 순서상 목록 앞이지만 그리드에서는 지도·목록 다음 행으로 */
+    grid-column: 1 / -1;
+    min-width: 0;
+    padding: 16px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+.visitor-stats-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px 16px;
+    margin-bottom: 12px;
+}
+
+.visitor-stats-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.visitor-stats-count {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    letter-spacing: .02em;
+}
+
+.visitor-stats-count strong {
+    color: var(--primary);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 티스토리가 넣는 그래프는 고정 폭이라 가운데 두고, 좁은 화면에서는 줄이거나 가로 스크롤 */
+.visitor-graph {
+    overflow-x: auto;
+    text-align: center;
+}
+
+.visitor-graph:empty {
+    display: none;
+}
+
+.visitor-graph img,
+.visitor-graph svg,
+.visitor-graph canvas,
+.visitor-graph iframe {
+    max-width: 100%;
+}
+
 /* 나의 다른 사이트: 홈에서만, 지도·목록 아래 광고 위 전체 폭 */
 .my-sites {
     display: none;

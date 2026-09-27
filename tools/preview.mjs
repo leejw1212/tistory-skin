@@ -159,7 +159,10 @@ function build(kind) {
         '[##_prev_page_##]': 'href="#"',
         '[##_next_page_##]': 'href="#"',
         '[##_count_today_##]': '128',
+        '[##_count_yesterday_##]': '214',
         '[##_count_total_##]': '24,931',
+        // 실제로는 티스토리가 방문자 그래프를 그려 넣는 자리. 미리보기에선 크기만 보여 준다.
+        '[##_StatisticsGraph_##]': '<div style="height:120px;display:grid;place-items:center;border:1px dashed #d4cfc6;border-radius:12px;color:#aaa;font-size:.85rem">방문자 그래프</div>',
         // 실제로는 티스토리가 애드센스 광고 코드를 넣는 자리. 미리보기에선 크기만 보여 준다.
         '[##_revenue_list_upper_##]': '<div style="height:100px;display:grid;place-items:center;border:1px dashed #d4cfc6;border-radius:12px;color:#aaa;font-size:.85rem">광고 (목록 상단)</div>'
     };
