@@ -1,7 +1,25 @@
 {
   "version": 1,
-  "generated": "2026-09-26T11:12:16.658Z",
+  "generated": "2026-09-27T08:42:01.235Z",
   "courses": [
+    {
+      "id": "2026-09-27",
+      "title": "양평 갈산공원 6K",
+      "link": "",
+      "date": "2026-09-27",
+      "distance": 6.01,
+      "region": "gyeonggi",
+      "difficulty": 2,
+      "bounds": [
+        37.45842,
+        127.49394,
+        37.48492,
+        127.5012
+      ],
+      "polyline": "_xwcFutdiWVS|BoAf@SXO`@O`@Qf@QZMb@Q~Ac@|@S|@Of@MxBWbCQh@Gr@ChBDP@l@Aj@@\\@d@?PELGd@e@LKLEVAj@Bp@DJ?t@Of@Qd@I`@KZE^B^Jt@H|AZh@NR?~@LnAXP@TF\\Dx@JZJTDb@F`@Bb@FzAPl@BjAAp@ApAEx@G^ArCOn@Ch@G~AI\\E`@?`AGZCx@Cp@IZCh@IRATExB_@lBc@lA[ZKPIr@SpBy@l@QdC_At@UzD{Ah@Qf@QVGr@WTKn@SXQZKPG@CIDKHWPWH_@J_@No@T]Na@PaBl@{@VcBp@qBp@qAh@QDQHq@RiC~@i@NeAXa@Fg@NkAT[Bq@Je@DiAN[@y@Hg@@_CLy@FwBJuAFa@BsCNgBBQA_A?s@Cy@Ic@CuBUcBYa@Kq@MYGqAUo@IuAWq@I{@QUEUBs@P]FgA\\YDS@_@GYA{@CG@IDKLSVKHKDWDO@g@Ao@E{@AsC?e@DU@}@Hu@D_@Fu@Je@Be@Hs@RoB`@wA`@}ErBa@Vs@\\SPc@TYPiA|@_Ap@[Vu@v@]VKHcAjAW\\q@t@QRQRc@z@IR?BBEPo@LYn@w@p@s@",
+      "elevGain": 12,
+      "duration": 2232
+    },
     {
       "id": "2026-09-26",
       "title": "수지구청 8K",
