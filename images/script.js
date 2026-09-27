@@ -104,6 +104,42 @@
         });
     }
 
+    /* 2-1. 깨진 목록 썸네일 되살리기
+     *   티스토리 썸네일은 img1.daumcdn.net/thumb/...?fname=<원본 주소> 로 원본을 다시 받아 줄인 것입니다.
+     *   원본이 jsDelivr 사진이면 발행 직후 등에 이 변환이 실패해 깨진 그림이 남습니다.
+     *   그러면 fname 의 원본 주소로 한 번 더 받아 보고, 그것도 안 되면 빈 썸네일로 바꿉니다. */
+    var CAT_ICON = { running: '🏃', food: '🍽️', review: '📦' };
+
+    function recoverThumb(img) {
+        if (!img.closest || !img.closest('.post-item .thumb')) return;
+        if (!img.dataset.thumbRetry) {
+            img.dataset.thumbRetry = '1';
+            var original = '';
+            try { original = new URL(img.src, location.href).searchParams.get('fname') || ''; } catch (e) { /* 잘못된 주소 */ }
+            if (/^https?:\/\//.test(original) && original !== img.src) {
+                img.src = original;
+                return;
+            }
+        }
+        var cat = $('.category', img.closest('.post-item'));
+        var box = document.createElement('div');
+        box.className = 'no-thumb';
+        box.setAttribute('aria-hidden', 'true');
+        box.textContent = CAT_ICON[cat && cat.dataset.cat] || '🏃';
+        img.parentNode.replaceChild(box, img);
+    }
+
+    function initThumbFallback() {
+        // 홈 탭은 목록을 나중에 끼워 넣으므로 문서 전체에서 캡처 단계로 받습니다 (error 는 버블링되지 않음)
+        document.addEventListener('error', function (e) {
+            if (e.target && e.target.tagName === 'IMG') recoverThumb(e.target);
+        }, true);
+        // 스크립트보다 먼저 실패한 그림
+        $$('.post-item .thumb img').forEach(function (img) {
+            if (img.complete && img.naturalWidth === 0 && img.getAttribute('src')) recoverThumb(img);
+        });
+    }
+
     /* =====================================================================
      * 3. 카드 등장 애니메이션
      * ===================================================================== */
@@ -950,6 +986,7 @@
     ready(function () {
         initChrome();
         initCategories();
+        initThumbFallback();
         initReveal();
         initSidebarTabs();
         initListExcerpts();
