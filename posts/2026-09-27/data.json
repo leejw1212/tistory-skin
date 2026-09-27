@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-27T08:42:01.234Z",
+  "generated": "2026-09-27T08:44:35.320Z",
   "source": {
     "file": "activity.tcx",
     "format": "tcx",
@@ -157,7 +157,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 77,
+      "kb": 56,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -172,7 +172,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 96,
+      "kb": 71,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -187,7 +187,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 158,
+      "kb": 120,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -202,7 +202,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 147,
+      "kb": 110,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -217,7 +217,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 129,
+      "kb": 97,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -232,7 +232,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 111,
+      "kb": 83,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -247,7 +247,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 80,
+      "kb": 60,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -262,7 +262,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 105,
+      "kb": 79,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -277,7 +277,7 @@
       "landscape": true,
       "width": 800,
       "height": 600,
-      "kb": 117,
+      "kb": 88,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -292,7 +292,7 @@
       "landscape": true,
       "width": 800,
       "height": 600,
-      "kb": 121,
+      "kb": 91,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -307,7 +307,7 @@
       "landscape": true,
       "width": 800,
       "height": 600,
-      "kb": 155,
+      "kb": 117,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -322,7 +322,7 @@
       "landscape": true,
       "width": 800,
       "height": 600,
-      "kb": 112,
+      "kb": 84,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -337,7 +337,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 105,
+      "kb": 77,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -352,7 +352,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 129,
+      "kb": 97,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -367,7 +367,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 114,
+      "kb": 85,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -382,7 +382,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 116,
+      "kb": 87,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -397,7 +397,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 164,
+      "kb": 124,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -412,7 +412,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 125,
+      "kb": 93,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -427,7 +427,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 91,
+      "kb": 68,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -442,7 +442,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 169,
+      "kb": 129,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -457,7 +457,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 145,
+      "kb": 110,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -472,7 +472,7 @@
       "landscape": true,
       "width": 800,
       "height": 600,
-      "kb": 160,
+      "kb": 121,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -487,7 +487,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 104,
+      "kb": 78,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -502,7 +502,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 125,
+      "kb": 94,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -517,7 +517,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 64,
+      "kb": 47,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -532,7 +532,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 156,
+      "kb": 117,
       "gpsStripped": true,
       "metadataStripped": true
     },
@@ -547,7 +547,7 @@
       "landscape": false,
       "width": 600,
       "height": 800,
-      "kb": 89,
+      "kb": 65,
       "gpsStripped": true,
       "metadataStripped": true
     }

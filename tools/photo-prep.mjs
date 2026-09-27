@@ -15,7 +15,7 @@ import { readExif } from './exif.mjs';
 
 export const PHOTO_EXT = /\.(jpe?g|png|heic|heif|webp)$/i;
 export const MAX_EDGE = 800;
-export const JPEG_QUALITY = 82;
+export const JPEG_QUALITY = 72;
 
 let sharpModule;
 /** sharp 를 한 번만 불러온다 — 없으면 null */
