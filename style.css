@@ -639,37 +639,31 @@ img {
     margin: 0;
 }
 
-/* 방문자 그래프: 홈에서만, 지도·목록 아래 '나의 다른 사이트' 위 전체 폭 */
+/* 방문자 그래프: 홈에서만. PC 에서는 '나의 다른 사이트' 오른쪽 칸(목록 탭과 같은 폭) */
 .visitor-stats {
     display: none;
 }
 
 #tt-body-index .visitor-stats {
     display: block;
-    order: 1; /* 문서 순서상 목록 앞이지만 그리드에서는 지도·목록 다음 행으로 */
-    grid-column: 1 / -1;
+    order: 1; /* 문서 순서상 '나의 다른 사이트' 바로 뒤라 같은 행 오른쪽 칸에 들어간다 */
+    grid-column: 2;
     min-width: 0;
-    padding: 16px 18px;
+}
+
+.visitor-stats-title {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.visitor-card {
+    padding: 14px 16px;
     background: var(--bg-card);
     border: 1px solid var(--border-light);
     border-radius: var(--radius-sm);
     box-shadow: var(--shadow-sm);
-}
-
-.visitor-stats-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 6px 16px;
-    margin-bottom: 12px;
-}
-
-.visitor-stats-title {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 800;
-    color: var(--text-primary);
 }
 
 .visitor-stats-count {
@@ -684,8 +678,9 @@ img {
     font-variant-numeric: tabular-nums;
 }
 
-/* 티스토리가 넣는 그래프는 고정 폭이라 가운데 두고, 좁은 화면에서는 줄이거나 가로 스크롤 */
+/* 티스토리가 넣는 그래프는 고정 폭이라 가운데 두고, 좁은 칸에서는 줄이거나 가로 스크롤 */
 .visitor-graph {
+    margin-top: 12px;
     overflow-x: auto;
     text-align: center;
 }
@@ -709,7 +704,7 @@ img {
 #tt-body-index .my-sites {
     display: block;
     order: 1; /* 문서 순서상 목록 앞이지만 그리드에서는 광고 바로 위 행으로 */
-    grid-column: 1 / -1;
+    grid-column: 1; /* 오른쪽 칸은 방문자 */
     min-width: 0;
 }
 
@@ -1681,6 +1676,11 @@ img {
     #tt-body-index .content-wrap {
         grid-column: 1;
         position: static;
+    }
+
+    #tt-body-index .my-sites,
+    #tt-body-index .visitor-stats {
+        grid-column: 1;
     }
 
     #tt-body-index .post-item a {

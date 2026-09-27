@@ -142,19 +142,6 @@
                     <p id="map-status" class="map-status"></p>
                 </section>
 
-                <!-- ============ Visitor Graph ============ -->
-                <!-- 홈에서만 지도·목록 아래, '나의 다른 사이트' 위에 전체 폭으로 보인다.
-                     그래프는 티스토리 서버가 치환자를 바꿔 그려 주므로 로컬 미리보기에서는 비어 있다. -->
-                <section class="visitor-stats" aria-labelledby="visitor-stats-title">
-                    <div class="visitor-stats-head">
-                        <h2 class="visitor-stats-title" id="visitor-stats-title">📈 방문자</h2>
-                        <p class="visitor-stats-count">
-                            Today <strong>[##_count_today_##]</strong> · Yesterday <strong>[##_count_yesterday_##]</strong> · Total <strong>[##_count_total_##]</strong>
-                        </p>
-                    </div>
-                    <div class="visitor-graph">[##_StatisticsGraph_##]</div>
-                </section>
-
                 <!-- ============ My Sites ============ -->
                 <!-- 홈에서만 지도·목록 아래 전체 폭으로 보인다.
                      사이트를 늘리거나 바꾸려면 <li> 하나를 복사해 아이콘·이름·설명·주소만 고치면 된다.
@@ -183,6 +170,19 @@
                             </a>
                         </li>
                     </ul>
+                </section>
+
+                <!-- ============ Visitor Graph ============ -->
+                <!-- 홈에서만 보인다. PC 에서는 '나의 다른 사이트' 오른쪽 칸(목록 탭과 같은 폭), 좁은 화면에서는 그 아래.
+                     그래프는 티스토리 관리 > 플러그인 > '방문자 통계 그래프'를 켜야 나오고, 로컬 미리보기에서는 비어 있다. -->
+                <section class="visitor-stats" aria-labelledby="visitor-stats-title">
+                    <h2 class="visitor-stats-title" id="visitor-stats-title">📈 방문자</h2>
+                    <div class="visitor-card">
+                        <p class="visitor-stats-count">
+                            Today <strong>[##_count_today_##]</strong> · Yesterday <strong>[##_count_yesterday_##]</strong> · Total <strong>[##_count_total_##]</strong>
+                        </p>
+                        <div class="visitor-graph">[##_StatisticsGraph_##]</div>
+                    </div>
                 </section>
 
                 <!-- ============ List Ad ============ -->
