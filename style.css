@@ -2182,6 +2182,21 @@ body.nav-locked { overflow: hidden; }
 
 .map-tooltip strong { display: block; font-weight: 700; }
 .map-tooltip span { display: block; opacity: .75; font-size: .75rem; margin-top: 2px; }
+.map-tooltip.is-tap { pointer-events: auto; }
+.map-tooltip.is-below { transform: translate(-50%, 0) translateY(4px); }
+.map-tooltip.is-below.visible { transform: translate(-50%, 0) translateY(10px); }
+.map-tooltip.is-below::after { top: -5px; bottom: auto; border-width: 0 5px 5px; border-color: transparent transparent rgba(30, 30, 40, 0.92) transparent; }
+.map-tooltip-go {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #fff;
+    color: #1e1e28;
+    font-size: .78rem;
+    font-weight: 700;
+    text-decoration: none;
+}
 
 /* =========================================================================
  * 마크다운 본문 타이포그래피
