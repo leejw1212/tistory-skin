@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-27T08:44:35.320Z",
+  "generated": "2026-09-27T08:48:50.801Z",
   "source": {
     "file": "activity.tcx",
     "format": "tcx",
@@ -108,40 +108,44 @@
       "from": 0,
       "to": 2,
       "photos": [
-        "04-img-2704.jpg",
-        "05-img-2705.jpg",
-        "06-img-2706.jpg",
-        "07-img-2710.jpg",
-        "08-img-2711.jpg",
-        "09-img-2713.jpg",
-        "10-img-2714.jpg",
-        "11-img-2716.jpg",
-        "12-img-2717.jpg",
-        "13-img-2726.jpg",
-        "14-img-2728.jpg",
-        "15-img-2729.jpg",
-        "16-img-2730.jpg",
-        "17-img-2733.jpg",
-        "18-img-2734.jpg"
+        "06-img-2702.jpg",
+        "07-img-2704.jpg",
+        "08-img-2705.jpg",
+        "09-img-2706.jpg",
+        "10-img-2707.jpg",
+        "11-img-2709.jpg",
+        "12-img-2710.jpg",
+        "13-img-2711.jpg",
+        "14-img-2713.jpg",
+        "15-img-2714.jpg",
+        "16-img-2716.jpg",
+        "17-img-2717.jpg",
+        "18-img-2726.jpg",
+        "19-img-2728.jpg",
+        "20-img-2729.jpg",
+        "21-img-2730.jpg",
+        "22-img-2733.jpg",
+        "23-img-2734.jpg"
       ]
     },
     {
       "from": 2,
       "to": 4,
       "photos": [
-        "19-img-2738.jpg",
-        "20-img-2739.jpg",
-        "21-img-2740.jpg",
-        "22-img-2741.jpg"
+        "24-img-2738.jpg",
+        "25-img-2739.jpg",
+        "26-img-2740.jpg",
+        "27-img-2741.jpg"
       ]
     },
     {
       "from": 4,
       "to": 6.01,
       "photos": [
-        "23-img-2742.jpg",
-        "24-img-2749.jpg",
-        "25-img-2750.jpg"
+        "28-img-2742.jpg",
+        "29-img-2747.jpg",
+        "30-img-2749.jpg",
+        "31-img-2750.jpg"
       ]
     }
   ],
@@ -192,8 +196,53 @@
       "metadataStripped": true
     },
     {
-      "name": "04-img-2704.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/04-img-2704.jpg",
+      "name": "04-img-2698.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/04-img-2698.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-27T05:45:50.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 53,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 115,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "05-img-2700.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/05-img-2700.jpg",
+      "km": 0,
+      "phase": "before",
+      "takenAt": "2026-09-27T05:45:58.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 45,
+      "landscape": true,
+      "width": 800,
+      "height": 600,
+      "kb": 103,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "06-img-2702.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/06-img-2702.jpg",
+      "km": 0.03,
+      "phase": "during",
+      "takenAt": "2026-09-27T05:46:57.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 123,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "07-img-2704.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/07-img-2704.jpg",
       "km": 0.12,
       "phase": "during",
       "takenAt": "2026-09-27T05:47:34.000Z",
@@ -207,8 +256,8 @@
       "metadataStripped": true
     },
     {
-      "name": "05-img-2705.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/05-img-2705.jpg",
+      "name": "08-img-2705.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/08-img-2705.jpg",
       "km": 0.24,
       "phase": "during",
       "takenAt": "2026-09-27T05:48:19.000Z",
@@ -222,8 +271,8 @@
       "metadataStripped": true
     },
     {
-      "name": "06-img-2706.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/06-img-2706.jpg",
+      "name": "09-img-2706.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/09-img-2706.jpg",
       "km": 0.24,
       "phase": "during",
       "takenAt": "2026-09-27T05:48:20.000Z",
@@ -237,8 +286,38 @@
       "metadataStripped": true
     },
     {
-      "name": "07-img-2710.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/07-img-2710.jpg",
+      "name": "10-img-2707.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/10-img-2707.jpg",
+      "km": 0.33,
+      "phase": "during",
+      "takenAt": "2026-09-27T05:48:51.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 148,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "11-img-2709.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/11-img-2709.jpg",
+      "km": 0.58,
+      "phase": "during",
+      "takenAt": "2026-09-27T05:50:21.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 107,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "12-img-2710.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/12-img-2710.jpg",
       "km": 0.87,
       "phase": "during",
       "takenAt": "2026-09-27T05:52:06.000Z",
@@ -252,8 +331,8 @@
       "metadataStripped": true
     },
     {
-      "name": "08-img-2711.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/08-img-2711.jpg",
+      "name": "13-img-2711.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/13-img-2711.jpg",
       "km": 0.88,
       "phase": "during",
       "takenAt": "2026-09-27T05:52:11.000Z",
@@ -267,8 +346,8 @@
       "metadataStripped": true
     },
     {
-      "name": "09-img-2713.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/09-img-2713.jpg",
+      "name": "14-img-2713.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/14-img-2713.jpg",
       "km": 1.12,
       "phase": "during",
       "takenAt": "2026-09-27T05:53:44.000Z",
@@ -282,8 +361,8 @@
       "metadataStripped": true
     },
     {
-      "name": "10-img-2714.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/10-img-2714.jpg",
+      "name": "15-img-2714.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/15-img-2714.jpg",
       "km": 1.13,
       "phase": "during",
       "takenAt": "2026-09-27T05:53:45.000Z",
@@ -297,8 +376,8 @@
       "metadataStripped": true
     },
     {
-      "name": "11-img-2716.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/11-img-2716.jpg",
+      "name": "16-img-2716.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/16-img-2716.jpg",
       "km": 1.33,
       "phase": "during",
       "takenAt": "2026-09-27T05:55:02.000Z",
@@ -312,8 +391,8 @@
       "metadataStripped": true
     },
     {
-      "name": "12-img-2717.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/12-img-2717.jpg",
+      "name": "17-img-2717.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/17-img-2717.jpg",
       "km": 1.38,
       "phase": "during",
       "takenAt": "2026-09-27T05:55:19.000Z",
@@ -327,8 +406,8 @@
       "metadataStripped": true
     },
     {
-      "name": "13-img-2726.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/13-img-2726.jpg",
+      "name": "18-img-2726.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/18-img-2726.jpg",
       "km": 1.44,
       "phase": "during",
       "takenAt": "2026-09-27T05:56:50.000Z",
@@ -342,8 +421,8 @@
       "metadataStripped": true
     },
     {
-      "name": "14-img-2728.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/14-img-2728.jpg",
+      "name": "19-img-2728.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/19-img-2728.jpg",
       "km": 1.47,
       "phase": "during",
       "takenAt": "2026-09-27T05:57:39.000Z",
@@ -357,8 +436,8 @@
       "metadataStripped": true
     },
     {
-      "name": "15-img-2729.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/15-img-2729.jpg",
+      "name": "20-img-2729.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/20-img-2729.jpg",
       "km": 1.63,
       "phase": "during",
       "takenAt": "2026-09-27T05:58:32.000Z",
@@ -372,8 +451,8 @@
       "metadataStripped": true
     },
     {
-      "name": "16-img-2730.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/16-img-2730.jpg",
+      "name": "21-img-2730.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/21-img-2730.jpg",
       "km": 1.63,
       "phase": "during",
       "takenAt": "2026-09-27T05:58:33.000Z",
@@ -387,8 +466,8 @@
       "metadataStripped": true
     },
     {
-      "name": "17-img-2733.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/17-img-2733.jpg",
+      "name": "22-img-2733.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/22-img-2733.jpg",
       "km": 1.71,
       "phase": "during",
       "takenAt": "2026-09-27T05:59:03.000Z",
@@ -402,8 +481,8 @@
       "metadataStripped": true
     },
     {
-      "name": "18-img-2734.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/18-img-2734.jpg",
+      "name": "23-img-2734.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/23-img-2734.jpg",
       "km": 1.97,
       "phase": "during",
       "takenAt": "2026-09-27T06:00:36.000Z",
@@ -417,8 +496,8 @@
       "metadataStripped": true
     },
     {
-      "name": "19-img-2738.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/19-img-2738.jpg",
+      "name": "24-img-2738.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/24-img-2738.jpg",
       "km": 2.46,
       "phase": "during",
       "takenAt": "2026-09-27T06:03:46.000Z",
@@ -432,8 +511,8 @@
       "metadataStripped": true
     },
     {
-      "name": "20-img-2739.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/20-img-2739.jpg",
+      "name": "25-img-2739.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/25-img-2739.jpg",
       "km": 2.64,
       "phase": "during",
       "takenAt": "2026-09-27T06:04:52.000Z",
@@ -447,8 +526,8 @@
       "metadataStripped": true
     },
     {
-      "name": "21-img-2740.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/21-img-2740.jpg",
+      "name": "26-img-2740.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/26-img-2740.jpg",
       "km": 2.65,
       "phase": "during",
       "takenAt": "2026-09-27T06:04:57.000Z",
@@ -462,8 +541,8 @@
       "metadataStripped": true
     },
     {
-      "name": "22-img-2741.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/22-img-2741.jpg",
+      "name": "27-img-2741.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/27-img-2741.jpg",
       "km": 3.26,
       "phase": "during",
       "takenAt": "2026-09-27T06:08:47.000Z",
@@ -477,8 +556,8 @@
       "metadataStripped": true
     },
     {
-      "name": "23-img-2742.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/23-img-2742.jpg",
+      "name": "28-img-2742.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/28-img-2742.jpg",
       "km": 4.33,
       "phase": "during",
       "takenAt": "2026-09-27T06:15:30.000Z",
@@ -492,8 +571,23 @@
       "metadataStripped": true
     },
     {
-      "name": "24-img-2749.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/24-img-2749.jpg",
+      "name": "29-img-2747.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/29-img-2747.jpg",
+      "km": 4.71,
+      "phase": "during",
+      "takenAt": "2026-09-27T06:17:49.000Z",
+      "exifOffset": "+09:00",
+      "deltaSec": 0,
+      "landscape": false,
+      "width": 600,
+      "height": 800,
+      "kb": 124,
+      "gpsStripped": true,
+      "metadataStripped": true
+    },
+    {
+      "name": "30-img-2749.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/30-img-2749.jpg",
       "km": 5.66,
       "phase": "during",
       "takenAt": "2026-09-27T06:23:45.000Z",
@@ -507,8 +601,8 @@
       "metadataStripped": true
     },
     {
-      "name": "25-img-2750.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/25-img-2750.jpg",
+      "name": "31-img-2750.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/31-img-2750.jpg",
       "km": 5.88,
       "phase": "during",
       "takenAt": "2026-09-27T06:25:02.000Z",
@@ -522,8 +616,8 @@
       "metadataStripped": true
     },
     {
-      "name": "26-img-2751.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/26-img-2751.jpg",
+      "name": "32-img-2751.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/32-img-2751.jpg",
       "km": 6,
       "phase": "after",
       "takenAt": "2026-09-27T06:25:59.000Z",
@@ -537,8 +631,8 @@
       "metadataStripped": true
     },
     {
-      "name": "27-img-2755.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/27-img-2755.jpg",
+      "name": "33-img-2755.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/33-img-2755.jpg",
       "km": 6,
       "phase": "after",
       "takenAt": "2026-09-27T06:29:26.000Z",
@@ -554,18 +648,18 @@
   ],
   "coverCandidates": [
     {
-      "name": "09-img-2713.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/09-img-2713.jpg",
+      "name": "05-img-2700.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/05-img-2700.jpg",
       "score": 72
     },
     {
-      "name": "10-img-2714.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/10-img-2714.jpg",
+      "name": "14-img-2713.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/14-img-2713.jpg",
       "score": 72
     },
     {
-      "name": "11-img-2716.jpg",
-      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/11-img-2716.jpg",
+      "name": "15-img-2714.jpg",
+      "url": "https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/posts/2026-09-27/photos/15-img-2714.jpg",
       "score": 72
     }
   ],
