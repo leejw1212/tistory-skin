@@ -1438,7 +1438,7 @@
         }
 
         /* ---------- 툴팁 ---------- */
-        function showTooltip(x, y, hit) {
+        function showTooltip(x, y, hit, isTap) {
             if (!tooltip) return;
             var html;
             if (hit.type === 'restaurant') {
@@ -1451,16 +1451,23 @@
                 if (c.date) bits.push(c.date);
                 html = '<strong>🏃 ' + esc(c.title) + '</strong><span>' + bits.join(' · ') + '</span>';
             }
+            // 터치: 누르자마자 이동하지 않고, 정보 + "글 보기" 버튼을 먼저 보여줍니다
+            var href = isTap ? postUrl(hit) : null;
+            if (href) html += '<a class="map-tooltip-go" href="' + esc(href) + '">글 보기 ›</a>';
             tooltip.innerHTML = html;
+            tooltip.classList.toggle('is-tap', !!href);
             tooltip.classList.add('visible');
             var size = map.size;
             var tw = tooltip.offsetWidth, th = tooltip.offsetHeight;
             tooltip.style.left = clamp(x, tw / 2 + 8, size.w - tw / 2 - 8) + 'px';
-            tooltip.style.top = clamp(y - 16, th + 8, size.h - 8) + 'px';
+            // 위쪽 공간이 모자라면 핀 아래로 뒤집어 잘리지 않게 합니다
+            var below = y - 16 - th - 10 < 8;
+            tooltip.classList.toggle('is-below', below);
+            tooltip.style.top = (below ? clamp(y + 16, 8, size.h - th - 18) : clamp(y - 16, th + 18, size.h - 8)) + 'px';
         }
 
         function hideTooltip() {
-            if (tooltip) tooltip.classList.remove('visible');
+            if (tooltip) tooltip.classList.remove('visible', 'is-tap');
         }
 
         function flashHint(msg) {
@@ -1506,8 +1513,13 @@
             canvas.classList.remove('is-dragging');
         });
 
+        // 터치 뒤 브라우저가 흉내 내는 마우스 이벤트(mousemove·click)는 무시합니다.
+        // 그대로 두면 첫 탭의 가짜 click 이 곧바로 글로 이동시켜 버립니다.
+        var lastTouchAt = 0;
+        function fromTouch() { return Date.now() - lastTouchAt < 800; }
+
         canvas.addEventListener('mousemove', function (e) {
-            if (drag) return;
+            if (drag || fromTouch()) return;
             var p = localPoint(e);
             var hit = map.hitTest(p.x, p.y);
             map.setHovered(hit);
@@ -1526,19 +1538,24 @@
         });
 
         canvas.addEventListener('click', function (e) {
-            if (moved > 6) return;
+            if (moved > 6 || fromTouch()) return;
             var p = localPoint(e);
             var hit = map.hitTest(p.x, p.y, 18);
             if (!hit) return;
             go(hit);
         });
 
-        /** 글 주소가 있으면 그 글로, 없으면 제목으로 블로그 내 검색 */
-        function go(hit) {
+        /** 글 주소가 있으면 그 글, 없으면 제목으로 블로그 내 검색 */
+        function postUrl(hit) {
             var url = hit.type === 'restaurant' ? hit.data.url : hit.data.link;
-            if (url) { window.location.href = url; return; }
+            if (url) return url;
             var title = hit.data.title;
-            if (title) window.location.href = '/search/' + encodeURIComponent(title);
+            return title ? '/search/' + encodeURIComponent(title) : null;
+        }
+
+        function go(hit) {
+            var url = postUrl(hit);
+            if (url) window.location.href = url;
             else flashHint('연결된 글이 아직 없습니다');
         }
 
@@ -1565,6 +1582,7 @@
         var touch = null, tapStart = null;
 
         canvas.addEventListener('touchstart', function (e) {
+            lastTouchAt = Date.now();
             if (e.touches.length === 2) {
                 e.preventDefault();
                 touch = twoFingerState(e);
@@ -1598,11 +1616,13 @@
         }, { passive: false });
 
         canvas.addEventListener('touchend', function (e) {
+            lastTouchAt = Date.now();
             if (touch && e.touches.length < 2) {
                 touch = null;
                 map.setInteracting(false);
             }
             if (tapStart && !tapStart.scrolled && Date.now() - tapStart.t < 500) {
+                if (e.cancelable) e.preventDefault();   // 뒤따르는 가짜 click 을 막습니다
                 var hit = map.hitTest(tapStart.x, tapStart.y, 22);
                 if (hit) {
                     var cur = map.hovered;
@@ -1611,7 +1631,7 @@
                     } else {
                         // 첫 탭: 정보만 보여주고, 한 번 더 탭하면 이동
                         map.setHovered(hit);
-                        showTooltip(tapStart.x, tapStart.y, hit);
+                        showTooltip(tapStart.x, tapStart.y, hit, true);
                     }
                 } else {
                     map.setHovered(null);
