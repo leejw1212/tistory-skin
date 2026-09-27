@@ -15,7 +15,7 @@ import { readExif } from './exif.mjs';
 
 export const PHOTO_EXT = /\.(jpe?g|png|heic|heif|webp)$/i;
 export const MAX_EDGE = 800;
-export const JPEG_QUALITY = 82;
+export const JPEG_QUALITY = 72;
 
 let sharpModule;
 /** sharp 를 한 번만 불러온다 — 없으면 null */
@@ -80,7 +80,9 @@ export async function prepPhoto(srcPath, outPath, { fallbackOffsetMin = 540 } = 
             fit: 'inside',
             withoutEnlargement: true
         })
-        .jpeg({ quality: JPEG_QUALITY, mozjpeg: true });
+        // mozjpeg: true 는 progressive JPEG 를 강제합니다 (progressive: false 로도 안 꺼짐).
+        // 폰 크롬에서 progressive 사진이 글 로딩을 크게 늦춰서, 압축 옵션만 골라 baseline 으로 냅니다.
+        .jpeg({ quality: JPEG_QUALITY, trellisQuantisation: true, overshootDeringing: true, quantisationTable: 3 });
 
     const { data, info: outInfo } = await pipeline.toBuffer({ resolveWithObject: true });
     writeFileSync(outPath, data);
