@@ -689,6 +689,78 @@ img {
     display: none;
 }
 
+/* GA4 막대그래프 (script.js 가 그림) */
+.visitor-graph.is-ga4 {
+    position: relative;
+    overflow: visible;
+    text-align: left;
+}
+
+.visitor-bars {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: pan-y;
+}
+
+.visitor-bar path {
+    fill: var(--primary-light);
+    transition: fill .15s;
+}
+
+.visitor-bar.is-today path,
+.visitor-bar.is-active path {
+    fill: var(--primary);
+}
+
+.visitor-hit {
+    fill: transparent;
+}
+
+.visitor-axis {
+    stroke: var(--border);
+    stroke-width: 1;
+}
+
+.visitor-tick,
+.visitor-peak {
+    font-size: 10px;
+    fill: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.visitor-peak {
+    fill: var(--text-secondary);
+    font-weight: 700;
+}
+
+.visitor-tip {
+    position: absolute;
+    top: -8px;
+    transform: translate(-50%, -100%);
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xs);
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+}
+
+.visitor-tip[hidden] {
+    display: none;
+}
+
+.visitor-caption {
+    margin: 6px 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
 .visitor-graph img,
 .visitor-graph svg,
 .visitor-graph canvas,

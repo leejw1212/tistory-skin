@@ -1,0 +1,37 @@
+# 홈 화면 '📈 방문자' 그래프 데이터를 GA4 에서 받아 stats 브랜치에 올립니다.
+# main 에 커밋이 쌓이지 않도록 stats 브랜치는 매번 커밋 하나로 덮어씁니다.
+# 필요한 것: 저장소 Settings → Secrets and variables → Actions 에 GA4_SA_KEY (서비스 계정 JSON 키)
+name: 방문자 통계
+
+on:
+  schedule:
+    - cron: '17 */3 * * *'   # 3시간마다
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: visitors
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: GA4 에서 일별 방문자 받기
+        env:
+          GA4_SA_KEY: ${{ secrets.GA4_SA_KEY }}
+        run: node tools/ga4-visitors.mjs out/visitors.json
+      - name: stats 브랜치에 올리기
+        working-directory: out
+        run: |
+          git init -q -b stats
+          git add visitors.json
+          git -c user.name='github-actions[bot]' -c user.email='41898299+github-actions[bot]@users.noreply.github.com' \
+            commit -q -m "📈 방문자 통계 $(date -u +%FT%TZ)"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" stats

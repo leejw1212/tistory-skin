@@ -981,6 +981,111 @@
     }
 
     /* =====================================================================
+     * 7. 홈 방문자 그래프 (GA4)
+     *   GitHub Actions 가 GA4 일별 방문자를 stats 브랜치 visitors.json 에 올립니다.
+     *   받으면 티스토리 플러그인 그래프 자리를 막대그래프로 바꾸고, 못 받으면 그대로 둡니다.
+     * ===================================================================== */
+    function initVisitorGraph() {
+        var section = $('.visitor-stats[data-src]');
+        var mount = section && $('.visitor-graph', section);
+        if (!mount || !window.fetch || getComputedStyle(section).display === 'none') return;
+
+        fetch(section.getAttribute('data-src'), { cache: 'no-cache' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (data && Array.isArray(data.days) && data.days.length) renderVisitorGraph(mount, data.days);
+            })
+            .catch(function () { /* 플러그인 그래프 유지 */ });
+    }
+
+    function renderVisitorGraph(mount, days) {
+        var W = 320, H = 120, top = 16, bottom = 18;
+        var n = days.length, slot = W / n, barW = Math.max(2, slot - 2);
+        var max = Math.max.apply(null, days.map(function (d) { return d.users; })) || 1;
+        var sum = 0;
+        var ns = 'http://www.w3.org/2000/svg';
+
+        function el(tag, attrs) {
+            var e = document.createElementNS(ns, tag);
+            for (var k in attrs) e.setAttribute(k, attrs[k]);
+            return e;
+        }
+        function md(date) { var p = date.split('-'); return (+p[1]) + '/' + (+p[2]); }
+
+        var svg = el('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'visitor-bars', role: 'img' });
+        svg.appendChild(el('line', { x1: 0, x2: W, y1: H - bottom + .5, y2: H - bottom + .5, class: 'visitor-axis' }));
+
+        var peak = 0;
+        days.forEach(function (d, i) {
+            sum += d.users;
+            if (d.users >= days[peak].users) peak = i;
+            var h = Math.max(d.users ? 2 : 0, (H - top - bottom) * d.users / max);
+            var x = i * slot + (slot - barW) / 2;
+            var y = H - bottom - h;
+            var r = Math.min(4, barW / 2, h);
+            // 위쪽만 둥근 막대 (바닥은 기준선에 붙음)
+            var path = 'M' + x + ',' + (H - bottom) + 'V' + (y + r) +
+                'Q' + x + ',' + y + ' ' + (x + r) + ',' + y + 'H' + (x + barW - r) +
+                'Q' + (x + barW) + ',' + y + ' ' + (x + barW) + ',' + (y + r) + 'V' + (H - bottom) + 'Z';
+            var g = el('g', { class: 'visitor-bar' + (i === n - 1 ? ' is-today' : ''), 'data-i': i });
+            g.appendChild(el('rect', { x: i * slot, y: 0, width: slot, height: H - bottom, class: 'visitor-hit' }));
+            if (h) g.appendChild(el('path', { d: path }));
+            svg.appendChild(g);
+        });
+
+        [0, Math.floor((n - 1) / 2), n - 1].forEach(function (i, k) {
+            var t = el('text', { x: i * slot + slot / 2, y: H - 4, class: 'visitor-tick', 'text-anchor': ['start', 'middle', 'end'][k] });
+            if (k === 0) t.setAttribute('x', 0);
+            if (k === 2) t.setAttribute('x', W);
+            t.textContent = i === n - 1 ? '오늘' : md(days[i].date);
+            svg.appendChild(t);
+        });
+
+        // 최고치에만 숫자 하나
+        var pk = el('text', { x: Math.min(W - 10, Math.max(10, peak * slot + slot / 2)), y: H - bottom - (H - top - bottom) - 4, class: 'visitor-peak', 'text-anchor': 'middle' });
+        pk.textContent = days[peak].users;
+        svg.appendChild(pk);
+
+        svg.setAttribute('aria-label', '최근 ' + n + '일 방문자 막대그래프. 합계 ' + sum + '명, 최고 ' + md(days[peak].date) + ' ' + days[peak].users + '명');
+
+        var tip = document.createElement('div');
+        tip.className = 'visitor-tip';
+        tip.hidden = true;
+
+        var caption = document.createElement('p');
+        caption.className = 'visitor-caption';
+        caption.textContent = '최근 ' + n + '일 · 방문자 ' + sum.toLocaleString() + '명';
+
+        mount.innerHTML = '';
+        mount.classList.add('is-ga4');
+        mount.appendChild(svg);
+        mount.appendChild(tip);
+        mount.appendChild(caption);
+
+        var active = null;
+        function show(e) {
+            var g = e.target.closest && e.target.closest('.visitor-bar');
+            if (!g) return hide();
+            var d = days[+g.getAttribute('data-i')];
+            if (active) active.classList.remove('is-active');
+            active = g; g.classList.add('is-active');
+            tip.innerHTML = '<strong>' + md(d.date) + '</strong> 방문자 ' + d.users + ' · 조회 ' + d.views;
+            tip.hidden = false;
+            var box = mount.getBoundingClientRect();
+            var bar = g.getBoundingClientRect();
+            var left = bar.left - box.left + bar.width / 2;
+            tip.style.left = Math.max(tip.offsetWidth / 2, Math.min(box.width - tip.offsetWidth / 2, left)) + 'px';
+        }
+        function hide() {
+            tip.hidden = true;
+            if (active) { active.classList.remove('is-active'); active = null; }
+        }
+        svg.addEventListener('pointermove', show);
+        svg.addEventListener('pointerdown', show);
+        svg.addEventListener('pointerleave', hide);
+    }
+
+    /* =====================================================================
      * 부트
      * ===================================================================== */
     ready(function () {
@@ -990,6 +1095,7 @@
         initReveal();
         initSidebarTabs();
         initListExcerpts();
+        initVisitorGraph();
         initPost();
     });
 })();

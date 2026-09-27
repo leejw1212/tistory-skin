@@ -174,8 +174,10 @@
 
                 <!-- ============ Visitor Graph ============ -->
                 <!-- 홈에서만 보인다. PC 에서는 '나의 다른 사이트' 오른쪽 칸(목록 탭과 같은 폭), 좁은 화면에서는 그 아래.
-                     그래프는 티스토리 관리 > 플러그인 > '방문자 통계 그래프'를 켜야 나오고, 로컬 미리보기에서는 비어 있다. -->
-                <section class="visitor-stats" aria-labelledby="visitor-stats-title">
+                     그래프는 GA4 일별 방문자(data-src, tools/ga4-visitors.mjs 가 stats 브랜치에 올림)를 script.js 가 그린다.
+                     그 파일을 못 받으면 티스토리 '방문자 통계 그래프' 플러그인 그래프가 그대로 남는다. -->
+                <section class="visitor-stats" aria-labelledby="visitor-stats-title"
+                         data-src="https://raw.githubusercontent.com/leejw1212/tistory-skin/stats/visitors.json">
                     <h2 class="visitor-stats-title" id="visitor-stats-title">📈 방문자</h2>
                     <div class="visitor-card">
                         <p class="visitor-stats-count">
