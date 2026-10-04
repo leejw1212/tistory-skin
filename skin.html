@@ -378,5 +378,9 @@
 <script id="skin-map-script" src="./images/map.js?v=14"></script>
 <script id="skin-path-helper" src="./images/mapData.js?v=9"></script>
 <script src="./images/script.js?v=15"></script>
+<!-- 대시보드(dash.autops.run) 블로그 탭이 읽는 방문자 수. 화면에는 안 보인다.
+     GA4 는 티스토리 앱에서 읽은 조회를 못 세서, 오늘·어제·누적은 여기서 가져간다.
+     id 와 class 이름을 바꾸면 대시보드가 숫자를 못 읽는다. -->
+<div id="autops-counter" style="display:none"><span class="t">[##_count_today_##]</span><span class="y">[##_count_yesterday_##]</span><span class="a">[##_count_total_##]</span></div>
 </body>
 </html>
