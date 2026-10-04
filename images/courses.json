@@ -1,7 +1,25 @@
 {
   "version": 1,
-  "generated": "2026-09-27T08:48:50.802Z",
+  "generated": "2026-10-04T05:10:34.785Z",
   "courses": [
+    {
+      "id": "2026-10-03",
+      "title": "경안천 발원지 방향 21K",
+      "link": "",
+      "date": "2026-10-03",
+      "distance": 21.11,
+      "region": "gyeonggi",
+      "difficulty": 4,
+      "bounds": [
+        37.27419,
+        127.21041,
+        37.3447,
+        127.25013
+      ],
+      "polyline": "k{|bFootgW|@BzBQjGKzC\\v@@`A`@rAP~@AjEPlC?vA`@bC^^RzAb@`@D`D~@`@n@`@bAvAzDzC`MlLh`@fB`EzAtC|CbElBvAp@VvOvC^N^j@VNzANpBf@dEd@\\Fh@VjAJj@?p@IzAk@zAJdAC`Ca@nAe@hCqAlD_CfCwBf@s@`AaAtD}Cr@cAnCoBpAq@bAUr@GpA@~Bf@`A^^^bAb@fFlD`@f@`BfAbClA~D~BfAx@`HjEbBp@dCpBfCrAzBj@lBDl@Q|@cAHA\\hAXd@ZV|B`@hAjBjE~ElAr@~A`@pARdB?p@F`EMjC[pB{@tFkDlEcEJ?HNSc@FQRATl@NFhC_Bd@m@QZq@l@HHf@jBRRp@i@jBy@`C{Af@Iz@C`E^lBp@f@Er@DNHVf@RLdDbBhDlAnA~@~CXlAh@bBNt@Gl@LnBj@j@h@vBNr@v@`BJxAj@zAZtBr@~D`Br@f@z@lAfAvCt@zElAnKD~CJx@Ib@l@~Nx@nChBpE?XWJ?Pd@n@HCFQRLzArDb@l@ZhA~O`UfAhBTxBB|Ac@|Dx@|@g@bAIj@Bi@d@cAg@g@Q?IPQ|ALwAZ{AVyCEeBUqB{A}B}OaUiCcEUg@E]QKUe@BOr@[lCmC\\u@Cc@gA}EmAqHh@nCThBrAfGFt@ERU`@wDdDU?e@c@oEcIiBsD@e@TaAJy@h@w@`AwClEgDRICNSEKOOcBUy@Ju@DaBm@gIYkBo@sBy@kBgAaBoBsBcAUo@i@g@MiAk@wA]{Ey@w@Lq@KgAEw@S}IsAsFoA_A_@sF_D}Aq@oCcBaD}Bu@]YAg@Sa@He@@eDlAeATqCPsGbCc@p@Ln@UREXyBxBeA|@gBbAmA`AqDfB{C^oBFyA@kDM_Cg@yAu@qEaFiAiBmCk@k@{@WcAy@`AUL_@F_BAoCq@wBiAiAw@{@}@}B}@_P_KuBaA{AcAk@q@yFuD}@[_@]}Ak@cAWs@GkA@k@FaAVaAf@}H~GcC~Bk@r@kDtCiC|AeD`BqA^iAPwADcBK{Al@uAF{AMq@[YWgK{CmR{DmAi@oAoAuCwDyAkD}@_Bk@yAuFoRyIoYwCwG[Sy@W",
+      "elevGain": 43,
+      "duration": 8823
+    },
     {
       "id": "2026-09-27",
       "title": "양평 갈산공원 6K",
