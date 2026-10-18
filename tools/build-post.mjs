@@ -99,23 +99,16 @@ function photoLine(p) {
     return `![${caption}](${p.url})`;
 }
 
-function infoTable(course, pace, meta, extra = {}) {
+function infoTable(course, meta) {
     const stars = '★'.repeat(course.difficulty) + '☆'.repeat(5 - course.difficulty);
     const ask = (key, hint) => meta[key] || WRITE(hint);
+    // 검색해서 들어온 사람이 먼저 찾는 코스 정보만 둡니다. 내 페이스·심박은 아래 '내 기록' 표로 갑니다
     const rows = [
         ['📍 장소', meta.place || course.title],
         ['📏 거리', `${course.distance} km`],
-        ['⏱️ 시간', formatDuration(course.duration) || WRITE('소요 시간')],
-        ['🏃 페이스', pace || WRITE('평균 페이스')],
         ['↗️ 상승고도', course.elevGain != null ? `${course.elevGain} m` : WRITE('상승고도')],
         ['⛰️ 난이도', stars],
     ];
-    // TCX 에서만 나오는 값 — 있을 때만 줄을 넣습니다
-    if (extra.heartRate && extra.heartRate.avg) {
-        rows.push(['❤️ 심박', `평균 ${extra.heartRate.avg}` + (extra.heartRate.max ? ` · 최고 ${extra.heartRate.max} bpm` : ' bpm')]);
-    }
-    if (extra.cadence) rows.push(['👟 케이던스', `${extra.cadence} spm`]);
-    if (extra.calories) rows.push(['🔥 칼로리', `${extra.calories} kcal`]);
     rows.push(
         ['🛣️ 노면', ask('surface', '노면 — 우레탄 / 보도블록 / 흙길')],
         ['🅿️ 주차', ask('parking', '주차장 이름 · 요금 · 혼잡 시간')],
@@ -132,6 +125,20 @@ function infoTable(course, pace, meta, extra = {}) {
         '',
         `[course:${course.id}]`
     ].join('\n');
+}
+
+/** 내 기록 — 그날 달린 숫자. TCX 에서만 나오는 값은 있을 때만 줄을 넣습니다 */
+function recordTable(course, pace, extra = {}) {
+    const rows = [
+        ['⏱️ 시간', formatDuration(course.duration) || WRITE('소요 시간')],
+        ['🏃 페이스', pace || WRITE('평균 페이스')],
+    ];
+    if (extra.heartRate && extra.heartRate.avg) {
+        rows.push(['❤️ 심박', `평균 ${extra.heartRate.avg}` + (extra.heartRate.max ? ` · 최고 ${extra.heartRate.max} bpm` : ' bpm')]);
+    }
+    if (extra.cadence) rows.push(['👟 케이던스', `${extra.cadence} spm`]);
+    if (extra.calories) rows.push(['🔥 칼로리', `${extra.calories} kcal`]);
+    return ['| 항목 | 내용 |', '| --- | --- |', ...rows.map(([k, v]) => `| ${k} | ${v} |`)].join('\n');
 }
 
 /** 스플릿을 읽어 페이스가 어떻게 흘렀는지 한 문단으로 */
@@ -191,11 +198,10 @@ function paceStory(splitList, extra) {
 function buildMarkdown({ course, pace, meta, before, during, after, splitTable, splitList, segments, notes, extra }) {
     const out = [];
 
-    out.push(infoTable(course, pace, meta, extra), '');
+    /* 맨 앞 요약 — 제목 없이 본문 첫 문단. 티스토리가 이 문단을 검색 결과 설명으로 씁니다 */
+    out.push(WRITE('2~3문장. [시·구] + 코스명 + 거리 + "러닝코스" 를 넣고, 주차·노면·누구에게 좋은지. 내 페이스 얘기는 넣지 않습니다'), '');
 
-    /* 요약 — 글 전체를 짧게. 스크롤하기 전에 이것만 읽어도 되도록 */
-    out.push('## 📝 요약', '');
-    out.push(WRITE('이 글 전체를 세 줄로. 어떤 코스인지 · 어떻게 달렸는지 · 추천하는지'), '', '---', '');
+    out.push(infoTable(course, meta), '', '---', '');
 
     /* 주차 & 출발 지점 — 달리기 시작 전에 찍은 사진 */
     out.push('## 🅿️ 주차 & 출발 지점', '');
@@ -223,14 +229,6 @@ function buildMarkdown({ course, pace, meta, before, during, after, splitTable, 
     });
     out.push('---', '');
 
-    /* 페이스 분석 — 숫자는 여기 한곳에 모읍니다 */
-    if (splitTable) {
-        out.push('## ⏱️ 페이스 분석', '', splitTable, '');
-        const story = paceStory(splitList, extra);
-        if (story) out.push(story, '');
-        out.push(WRITE('이렇게 달린 이유나 그때 몸이 어땠는지 (없으면 이 줄을 지우세요)'), '', '---', '');
-    }
-
     /* 난이도 & 추천 */
     const easy = course.difficulty <= 2;
     const hilly = (course.elevGain || 0) / Math.max(course.distance, 0.1) >= 15;
@@ -244,10 +242,24 @@ function buildMarkdown({ course, pace, meta, before, during, after, splitTable, 
     );
     out.push('---', '');
 
-    /* 러닝 기록 — 끝난 뒤 찍은 사진 (워치 화면 등) */
-    if (after.length) {
-        out.push('## 📸 러닝 기록', '', after.map(photoLine).join('\n'), '', '---', '');
+    /* 뛰고 나서 들른 곳 — 러닛(Run + Eat)만의 섹션. 맛집 글이 있으면 /숫자 로 링크 */
+    out.push('## 🍽️ 뛰고 나서 들른 곳', '');
+    out.push(WRITE('뛰기 전후로 들른 가게 한두 줄 + 맛집 글 링크 (없으면 이 섹션을 지우세요)'), '', '---', '');
+
+    /* 내 기록 — 그날 숫자는 전부 여기 모읍니다. 코스를 찾는 사람에게는 뒷순위라 아래에 둡니다 */
+    out.push('## 📊 내 기록', '', recordTable(course, pace, extra), '');
+    out.push(WRITE('언제 출발해서 어떻게 달렸는지 한두 줄'), '');
+    if (splitTable) {
+        out.push('### ⏱️ 페이스 분석', '', splitTable, '');
+        const story = paceStory(splitList, extra);
+        if (story) out.push(story, '');
+        out.push(WRITE('이렇게 달린 이유나 그때 몸이 어땠는지 (없으면 이 줄을 지우세요)'), '');
     }
+    /* 끝난 뒤 찍은 사진 (워치 화면 등) */
+    if (after.length) {
+        out.push('### 📸 기록 화면', '', after.map(photoLine).join('\n'), '');
+    }
+    out.push('---', '');
 
     /* 소감 */
     out.push('## ✅ 다녀온 소감', '');
@@ -260,7 +272,8 @@ function buildMarkdown({ course, pace, meta, before, during, after, splitTable, 
 
     /* 태그 안내 */
     const regionLabel = REGIONS[course.region]?.label || '';
-    out.push('', `<!--`, `태그: 첫 번째를 지역명으로 두세요 (근처 맛집 자동 연결이 여기에 의존합니다)`,
+    const titleHint = [regionLabel, meta.place || course.title, '러닝코스', `${Math.round(course.distance)}km`].filter(Boolean).join(' ');
+    out.push('', `<!--`, `제목: ${titleHint} | 핵심 정보 (주차·화장실 / 초보 추천 / LSD 등)`, `태그: 첫 번째를 지역명으로 두세요 (근처 맛집 자동 연결이 여기에 의존합니다)`,
         `추천: ${[meta.place || '', regionLabel, '러닝코스', `${Math.round(course.distance)}km`].filter(Boolean).join(', ')}`,
         `카테고리: 러닝코스`,
         `대표 이미지: ${meta.coverHint || '아래 data.json 의 coverCandidates 참고'}`,
