@@ -158,6 +158,7 @@ function build(kind) {
         '[##_paging_rep_link_num_##]': '1',
         '[##_prev_page_##]': 'href="#"',
         '[##_next_page_##]': 'href="#"',
+        '[##_desc_##]': '용인·양평 근처를 달리고, 달린 뒤 들른 곳을 기록합니다.',
         '[##_count_today_##]': '128',
         '[##_count_yesterday_##]': '214',
         '[##_count_total_##]': '24,931',
