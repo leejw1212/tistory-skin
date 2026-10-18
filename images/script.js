@@ -198,7 +198,7 @@
 
             var cacheKey = 'wl:cat:' + key;
             var cached = cacheGet(cacheKey);
-            if (cached != null) { paint(panel, cached); return; }
+            if (cached != null) { paint(panel, cached, key); return; }
 
             fetch(CATEGORY_URLS[key], { credentials: 'same-origin' })
                 .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
@@ -211,7 +211,7 @@
                     });
                     var markup = posts.map(function (p) { return p.outerHTML; }).join('');
                     cacheSet(cacheKey, markup);
-                    paint(panel, markup);
+                    paint(panel, markup, key);
                 })
                 .catch(function () {
                     loaded[key] = false;
@@ -220,12 +220,15 @@
                 });
         }
 
-        function paint(panel, markup) {
+        function paint(panel, markup, key) {
             if (!markup) {
                 panel.innerHTML = '<div class="panel-empty">아직 등록된 글이 없습니다.</div>';
                 return;
             }
-            panel.innerHTML = markup;
+            // 탭에는 최근 4개만 나오므로 나머지 글로 가는 길을 둔다
+            var name = decodeURIComponent(CATEGORY_URLS[key].split('/').pop());
+            panel.innerHTML = markup +
+                '<a class="panel-more" href="' + CATEGORY_URLS[key] + '">' + escapeHtml(name) + ' 전체 보기 →</a>';
             initCategories();
             initReveal(panel);
         }
@@ -377,6 +380,11 @@
         }
 
         var toggle = $('.toc-toggle', toc);
+        // 좁은 화면(본문 맨 위)에서는 접힌 채로 시작한다 — 펼쳐 두면 긴 글은 목차만 화면 한두 장을 차지한다
+        if (toc.parentNode === content) {
+            toc.classList.add('collapsed');
+            toggle.setAttribute('aria-expanded', 'false');
+        }
         toggle.addEventListener('click', function () {
             if (toc.parentNode === rail) return;
             var open = toc.classList.toggle('collapsed');
@@ -708,6 +716,15 @@
         if (!rows.length) rows = $$('tr', table).slice(1);
         if (rows.length < 2) return;
 
+        // 폰에서는 핵심 칸만 먼저 보이고 나머지는 '더 보기'로 접는다 (칸이 많으면 한 줄씩 쌓여 화면을 몇 장씩 차지한다)
+        var KEY = /장소|위치|거리|시간|페이스|난이도/;
+        var keyRows = rows.filter(function (tr) { var c = $('th, td', tr); return c && KEY.test(c.textContent); });
+        if (keyRows.length < 3) keyRows = rows.slice(0, 4);
+        var foldable = rows.length > keyRows.length + 1;
+        if (foldable) {
+            rows = keyRows.concat(rows.filter(function (tr) { return keyRows.indexOf(tr) < 0; }));
+        }
+
         var card = document.createElement('div');
         card.className = 'spec-card';
         card.innerHTML = rows.map(function (tr) {
@@ -728,7 +745,11 @@
                     }).join('') + '</span>' +
                     '<span class="spec-stars-note">' + cells[1].textContent.replace(/[★☆]/g, '').trim() + '</span>';
             }
-            return '<div class="spec-item">' +
+            var cls = 'spec-item';
+            if (foldable && keyRows.indexOf(tr) < 0) cls += ' spec-extra';
+            // 별점 칸은 별 아래 메모가 길어도 반 칸이면 충분하다 — 길이는 별점을 뺀 값으로 잰다
+            if (!stars && cells[1].textContent.trim().length > 16) cls += ' spec-wide';
+            return '<div class="' + cls + '">' +
                    '<span class="spec-icon">' + emoji + '</span>' +
                    '<span class="spec-label">' + label + '</span>' +
                    '<span class="spec-value">' + valueHtml + '</span></div>';
@@ -737,6 +758,21 @@
         var wrap = table.closest('.table-scroll') || table;
         wrap.parentNode.insertBefore(card, wrap);
         wrap.remove();
+
+        if (foldable) {
+            var more = document.createElement('button');
+            more.type = 'button';
+            more.className = 'spec-more';
+            more.setAttribute('aria-expanded', 'false');
+            var extra = rows.length - keyRows.length;
+            more.textContent = '정보 ' + extra + '개 더 보기';
+            more.addEventListener('click', function () {
+                var open = card.classList.toggle('expanded');
+                more.setAttribute('aria-expanded', String(open));
+                more.textContent = open ? '접기' : '정보 ' + extra + '개 더 보기';
+            });
+            card.parentNode.insertBefore(more, card.nextSibling);
+        }
     }
 
     /* 6-2. 이 글에 해당하는 코스 찾기 */
@@ -890,21 +926,41 @@
         return box;
     }
 
-    /* 6-5. 태그 기반 폴백 */
-    function renderTagFallback(content) {
-        var tags = $$('.post-tags a');
-        if (!tags.length) return;
-        var keyword = tags[0].textContent.replace(/^#/, '').trim();
-        if (!keyword) return;
-        var box = document.createElement('section');
-        box.className = 'nearby-block reveal';
-        box.innerHTML = '<h3 class="nearby-title">🔎 \'' + escapeHtml(keyword) + '\' 관련 글</h3>' +
-            '<div class="nearby-grid">' +
-            '<a class="nearby-card" href="/search/' + encodeURIComponent(keyword + ' 맛집') + '">' +
-            '<span class="nearby-name">' + escapeHtml(keyword) + ' 맛집 검색</span></a>' +
-            '<a class="nearby-card" href="/search/' + encodeURIComponent(keyword) + '">' +
-            '<span class="nearby-name">' + escapeHtml(keyword) + ' 글 모두 보기</span></a></div>';
-        content.appendChild(box);
+    /* 6-5. 근처 추천이 없을 때: 같은 카테고리의 다른 글
+     *   티스토리가 본문 끝에 '카테고리의 다른 글' 목록을 넣어 주면 그걸로 충분하므로 아무것도 더하지 않는다. */
+    function renderCategoryFallback(content) {
+        if ($('.another_category', content)) return;
+        var cat = $('.post-header .category');
+        var name = cat && cat.textContent.trim();
+        if (!name) return;
+        var url = '/category/' + name.split('/').map(function (s) { return encodeURIComponent(s.trim()); }).join('/');
+        var here = normalizePath(location.pathname);
+
+        fetch(url, { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+            .then(function (html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var posts = $$('.original-list .post-item', doc).map(function (item) {
+                    var a = $('a', item), h = $('h3', item), d = $('.date', item);
+                    return a && h ? { href: a.getAttribute('href'), title: h.textContent.trim(), date: d ? d.textContent.trim() : '' } : null;
+                }).filter(function (p) {
+                    return p && normalizePath(p.href) !== here;
+                }).slice(0, 3);
+                if (!posts.length) return;
+
+                var box = document.createElement('section');
+                box.className = 'nearby-block';
+                box.innerHTML = '<h3 class="nearby-title">📚 ' + escapeHtml(name) + '의 다른 글</h3>' +
+                    '<div class="nearby-grid">' + posts.map(function (p) {
+                        return '<a class="nearby-card" href="' + escapeHtml(p.href) + '">' +
+                               '<span class="nearby-name">' + escapeHtml(p.title) + '</span>' +
+                               (p.date ? '<span class="nearby-dist">' + escapeHtml(p.date) + '</span>' : '') +
+                               '</a>';
+                    }).join('') + '</div>' +
+                    '<a class="nearby-all" href="' + url + '">' + escapeHtml(name) + ' 전체 보기 →</a>';
+                content.appendChild(box);
+            })
+            .catch(function () { /* 목록을 못 읽으면 조용히 생략 */ });
     }
 
     /* 6-6. 포스트 초기화 */
@@ -967,7 +1023,7 @@
             }
 
             var added = renderNearby(content, data, course);
-            if (!added) renderTagFallback(content);
+            if (!added) renderCategoryFallback(content);
             initReveal(content);
         });
     }

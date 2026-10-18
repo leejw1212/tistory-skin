@@ -362,13 +362,15 @@
         <footer id="footer">
             <div class="inner">
                 <div class="footer-running" aria-hidden="true">🏃‍♂️ 🏃‍♀️ 🏃</div>
-                <p class="footer-counter">
-                    Today <strong>[##_count_today_##]</strong> · Total <strong>[##_count_total_##]</strong>
-                </p>
-                <p class="copyright">
-                    &copy; [##_title_##]. All rights reserved.<br/>
-                    Designed with ❤️ by Warm Life Skin
-                </p>
+                <!-- 방문자 수는 홈 '방문자' 칸에서 보여 주므로 푸터에는 두지 않는다.
+                     블로그 소개는 티스토리 관리 > 블로그 > 블로그 설명 에서 바꾼다 (비우면 줄이 사라진다). -->
+                <p class="footer-desc">[##_desc_##]</p>
+                <nav class="footer-links" aria-label="다른 사이트">
+                    <a href="https://autops.run" target="_blank" rel="noopener">개발 블로그</a>
+                    <a href="https://maple.autops.run" target="_blank" rel="noopener">메이플 조회</a>
+                    <a href="[##_rss_url_##]">RSS</a>
+                </nav>
+                <p class="copyright">&copy; [##_title_##]</p>
             </div>
         </footer>
     </div>
@@ -377,7 +379,7 @@
 </s_t3>
 <script id="skin-map-script" src="./images/map.js?v=14"></script>
 <script id="skin-path-helper" src="./images/mapData.js?v=9"></script>
-<script src="./images/script.js?v=15"></script>
+<script src="./images/script.js?v=16"></script>
 <!-- 대시보드(dash.autops.run) 블로그 탭이 읽는 방문자 수. 화면에는 안 보인다.
      GA4 는 티스토리 앱에서 읽은 조회를 못 세서, 오늘·어제·누적은 여기서 가져간다.
      id 와 class 이름을 바꾸면 대시보드가 숫자를 못 읽는다. -->
