@@ -1,0 +1,17 @@
+{
+  "title": "OpenStack 볼륨 마운트하기 — 생성·연결부터 mkfs.ext4·fstab 영구 설정까지",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "OpenStack",
+    "볼륨",
+    "디스크마운트",
+    "mkfs.ext4",
+    "fstab",
+    "우분투"
+  ],
+  "excerpt": "OpenStack에서 볼륨을 만들어 인스턴스에 붙인 뒤, 인스턴스 안에서 lsblk로 확인하고 mkfs.ext4로 포맷해 fstab에 등록까지 — 재부팅해도 마운트가 풀리지 않게 만드는 순서.",
+  "wp_url": "https://autops.run/openstack-volume-mount/",
+  "wp_date": "2026-09-28 14:24",
+  "tistory_url": "",
+  "planned_date": "2026-12-03"
+}

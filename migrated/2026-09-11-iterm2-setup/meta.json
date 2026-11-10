@@ -1,0 +1,16 @@
+{
+  "title": "iTerm2 개발 환경 설정 — oh-my-zsh, 테마, 폰트, 색상",
+  "category": "기술/개발환경·홈랩",
+  "tags": [
+    "iTerm2",
+    "macOS",
+    "zsh",
+    "oh-my-zsh",
+    "개발환경"
+  ],
+  "excerpt": "맥을 새로 잡을 때마다 반복하는 터미널 설정을 순서대로 모았다. oh-my-zsh 을 깔고 테마를 바꾸면 글씨가 깨지는데, 그게 왜 그런지와 어떻게 푸는지까지.",
+  "wp_url": "https://autops.run/iterm2-setup/",
+  "wp_date": "2026-09-11 11:24",
+  "tistory_url": "",
+  "planned_date": "2026-11-17"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Jenkins 백업본으로 복구하기 — 지우고, 다시 깔고, 되돌리기",
+  "category": "기술/CI/CD",
+  "tags": [
+    "Jenkins",
+    "CICD",
+    "백업",
+    "복구",
+    "운영"
+  ],
+  "excerpt": "Jenkins 가 먹통이 되거나 이전 시점으로 돌아가야 할 때가 온다. 백업셋이 있다면 되돌릴 수 있다. 기존 설치를 지우고, 원하는 버전으로 다시 깔고, JENKINS_HOME 을 백업본으로 갈아 끼우는 순서.",
+  "wp_url": "https://autops.run/jenkins-backup-restore/",
+  "wp_date": "2026-09-11 15:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-19"
+}

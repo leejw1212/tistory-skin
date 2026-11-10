@@ -1,0 +1,17 @@
+{
+  "title": "ip netns 로 라우터 만들기 — \"Network is unreachable\" 에서 ARP·TTL 까지, 리눅스 한 대로",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "네트워크",
+    "라우팅",
+    "ip netns",
+    "ARP",
+    "서브넷",
+    "홈랩"
+  ],
+  "excerpt": "리눅스 한 대 안에 가상 PC 두 대와 라우터를 만들어 서로 다른 네트워크를 잇는다. \"Network is unreachable\", 게이트웨이, ip_forward, 돌아오는 길, ARP, TTL 이 왜 필요한지 하나씩 빼 보며 확인한다. 네트워크 처음 배우는 사람 기준.",
+  "wp_url": "https://autops.run/ip-netns-routing/",
+  "wp_date": "2026-10-22 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-12-04"
+}

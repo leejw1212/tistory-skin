@@ -1,0 +1,17 @@
+{
+  "title": "X-Request-ID 로 요청 하나를 끝까지 추적하기 — ingress-nginx · RabbitMQ correlation_id · JSON 로그",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "마이크로서비스",
+    "X-Request-ID",
+    "correlation_id",
+    "RabbitMQ",
+    "Fluentd",
+    "구조화로그"
+  ],
+  "excerpt": "ingress-nginx 는 요청마다 X-Request-ID 를 만들어 주는데, 앱 로그에는 그 번호가 한 줄도 없었다. 번호를 web 로그와 RabbitMQ 메시지의 correlation_id, worker 로그까지 넘겼더니 재시도 두 번에 DLQ 까지 간 요청 하나가 번호 하나로 15줄, 파드 5개에 걸쳐 이어졌다.",
+  "wp_url": "https://autops.run/microservices-request-tracing/",
+  "wp_date": "2026-09-25 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-29"
+}

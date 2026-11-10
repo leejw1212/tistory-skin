@@ -1,0 +1,18 @@
+{
+  "title": "대시보드에 웹 터미널 붙이기 — Flask · xterm.js, 그리고 회사망이 WebSocket 을 막을 때",
+  "category": "기술/개발환경·홈랩",
+  "tags": [
+    "터미널",
+    "xterm.js",
+    "WebSocket",
+    "Flask",
+    "nginx",
+    "롱폴링",
+    "SSH"
+  ],
+  "excerpt": "개인 대시보드 화면에서 배포 서버의 셸을 연다. PTY 를 WebSocket 으로 잇는 것까지는 반나절이면 되는데, 회사망이 WebSocket 을 삼키는 순간부터가 진짜 일이었다. HTTP 롱폴링으로 우회하고, 484ms 였던 타이핑을 로컬 에코로 되살리기까지.",
+  "wp_url": "https://autops.run/web-terminal-in-dashboard/",
+  "wp_date": "2026-09-08 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-12"
+}

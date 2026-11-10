@@ -1,0 +1,16 @@
+{
+  "title": "맥 개발 환경에서 자주 만나는 문제 — Java 설치와 xcrun 오류",
+  "category": "기술/개발환경·홈랩",
+  "tags": [
+    "macOS",
+    "Java",
+    "Xcode",
+    "개발환경",
+    "트러블슈팅"
+  ],
+  "excerpt": "맥에서 개발 환경을 잡을 때 반복해서 만나는 두 가지 — Java 를 어떻게 깔지, 그리고 OS 업데이트 후 git·gcc 가 갑자기 안 되는 xcrun 오류. 원인과 해결을 짧게 정리한다.",
+  "wp_url": "https://autops.run/mac-dev-troubles/",
+  "wp_date": "2026-09-11 19:48",
+  "tistory_url": "",
+  "planned_date": "2026-11-21"
+}

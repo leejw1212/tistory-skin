@@ -1,0 +1,16 @@
+{
+  "title": "마이크로서비스를 쿠버네티스에 올려 본다 — 무엇을 쪼개고, 왜 git 으로 배포하나",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "마이크로서비스",
+    "쿠버네티스",
+    "ArgoCD",
+    "GitOps",
+    "RabbitMQ"
+  ],
+  "excerpt": "링크 미리보기 카드를 만드는 작은 서비스를 마이크로서비스로 쪼개 쿠버네티스에 올린다. 배포는 kubectl 이 아니라 git 커밋으로 한다. 아홉 편에 걸쳐 RabbitMQ·Fluentd·OpenSearch 까지 붙여 볼 연재의 첫 글.",
+  "wp_url": "https://autops.run/microservices-on-k8s-intro/",
+  "wp_date": "2026-09-16 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-26"
+}

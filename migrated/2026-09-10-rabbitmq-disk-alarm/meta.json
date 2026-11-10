@@ -1,0 +1,17 @@
+{
+  "title": "RabbitMQ 가 발행을 막을 때 — 디스크 알람과 백프레셔 풀어내기",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "RabbitMQ",
+    "백프레셔",
+    "디스크알람",
+    "rabbitmqctl",
+    "quorum큐",
+    "트러블슈팅"
+  ],
+  "excerpt": "소비보다 발행이 빠르면 큐가 쌓이고, 디스크가 한계선을 넘으면 RabbitMQ 가 발행을 막는다. 그 과정을 실제로 알람을 띄워 재현하고, rabbitmqctl 로 원인 큐와 막힌 연결을 찾아 푸는 순서까지.",
+  "wp_url": "https://autops.run/rabbitmq-disk-alarm/",
+  "wp_date": "2026-09-10 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-16"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "privoxy 로 프록시 두 개 나눠 쓰기 — 사내 도메인은 사내 PC, 나머지는 외부 프록시",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "privoxy",
+    "프록시",
+    "forward",
+    "사내망",
+    "IDC"
+  ],
+  "excerpt": "IDC 서버에서 사내망과 외부망을 동시에 써야 할 때, privoxy 의 forward 규칙으로 목적지 도메인에 따라 부모 프록시를 갈라 태우는 방법. 규칙 순서 함정과 확인 방법까지.",
+  "wp_url": "https://autops.run/privoxy-forward-by-domain/",
+  "wp_date": "2026-09-09 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-14"
+}

@@ -1,0 +1,18 @@
+{
+  "title": "nftables masquerade 로 공유기 만들기 — 포트포워딩·conntrack, 그리고 NAT 는 방화벽이 아니다",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "nftables",
+    "NAT",
+    "masquerade",
+    "포트포워딩",
+    "conntrack",
+    "방화벽",
+    "홈랩"
+  ],
+  "excerpt": "집 공유기가 하는 일을 리눅스 한 대로 재현한다. 사설 주소로 인터넷에 나가지 못하는 이유, nftables masquerade(SNAT)와 포트포워딩(DNAT), conntrack 표, 그리고 NAT 만으로는 집 안이 지켜지지 않는다는 것을 직접 확인한다. 네트워크 처음 배우는 사람 기준.",
+  "wp_url": "https://autops.run/nftables-nat-home-router/",
+  "wp_date": "2026-10-25 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-12-05"
+}

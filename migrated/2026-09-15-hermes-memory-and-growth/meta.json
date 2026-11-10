@@ -1,0 +1,16 @@
+{
+  "title": "Hermes 에이전트는 무엇을 기억하나 — MEMORY.md · 스킬 · session_search 와 관리 명령어",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "Hermes",
+    "AI에이전트",
+    "메모리",
+    "스킬",
+    "에이전트운영"
+  ],
+  "excerpt": "대화가 끝나면 리셋되는 어시스턴트와 달리 Hermes 는 기억을 네 곳에 나눠 쌓고, 대화에서 배운 절차를 스킬로 남긴다. 무엇이 어디에 쌓이는지, 잘못 배운 것을 어떻게 막고 되돌리는지, 관리자가 확인할 명령어까지.",
+  "wp_url": "https://autops.run/hermes-memory-and-growth/",
+  "wp_date": "2026-09-15 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-25"
+}

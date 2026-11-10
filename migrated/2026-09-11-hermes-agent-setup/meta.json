@@ -1,0 +1,16 @@
+{
+  "title": "Hermes 에이전트 리눅스에 올리기 — 설치부터 Claude API·로컬 LLM 연동까지",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "Hermes",
+    "AI에이전트",
+    "Claude",
+    "Ollama",
+    "로컬LLM"
+  ],
+  "excerpt": "Nous Research 의 오픈소스 에이전트 Hermes 를 리눅스에 설치하고, 모델을 Claude API 로 붙이거나 Ollama·vLLM 으로 완전히 로컬에서 돌리는 방법. 컨텍스트 길이처럼 빠뜨리면 조용히 망가지는 지점까지.",
+  "wp_url": "https://autops.run/hermes-agent-setup/",
+  "wp_date": "2026-09-11 10:12",
+  "tistory_url": "",
+  "planned_date": "2026-11-17"
+}

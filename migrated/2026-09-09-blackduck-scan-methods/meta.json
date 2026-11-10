@@ -1,0 +1,17 @@
+{
+  "title": "Black Duck 스캔 방식 — Detector·Signature·Snippet, 조회가 아니라 식별이다",
+  "category": "기술/보안",
+  "tags": [
+    "보안",
+    "취약점",
+    "BlackDuck",
+    "SCA",
+    "BDSA",
+    "공급망보안"
+  ],
+  "excerpt": "Black Duck Detect 의 Detector·Signature·Binary·Snippet·Container 스캔이 각각 무엇을 보는지, 무엇이 서버로 나가는지, 어디에 뭘 켜야 하는지. OSV·NVD 처럼 DB 를 조회하는 게 아니라 파일로 컴포넌트를 먼저 식별한다.",
+  "wp_url": "https://autops.run/blackduck-scan-methods/",
+  "wp_date": "2026-09-09 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-12"
+}

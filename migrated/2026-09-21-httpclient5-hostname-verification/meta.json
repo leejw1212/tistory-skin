@@ -1,0 +1,17 @@
+{
+  "title": "NoopHostnameVerifier 가 안 먹는다 — httpclient5 5.4 부터 달라진 TLS 호스트명 검증",
+  "category": "기술/보안",
+  "tags": [
+    "httpclient5",
+    "TLS",
+    "SSL",
+    "HostnameVerifier",
+    "자바",
+    "라이브러리업그레이드"
+  ],
+  "excerpt": "취약점 조치로 httpclient5 를 올렸더니 사설 인증서 서버에 `No subject alternative DNS name matching ... found` 로 붙지 않는다. DefaultClientTlsStrategy 에 NoopHostnameVerifier 를 넣어도 소용없는 이유와, HostnameVerificationPolicy.CLIENT 로 푸는 방법.",
+  "wp_url": "https://autops.run/httpclient5-hostname-verification-policy/",
+  "wp_date": "2026-09-21 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-12-01"
+}

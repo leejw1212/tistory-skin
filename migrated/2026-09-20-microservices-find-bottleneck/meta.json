@@ -1,0 +1,17 @@
+{
+  "title": "OpenSearch Dashboards 로 병목 찾기 — 처리는 2초인데 사용자는 20초 기다린 이유 (RabbitMQ 큐 대기 시간)",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "마이크로서비스",
+    "OpenSearch Dashboards",
+    "RabbitMQ",
+    "병목",
+    "쿠버네티스",
+    "관측성"
+  ],
+  "excerpt": "2초짜리 작업 20건을 한꺼번에 넣었더니 사용자는 최대 20초를 기다렸다. 처리 시간은 건마다 2.02초로 일정했고, 나머지는 전부 큐에서 줄 선 시간이었다. 로그에 wait_ms 를 남기고 OpenSearch Dashboards 로 둘을 나눠 보니 병목이 워커 수로 드러났고, 워커를 6개로 늘리자 큐 대기 p50 이 10.0초에서 2.0초가 됐다.",
+  "wp_url": "https://autops.run/microservices-find-bottleneck/",
+  "wp_date": "2026-10-02 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-30"
+}

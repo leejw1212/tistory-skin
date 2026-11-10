@@ -1,0 +1,16 @@
+{
+  "title": "Hermes 스킬 만들기 — SKILL.md 한 장으로 에이전트에게 절차를 가르치는 법",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "Hermes",
+    "AI에이전트",
+    "스킬",
+    "SKILL.md",
+    "에이전트운영"
+  ],
+  "excerpt": "같은 절차를 매번 설명하지 않으려면 스킬로 남긴다. /learn 으로 자동 생성하는 법과 SKILL.md 를 직접 쓰는 법을 처음부터 따라간다. description 이 60자인 이유, 스킬이 있는데도 안 불리는 이유, 자료가 크면 references/ 로 쪼개는 법까지.",
+  "wp_url": "https://autops.run/hermes-create-skill/",
+  "wp_date": "2026-09-21 23:41",
+  "tistory_url": "",
+  "planned_date": "2026-12-01"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "집 서버에 도메인 붙이기 — 가비아 · Cloudflare · nginx 설정 순서대로",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "도메인",
+    "DNS",
+    "Cloudflare",
+    "nginx",
+    "가비아"
+  ],
+  "excerpt": "동적 IP 를 쓰는 집 서버에 도메인을 붙이는 전 과정. 가비아에서 구매하고, Cloudflare 로 루트 도메인 문제를 풀고, nginx 하나로 서비스 둘을 나누기까지 화면과 함께 순서대로.",
+  "wp_url": "https://autops.run/domain-cloudflare-nginx/",
+  "wp_date": "2026-09-07 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-11"
+}

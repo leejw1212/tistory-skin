@@ -1,0 +1,16 @@
+{
+  "title": "Jenkins Pipeline 으로 git clone 부터 빌드까지",
+  "category": "기술/CI/CD",
+  "tags": [
+    "Jenkins",
+    "CICD",
+    "Pipeline",
+    "Groovy",
+    "빌드"
+  ],
+  "excerpt": "CI 파이프라인의 뼈대는 언제나 같다 — 저장소에서 코드를 가져와 빌드한다. 비공개 저장소 자격 증명부터 함수로 나눠 재사용하는 구조까지, 실제로 쓰는 형태로 정리한다.",
+  "wp_url": "https://autops.run/jenkins-pipeline-build/",
+  "wp_date": "2026-09-11 17:24",
+  "tistory_url": "",
+  "planned_date": "2026-11-20"
+}

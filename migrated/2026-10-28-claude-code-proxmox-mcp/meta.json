@@ -1,0 +1,17 @@
+{
+  "title": "Claude Code 클라우드 세션에 Proxmox 붙이기 — MCP 설정부터 권한 부여까지",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "Claude Code",
+    "MCP",
+    "Proxmox",
+    "API 토큰",
+    "권한",
+    "홈랩"
+  ],
+  "excerpt": "Claude Code 클라우드 세션이 집의 Proxmox 를 조회하고 관리하게 만드는 순서. 전용 사용자와 API 토큰을 만들고, .mcp.json 과 환경 변수를 넣고, 처음엔 읽기 전용으로 붙인 뒤 필요한 만큼 권한을 연다. \"requires elevated permissions\" 와 403 \"Permission check failed\" 가 각각 어디서 막힌 것인지도 정리했다.",
+  "wp_url": "https://autops.run/claude-code-proxmox-mcp/",
+  "wp_date": "2026-10-18 23:40",
+  "tistory_url": "",
+  "planned_date": "2026-12-06"
+}

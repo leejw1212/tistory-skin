@@ -1,0 +1,16 @@
+{
+  "title": "M1 맥에 kind 로 쿠버네티스 클러스터 세우기 — ingress-nginx 가 localhost 로 안 열리는 이유",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "쿠버네티스",
+    "kind",
+    "ingress-nginx",
+    "kubectl",
+    "macOS"
+  ],
+  "excerpt": "맥북에 kind 로 3노드 쿠버네티스를 올린다. ingress-nginx 의 kind 용 매니페스트는 hostPort 로 80 을 여는데, 컨트롤러가 워커 노드에 뜨면 localhost 로 아무것도 안 잡힌다. kubectl 버전 스큐도 함께 정리한다.",
+  "wp_url": "https://autops.run/kind-kubernetes-on-mac/",
+  "wp_date": "2026-09-13 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-23"
+}

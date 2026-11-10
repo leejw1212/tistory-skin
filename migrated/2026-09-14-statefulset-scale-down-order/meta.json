@@ -1,0 +1,16 @@
+{
+  "title": "StatefulSet 은 뒷번호부터 지운다 — 순서를 뒤집는 대신 ordinals.start 로 범위를 옮긴다",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "쿠버네티스",
+    "StatefulSet",
+    "PVC",
+    "ordinals",
+    "스케일"
+  ],
+  "excerpt": "StatefulSet 을 5개에서 3개로 줄이면 4번·3번이 사라진다. 이 방향을 뒤집는 설정은 없다. podManagementPolicy 는 immutable 이고 pod-deletion-cost 도 안 먹는다. 대신 ordinals.start 로 번호 범위를 옮기면 낮은 번호를 없앨 수 있다.",
+  "wp_url": "https://autops.run/statefulset-scale-down-order/",
+  "wp_date": "2026-09-14 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-24"
+}

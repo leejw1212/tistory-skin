@@ -1,0 +1,17 @@
+{
+  "title": "AI 에이전트는 채팅 한 줄을 받으면 안에서 무엇을 하나 — Hermes 소스로 따라가 본 다섯 단계",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "Hermes",
+    "AI에이전트",
+    "MCP",
+    "시스템프롬프트",
+    "LLM",
+    "도구호출"
+  ],
+  "excerpt": "\"파드 왜 죽었어?\" 한 줄을 보내면 에이전트는 그 문장만 모델에 보내지 않는다. 13,199자짜리 시스템 프롬프트를 조립하고, 모델이 부른 도구를 실행해 결과를 붙여 다시 묻기를 반복한다. Hermes v0.21.3 소스와 실제 저장된 세션 DB로 다섯 단계를 따라갔다. /learn · /refine · /journey · /compress 같은 고유 기능이 그 다섯 단계 어디에 끼어드는지도 함께 정리했다.",
+  "wp_url": "https://autops.run/hermes-inside-a-turn/",
+  "wp_date": "2026-09-16 13:12",
+  "tistory_url": "",
+  "planned_date": "2026-11-29"
+}

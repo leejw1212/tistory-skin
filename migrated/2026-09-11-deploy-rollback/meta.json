@@ -1,0 +1,16 @@
+{
+  "title": "배포 롤백 — SemVer 로 기준을 세우고 blue/green 으로 되돌리기",
+  "category": "기술/CI/CD",
+  "tags": [
+    "배포",
+    "롤백",
+    "SemVer",
+    "BlueGreen",
+    "롤링배포"
+  ],
+  "excerpt": "되돌려야 할 때 \"어디로\" 돌아갈지부터 정해져 있어야 한다. SemVer 로 기준점을 만들고, 기존 아티팩트를 쓸지 다시 빌드할지 고르고, 배포 방식별로 롤백이 어떻게 달라지는지 정리한다.",
+  "wp_url": "https://autops.run/deploy-rollback/",
+  "wp_date": "2026-09-11 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-16"
+}

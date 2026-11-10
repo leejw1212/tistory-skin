@@ -1,0 +1,16 @@
+{
+  "title": "kind 클러스터에 ArgoCD 올리기 — UI 를 경로로 열고, field is immutable 로 멈춘 동기화 풀기",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "쿠버네티스",
+    "ArgoCD",
+    "GitOps",
+    "kind",
+    "Ingress"
+  ],
+  "excerpt": "git 에 YAML 을 올려 두면 ArgoCD 가 클러스터를 거기에 맞춘다. 맥에서는 argocd.localhost 가 해석되지 않아 UI 를 경로로 열어야 하고, immutable 필드를 커밋하면 동기화가 무한 재시도에 빠진다. 둘 다 직접 겪은 대로 정리했다.",
+  "wp_url": "https://autops.run/argocd-on-kind/",
+  "wp_date": "2026-09-15 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-24"
+}

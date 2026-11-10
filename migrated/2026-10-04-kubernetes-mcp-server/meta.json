@@ -1,0 +1,17 @@
+{
+  "title": "mcp-server-kubernetes 로 Hermes·Claude 에 kind 클러스터 붙이기 — 읽기 전용부터",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "MCP",
+    "쿠버네티스",
+    "Hermes",
+    "Claude",
+    "kind",
+    "kubectl"
+  ],
+  "excerpt": "Flux159 의 mcp-server-kubernetes 를 Claude Code·Claude Desktop 과 Hermes 에이전트에 등록한다. ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS 와 Hermes 의 tools.include 로 조회 도구 네 개만 열어 두고, M1 맥의 kind 클러스터를 채팅으로 조회한다.",
+  "wp_url": "https://autops.run/kubernetes-mcp-server/",
+  "wp_date": "2026-10-04 15:05",
+  "tistory_url": "",
+  "planned_date": "2026-12-03"
+}

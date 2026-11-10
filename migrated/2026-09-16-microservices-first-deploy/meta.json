@@ -1,0 +1,16 @@
+{
+  "title": "쿠버네티스에 첫 서비스 두 개 올리기 — Deployment · Service · Ingress 가 각각 하는 일",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "마이크로서비스",
+    "쿠버네티스",
+    "ArgoCD",
+    "Ingress",
+    "Service"
+  ],
+  "excerpt": "매니페스트 세 종류가 각각 무슨 일을 하는지 한 줄씩 짚는다. 서비스끼리는 IP 가 아니라 이름으로 부른다. 하위 경로에 앱을 붙였다가 API 요청이 엉뚱한 서비스로 새어 나간 이야기도 함께.",
+  "wp_url": "https://autops.run/microservices-first-deploy/",
+  "wp_date": "2026-09-16 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-25"
+}

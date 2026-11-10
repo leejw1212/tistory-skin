@@ -1,0 +1,16 @@
+{
+  "title": "Jenkins 분산 빌드 — 마스터·에이전트 구조와 노드 붙이기",
+  "category": "기술/CI/CD",
+  "tags": [
+    "Jenkins",
+    "CICD",
+    "분산빌드",
+    "에이전트",
+    "SSH"
+  ],
+  "excerpt": "빌드가 늘면 마스터 한 대로는 버티지 못한다. 마스터·노드·에이전트·엑시큐터가 각각 무엇이고 왜 나누는지, 그리고 슬레이브 노드를 SSH 로 실제로 붙이는 순서까지 화면과 함께 정리한다.",
+  "wp_url": "https://autops.run/jenkins-distributed-build/",
+  "wp_date": "2026-09-11 16:12",
+  "tistory_url": "",
+  "planned_date": "2026-11-19"
+}

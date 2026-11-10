@@ -1,0 +1,16 @@
+{
+  "title": "SSH 키로 비밀번호 없이 서버 접속하기 — 원리부터 문제 해결까지",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "SSH",
+    "공개키",
+    "리눅스",
+    "서버",
+    "보안"
+  ],
+  "excerpt": "Jenkins도 Ansible도 클라우드 서버도 전부 SSH 로 붙는다. 키 한 쌍이 어떻게 비밀번호를 대신하는지, 키를 만들어 서버에 등록하는 순서, 그리고 안 붙을 때 어디를 보는지까지.",
+  "wp_url": "https://autops.run/ssh-key-login/",
+  "wp_date": "2026-09-11 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-21"
+}

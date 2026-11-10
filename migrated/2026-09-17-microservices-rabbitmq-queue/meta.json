@@ -1,0 +1,16 @@
+{
+  "title": "RabbitMQ 로 사용자를 기다리게 하지 않는다 — 접수 7초가 24ms 가 되기까지",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "마이크로서비스",
+    "RabbitMQ",
+    "메시지큐",
+    "Redis",
+    "쿠버네티스"
+  ],
+  "excerpt": "동기 호출을 RabbitMQ 큐로 바꿨더니 죽은 주소가 섞여도 접수가 24ms 에 끝났다. 대신 결과 조회가 404 를 내며 실패했다. 파드가 여럿일 때 상태를 메모리에 두면 생기는 일과, 큐가 대기를 없애는 게 아니라 옮긴다는 점까지 실측으로 짚는다.",
+  "wp_url": "https://autops.run/microservices-rabbitmq-queue/",
+  "wp_date": "2026-09-17 21:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-26"
+}

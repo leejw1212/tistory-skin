@@ -1,0 +1,17 @@
+{
+  "title": "Fluentd 로그를 OpenSearch 에 쌓기 — \"Text fields are not optimised for operations that require per-document field data\" 와 인덱스 템플릿",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "마이크로서비스",
+    "OpenSearch",
+    "Fluentd",
+    "인덱스템플릿",
+    "쿠버네티스",
+    "StatefulSet"
+  ],
+  "excerpt": "Fluentd 집계기 출력을 OpenSearch 로 바꿨더니 request_id 가 text 로 잡혀 trace-8th-0001 을 찾는데 다른 요청까지 44건이 나왔고, event 로 집계하자 \"Text fields are not optimised\" 로 거절됐다. 인덱스 템플릿으로 타입을 정하고, 집계기와 OpenSearch 를 지워도 로그가 남는지 쟀다.",
+  "wp_url": "https://autops.run/microservices-opensearch-logs/",
+  "wp_date": "2026-09-29 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-28"
+}

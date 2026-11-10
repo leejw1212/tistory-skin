@@ -1,0 +1,16 @@
+{
+  "title": "nginx 처음 만지기 — 리버스 프록시가 무엇이고 설정은 어떻게 생겼나",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "nginx",
+    "리버스프록시",
+    "입문",
+    "location",
+    "proxy_pass"
+  ],
+  "excerpt": "앱은 띄웠는데 주소가 :5000 이다. 그 앞에 nginx 를 세우면 무엇이 달라지는지, 설정 파일이 어떻게 생겼고 nginx 가 요청을 어떤 순서로 고르는지 — 직접 띄워 확인하며 처음부터 짚는다.",
+  "wp_url": "https://autops.run/nginx-basics/",
+  "wp_date": "2026-09-10 13:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-15"
+}

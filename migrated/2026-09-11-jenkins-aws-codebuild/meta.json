@@ -1,0 +1,16 @@
+{
+  "title": "Jenkins 에서 AWS 붙이기 — CodeBuild 호출과 저장소 미러링",
+  "category": "기술/CI/CD",
+  "tags": [
+    "Jenkins",
+    "AWS",
+    "CodeBuild",
+    "CodeCommit",
+    "Bitbucket"
+  ],
+  "excerpt": "Jenkins 에서 AWS CodeBuild 를 호출해 변수까지 넘기는 방법과, 지원이 끊긴 플러그인을 대신해 Bitbucket 을 CodeCommit 으로 미러링한 임시 방편. 지금 이 구성을 새로 잡으면 안 되는 이유도 함께.",
+  "wp_url": "https://autops.run/jenkins-aws-codebuild/",
+  "wp_date": "2026-09-11 13:48",
+  "tistory_url": "",
+  "planned_date": "2026-11-18"
+}

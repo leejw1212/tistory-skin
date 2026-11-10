@@ -1,0 +1,16 @@
+{
+  "title": "nginx 를 앞에 세우는 이유 — 리버스 프록시가 실제로 해 주는 일",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "nginx",
+    "리버스프록시",
+    "WebSocket",
+    "TLS",
+    "홈서버"
+  ],
+  "excerpt": "서버 한 대에 서비스 둘을 올리고 443 하나로 받는다. 이름으로 나누고, TLS 를 한 자리에서 끝내고, 백엔드가 잃어버린 정보를 되돌려 주는 일까지 — nginx 를 앞에 두면 무엇이 달라지는지 실제로 띄워 확인한다.",
+  "wp_url": "https://autops.run/nginx-reverse-proxy/",
+  "wp_date": "2026-09-10 17:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-15"
+}

@@ -1,0 +1,17 @@
+{
+  "title": "애플 건강 앱으로 달리기 자동 기록하기 — RunGap과 Dropbox 웹훅으로",
+  "category": "기술/개발환경·홈랩",
+  "tags": [
+    "iOS",
+    "HealthKit",
+    "자동화",
+    "Dropbox",
+    "RunGap",
+    "GitHub Actions"
+  ],
+  "excerpt": "애플 건강 앱에는 러닝 기록을 서버로 보내는 공식 API가 없다. iOS 단축어로 직접 조립해 보고, 스트라바도 알아봤다가, 결국 RunGap과 Dropbox 웹훅을 거쳐 완전 자동화까지 간 과정과 그 끝에서 마주친 배포 삽질.",
+  "wp_url": "https://autops.run/healthkit-running-automation/",
+  "wp_date": "2026-09-08 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-11"
+}

@@ -1,0 +1,16 @@
+{
+  "title": "Hermes 에이전트에 MCP 붙이기 — Playwright, 그리고 사내 Confluence Server/DC",
+  "category": "기술/AI·에이전트",
+  "tags": [
+    "Hermes",
+    "MCP",
+    "Playwright",
+    "Confluence",
+    "AI에이전트"
+  ],
+  "excerpt": "config.yaml 의 mcp_servers 블록에 서버 두 개를 붙인다. 사내 Confluence 는 Atlassian 공식 원격 MCP 로 안 되고(Cloud 전용), Server/DC 는 CONFLUENCE_PERSONAL_TOKEN 을 쓰는 커뮤니티 서버로 붙인다. READ_ONLY_MODE 를 빼면 쓰기 도구 15개가 그대로 열린다.",
+  "wp_url": "https://autops.run/hermes-mcp-playwright-confluence/",
+  "wp_date": "2026-09-12 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-22"
+}

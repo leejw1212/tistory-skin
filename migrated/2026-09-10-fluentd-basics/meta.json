@@ -1,0 +1,16 @@
+{
+  "title": "Fluentd 처음 배우기 — 로그 수집기가 무엇이고 어떻게 생겼나",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "Fluentd",
+    "로그수집",
+    "입문",
+    "로깅",
+    "옵저버빌리티"
+  ],
+  "excerpt": "서버가 늘면 로그를 ssh 로 열어 볼 수 없다. Fluentd 가 그 사이에서 무엇을 하는지, 설정 파일이 어떻게 생겼고 태그·파서·버퍼가 각각 무엇인지 — 직접 띄워 확인하며 처음부터 짚는다.",
+  "wp_url": "https://autops.run/fluentd-basics/",
+  "wp_date": "2026-09-10 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-14"
+}

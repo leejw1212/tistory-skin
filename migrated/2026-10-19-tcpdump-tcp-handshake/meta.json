@@ -1,0 +1,17 @@
+{
+  "title": "tcpdump 로 TCP 3-way handshake 보기 — 네트워크 처음 배우는 사람을 위한 패킷 읽기",
+  "category": "기술/서버·네트워크",
+  "tags": [
+    "TCP",
+    "tcpdump",
+    "tshark",
+    "nftables",
+    "네트워크",
+    "홈랩"
+  ],
+  "excerpt": "패킷이 뭔지 몰라도 따라 할 수 있게 썼다. curl 한 번이 만드는 TCP 패킷 10개를 tcpdump 로 잡아 한 줄씩 읽고, \"Connection refused\" 와 \"Connection timed out\" 이 패킷으로는 어떻게 다른지 직접 만들어 본다.",
+  "wp_url": "https://autops.run/tcpdump-tcp-handshake/",
+  "wp_date": "2026-10-19 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-12-04"
+}

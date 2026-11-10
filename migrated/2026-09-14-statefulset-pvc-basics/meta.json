@@ -1,0 +1,16 @@
+{
+  "title": "파드가 죽으면 데이터도 사라진다 — StatefulSet 과 PVC 로 남기는 법",
+  "category": "기술/쿠버네티스",
+  "tags": [
+    "쿠버네티스",
+    "StatefulSet",
+    "PVC",
+    "PersistentVolume",
+    "StorageClass"
+  ],
+  "excerpt": "쿠버네티스 파드는 재시작하면 안에 쓴 파일이 전부 사라진다. PVC 로 저장소를 빌리고 StatefulSet 으로 파드에 고정된 이름을 주면 남는다. PVC 가 Pending 에서 안 넘어가는 이유(waiting for first consumer)도 함께 짚는다.",
+  "wp_url": "https://autops.run/statefulset-pvc-basics/",
+  "wp_date": "2026-09-14 09:00",
+  "tistory_url": "",
+  "planned_date": "2026-11-23"
+}

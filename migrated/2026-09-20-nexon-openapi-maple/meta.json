@@ -1,0 +1,16 @@
+{
+  "title": "메이플 오픈API 는 complete_flag 가 아니라 clear_flag 를 준다 — 문서만 보고는 모르는 여섯 가지",
+  "category": "기술/개발환경·홈랩",
+  "tags": [
+    "넥슨오픈API",
+    "메이플스토리",
+    "Flask",
+    "REST API",
+    "캐싱"
+  ],
+  "excerpt": "넥슨 오픈API 로 캐릭터 조회 사이트를 집 서버에 올렸다. 공식 라이브러리 DTO 에는 complete_flag 라고 적혀 있는데 실제 응답은 clear_flag 였고, 난이도는 한글이 아니라 normal·chaos 로 왔다. 없는 데이터는 오류가 아니라 200 으로 오고, API 키는 데이터 범위를 나누지 않는다 — 딱 한 군데만 빼고. 문서와 실제가 어긋났던 여섯 자리를 정리했다.",
+  "wp_url": "https://autops.run/nexon-openapi-maple/",
+  "wp_date": "2026-09-20 12:20",
+  "tistory_url": "",
+  "planned_date": "2026-11-30"
+}
