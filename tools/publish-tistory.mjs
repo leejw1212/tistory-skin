@@ -177,23 +177,22 @@ async function publishOne(page, p) {
 
     await (await first(page, SEL.title)).fill(p.meta.title);
 
-    // 본문 — CodeMirror 5 면 API 로, 아니면 편집기를 눌러 통째로 바꿔 넣는다
-    const usedApi = await page.evaluate(({ sel, text }) => {
-        const el = [...document.querySelectorAll(sel)].find(e => e.offsetParent !== null);
-        if (el?.CodeMirror) { el.CodeMirror.setValue(text); el.CodeMirror.save?.(); return el.CodeMirror.getValue().length; }
-        return -1;
-    }, { sel: MD_EDITORS, text: md });
-    if (usedApi < 0) {
-        await page.evaluate(sel => [...document.querySelectorAll(sel)]
-            .find(e => e.offsetParent !== null)
-            .setAttribute('data-autopub', 'md'), MD_EDITORS);
-        await page.locator('[data-autopub="md"]').click();
-        await page.keyboard.press('Control+A');
-        await page.keyboard.press('Delete');
-        await page.keyboard.insertText(md);
-    } else if (usedApi < md.length * 0.9) {
-        throw new Error(`본문이 다 들어가지 않았습니다 (${usedApi}/${md.length}자)`);
-    }
+    // 본문 — 키보드 입력처럼 넣는다. CodeMirror.setValue() 는 화면에는 보여도 티스토리(React)가
+    // 들고 있는 값이 안 바뀌어서 빈 글로 발행됐다 (2026-11-11). 입력 이벤트로 넣어야 저장된다.
+    await page.evaluate(sel => [...document.querySelectorAll(sel)]
+        .find(e => e.offsetParent !== null)
+        .setAttribute('data-autopub', 'md'), MD_EDITORS);
+    await page.locator('[data-autopub="md"] .CodeMirror-lines, [data-autopub="md"]').first().click();
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Delete');
+    await page.keyboard.insertText(md);
+    await page.waitForTimeout(800);
+    const got = await page.evaluate(() => {
+        const el = document.querySelector('[data-autopub="md"]');
+        return el?.CodeMirror ? el.CodeMirror.getValue() : (el?.innerText || '');
+    });
+    const norm = t => t.replace(/\s+/g, '');
+    if (norm(got).length < norm(md).length * 0.95) throw new Error(`본문이 다 들어가지 않았습니다 (${norm(got).length}/${norm(md).length}자)`);
 
     // 카테고리 — 하위 이름으로 고른다 (목록에는 "- AI·에이전트" 처럼 보인다)
     if (catLeaf || catParent) {
@@ -251,6 +250,17 @@ async function publishOne(page, p) {
 
     // 발행 — 버튼을 누른 뒤 /manage/ 로 가는 POST 응답을 모아, 글 주소를 찾고 기록으로 남긴다
     const seen = [];
+    // 발행 요청 본문에 글 내용이 실려 가는지 본다 (빈 글 발행을 바로 잡아내기 위해)
+    const probe = (md.split('\n').find(l => /^[가-힣A-Za-z]/.test(l) && l.length > 20) || '').slice(0, 15);
+    let carried = null;
+    const onReq = r => {
+        if (r.method() !== 'POST' || !/\/manage\//.test(r.url())) return;
+        const data = r.postData() || '';
+        let dec = data; try { dec = decodeURIComponent(data.replace(/\+/g, ' ')); } catch { /* 그대로 */ }
+        if (probe && (data.includes(probe) || dec.includes(probe) || JSON.stringify(data).includes(JSON.stringify(probe).slice(1, -1)))) carried = true;
+        else if (carried === null) carried = false;
+    };
+    page.on('request', onReq);
     const onRes = async r => {
         if (r.request().method() !== 'POST' || !/\/manage\//.test(r.url())) return;
         let text = '';
@@ -263,6 +273,7 @@ async function publishOne(page, p) {
     const left = await page.waitForURL(u => !/\/manage\/newpost/.test(String(u)), { timeout: 30000 }).then(() => true).catch(() => false);
     await page.waitForTimeout(1500);
     page.off('response', onRes);
+    page.off('request', onReq);
     fs.writeFileSync(path.join(SHOTS, `${p.id}-response.json`), JSON.stringify({ left, pageUrl: page.url(), seen }, null, 2));
 
     // 응답 안에서 글 주소/번호를 찾는다 (entryUrl, /entry/..., "id":219 등)
@@ -280,6 +291,9 @@ async function publishOne(page, p) {
         if (url) break;
     }
     const okRes = seen.some(r => r.status >= 200 && r.status < 300);
+    if (carried === false) {
+        throw Object.assign(new Error('발행 요청에 본문이 실려 가지 않았습니다 — 빈 글로 올라갔을 수 있으니 글 관리에서 지워 주세요'), { unsure: true, fatal: true });
+    }
     if (!left && !okRes) {
         await page.screenshot({ path: shot('3-after'), fullPage: false });
         throw Object.assign(new Error('발행이 됐는지 확인하지 못했습니다 — 티스토리 글 관리에서 확인 필요'), { shot: shot('3-after'), unsure: true });
