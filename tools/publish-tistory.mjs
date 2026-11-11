@@ -153,9 +153,11 @@ async function publishOne(page, p) {
 
     // 마크다운 모드 — 화면에 "보이는" 마크다운 편집기가 있을 때만 이미 마크다운이다.
     // (기본모드에서도 숨은 CodeMirror 가 DOM 에 있어서 개수만 세면 속는다)
-    const MD_EDITORS = '.CodeMirror, .cm-editor, [class*="markdown" i] textarea, textarea[class*="markdown" i]';
+    // 티스토리(2026-11 확인): 마크다운 모드 = .markdown-editor 안의 .CodeMirror.cm-s-tistory-markdown.
+    // HTML 모드용 .cm-s-tistory-html 은 기본모드에서도 숨어 있다. 빈 편집기는 높이가 작아서 높이로는 판단하지 않는다.
+    const MD_EDITORS = '.CodeMirror.cm-s-tistory-markdown, .markdown-editor .CodeMirror';
     const mdVisible = () => page.evaluate(sel => [...document.querySelectorAll(sel)]
-        .some(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50), MD_EDITORS);
+        .some(e => e.offsetParent !== null), MD_EDITORS);
     if (!(await mdVisible())) {
         await (await first(page, SEL.modeOpen)).click();
         await (await first(page, SEL.modeMarkdown)).click();
@@ -177,13 +179,13 @@ async function publishOne(page, p) {
 
     // 본문 — CodeMirror 5 면 API 로, 아니면 편집기를 눌러 통째로 바꿔 넣는다
     const usedApi = await page.evaluate(({ sel, text }) => {
-        const el = [...document.querySelectorAll(sel)].find(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50);
+        const el = [...document.querySelectorAll(sel)].find(e => e.offsetParent !== null);
         if (el?.CodeMirror) { el.CodeMirror.setValue(text); el.CodeMirror.save?.(); return el.CodeMirror.getValue().length; }
         return -1;
     }, { sel: MD_EDITORS, text: md });
     if (usedApi < 0) {
         await page.evaluate(sel => [...document.querySelectorAll(sel)]
-            .find(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50)
+            .find(e => e.offsetParent !== null)
             .setAttribute('data-autopub', 'md'), MD_EDITORS);
         await page.locator('[data-autopub="md"]').click();
         await page.keyboard.press('Control+A');
