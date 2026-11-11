@@ -257,7 +257,8 @@ const posts = loadPosts();
 console.log(`▶ 대상 ${posts.length}편${DRY ? ' (dry-run)' : ''} · 공개 범위 ${VISIBILITY}`);
 if (!posts.length) process.exit(0);
 
-const browser = await chromium.launch({ headless: !HEADED });
+const CHANNEL = opt('channel'); // 'chrome' 이면 PC 에 깔린 크롬을 쓴다 (playwright install 생략 가능)
+const browser = await chromium.launch({ headless: !HEADED, ...(CHANNEL ? { channel: CHANNEL } : {}) });
 const ctx = await browser.newContext({ storageState: STATE, locale: 'ko-KR', timezoneId: 'Asia/Seoul', viewport: { width: 1400, height: 1000 } });
 const page = await ctx.newPage();
 page.on('dialog', d => d.message().includes('저장된 글') ? d.dismiss() : d.accept()); // 임시저장 이어쓰기는 거절, 모드 전환 확인은 수락

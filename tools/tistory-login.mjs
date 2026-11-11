@@ -3,15 +3,19 @@
 //
 //   npx -y playwright@1.49.1 install chromium   # 처음 한 번
 //   node tools/tistory-login.mjs                 # 창이 뜨면 카카오로 평소처럼 로그인
+//   node tools/tistory-login.mjs --channel chrome   # playwright 크로미엄 대신 PC 에 깔린 크롬으로
 //
 // 글 관리 화면이 열리면 창이 저절로 닫히고 tistory-state.json 이 생긴다.
 // 이 파일이 있으면 누구든 블로그에 글을 쓸 수 있다 — 저장소에 올리지 말 것 (.gitignore 에 있음).
 import { chromium } from 'playwright';
 import fs from 'node:fs';
 
-const BLOG = process.argv[2] || 'jjoyling';
+const argv = process.argv.slice(2);
+const ci = argv.indexOf('--channel');
+const CHANNEL = ci >= 0 ? argv[ci + 1] : null; // 'chrome' 이면 PC 에 깔린 크롬을 쓴다
+const BLOG = argv.find((a, i) => !a.startsWith('--') && argv[i - 1] !== '--channel') || 'jjoyling';
 const OUT = 'tistory-state.json';
-const browser = await chromium.launch({ headless: false });
+const browser = await chromium.launch({ headless: false, ...(CHANNEL ? { channel: CHANNEL } : {}) });
 const ctx = await browser.newContext({ locale: 'ko-KR', timezoneId: 'Asia/Seoul' });
 const page = await ctx.newPage();
 await page.goto(`https://www.tistory.com/auth/login?redirectUrl=${encodeURIComponent(`https://${BLOG}.tistory.com/manage`)}`);
