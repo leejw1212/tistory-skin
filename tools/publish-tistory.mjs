@@ -250,14 +250,26 @@ async function publishOne(page, p) {
 
     // 발행 — 버튼을 누른 뒤 /manage/ 로 가는 POST 응답을 모아, 글 주소를 찾고 기록으로 남긴다
     const seen = [];
-    // 발행 요청 본문에 글 내용이 실려 가는지 본다 (빈 글 발행을 바로 잡아내기 위해)
-    const probe = (md.split('\n').find(l => /^[가-힣A-Za-z]/.test(l) && l.length > 20) || '').slice(0, 15);
+    // 발행 요청 본문에 글 내용이 실려 가는지 본다 (빈 글 발행을 바로 잡아내기 위해).
+    // 티스토리는 마크다운을 HTML 로 바꿔 보내므로 [링크](주소)·**굵게** 같은 문법이 든
+    // 문장을 그대로 찾으면 못 찾는다 (실제로 본문이 잘 올라간 글을 빈 글로 오판했다).
+    // 그래서 마크다운 문법을 걷어 낸 본문에서 한글 낱말 몇 개를 골라, 그중 하나라도
+    // 실려 가면 본문이 있는 것으로 본다. \uXXXX 로 이스케이프돼 가는 경우도 본다.
+    const plain = md
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+        .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+    // 제목·태그에도 있는 낱말은 빈 글이어도 요청에 실리니 뺀다.
+    const meta = `${p.meta.title || ''} ${(p.meta.tags || []).join(' ')}`;
+    const probes = [...new Set(plain.match(/[가-힣]{4,}/g) || [])].filter(w => !meta.includes(w)).slice(0, 5);
+    const esc = w => [...w].map(c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0')).join('');
     let carried = null;
     const onReq = r => {
         if (r.method() !== 'POST' || !/\/manage\//.test(r.url())) return;
         const data = r.postData() || '';
         let dec = data; try { dec = decodeURIComponent(data.replace(/\+/g, ' ')); } catch { /* 그대로 */ }
-        if (probe && (data.includes(probe) || dec.includes(probe) || JSON.stringify(data).includes(JSON.stringify(probe).slice(1, -1)))) carried = true;
+        const low = data.toLowerCase();
+        if (!probes.length || probes.some(w => data.includes(w) || dec.includes(w) || low.includes(esc(w)))) carried = true;
         else if (carried === null) carried = false;
     };
     page.on('request', onReq);
