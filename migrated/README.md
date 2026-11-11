@@ -26,9 +26,38 @@ migrated/
   다 옮긴 뒤 티스토리 주소로 한 번에 바꿀 예정입니다.
 - 원래 워드프레스에서도 비어 있던 사진 10장(도메인 글 5장, DDNS 글 4장, 건강 앱 글 1장) 자리는 뺐습니다.
 
-## 발행 순서
+## 🤖 자동 예약 발행 (집 윈도우 PC)
 
-> 🤖 지금은 `tools/publish-tistory.mjs` 가 집 서버에서 티스토리 예약 발행으로 한 번에 걸어 둡니다. 아래는 손으로 할 때의 순서입니다.
+PowerShell 에서, 처음 한 번:
+
+```powershell
+winget install OpenJS.NodeJS.LTS Git.Git     # 이미 있으면 건너뜀. 설치 후 PowerShell 을 새로 연다
+git clone https://github.com/leejw1212/tistory-skin
+cd tistory-skin
+npm i --no-save playwright@1.49.1
+npx playwright install chromium
+node tools/tistory-login.mjs                 # 창이 뜨면 카카오로 로그인 → tistory-state.json 생성
+```
+
+시험(발행 버튼만 빼고 입력, 창을 띄워서 직접 본다):
+
+```powershell
+node tools/publish-tistory.mjs --state tistory-state.json --limit 1 --dry-run --headed
+```
+
+실제로 40편 예약:
+
+```powershell
+git pull
+node tools/publish-tistory.mjs --state tistory-state.json --limit 40
+```
+
+- 이미 건 글은 `done.json` 에 남아서 다시 돌려도 두 번 올라가지 않습니다. 지우지 마세요.
+- 실패하면 `shots\` 폴더에 그 순간 화면이 남습니다.
+- `tistory-state.json` 이 있으면 누구든 블로그에 글을 쓸 수 있습니다. 공유·커밋하지 마세요 (.gitignore 에 있음).
+
+## 손으로 발행할 때
+
 
 1. `post.md` 전체를 티스토리 **글쓰기 → 마크다운 모드**에 붙여넣습니다.
 2. 제목·태그는 `meta.json` 에서, 카테고리는 `기술 > <하위>`, 맨 위 사진을 대표 이미지로 지정합니다.
