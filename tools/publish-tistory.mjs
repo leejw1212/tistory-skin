@@ -249,16 +249,40 @@ async function publishOne(page, p) {
     const base = { id: p.id, title: p.meta.title, category: p.meta.category, at: at ? at.toISOString() : 'now', thumbnail: thumb ? path.basename(thumb) : null, thumbOk };
     if (DRY) return { ...base, dryRun: true, shot: shot('2-layer') };
 
-    // 발행 — 저장 요청의 응답에서 글 번호를 읽는다
-    const resP = page.waitForResponse(r => /\/manage\/post/.test(r.url()) && r.request().method() === 'POST', { timeout: 30000 }).catch(() => null);
+    // 발행 — 버튼을 누른 뒤 /manage/ 로 가는 POST 응답을 모아, 글 주소를 찾고 기록으로 남긴다
+    const seen = [];
+    const onRes = async r => {
+        if (r.request().method() !== 'POST' || !/\/manage\//.test(r.url())) return;
+        let text = '';
+        try { text = await r.text(); } catch { /* 본문 없음 */ }
+        seen.push({ url: r.url(), status: r.status(), body: text.slice(0, 4000) });
+    };
+    page.on('response', onRes);
     await (await first(page, SEL.publish)).click();
-    const res = await resP;
-    let body = null;
-    try { body = res ? await res.json() : null; } catch { /* JSON 아님 */ }
-    const url = body?.entryUrl || body?.url || (body?.id || body?.entryId ? `${BASE}/${body.id || body.entryId}` : null);
-    if (!res || !res.ok() || !url) {
+    // 발행되면 티스토리가 글 관리 화면으로 넘긴다
+    const left = await page.waitForURL(u => !/\/manage\/newpost/.test(String(u)), { timeout: 30000 }).then(() => true).catch(() => false);
+    await page.waitForTimeout(1500);
+    page.off('response', onRes);
+    fs.writeFileSync(path.join(SHOTS, `${p.id}-response.json`), JSON.stringify({ left, pageUrl: page.url(), seen }, null, 2));
+
+    // 응답 안에서 글 주소/번호를 찾는다 (entryUrl, /entry/..., "id":219 등)
+    let url = null;
+    for (const r of seen) {
+        let j = null; try { j = JSON.parse(r.body); } catch { /* JSON 아님 */ }
+        const find = o => {
+            if (!o || typeof o !== 'object') return null;
+            for (const k of ['entryUrl', 'url', 'permalink']) if (typeof o[k] === 'string' && /tistory\.com\/(entry\/|\d)/.test(o[k])) return o[k];
+            for (const k of ['entryId', 'id', 'postId']) if (/^\d+$/.test(String(o[k] ?? ''))) return `${BASE}/${o[k]}`;
+            for (const v of Object.values(o)) { const f = find(v); if (f) return f; }
+            return null;
+        };
+        url = find(j) || (r.body.match(/https?:\/\/[a-z0-9-]+\.tistory\.com\/(?:entry\/[^"'\s]+|\d+)/i) || [])[0] || null;
+        if (url) break;
+    }
+    const okRes = seen.some(r => r.status >= 200 && r.status < 300);
+    if (!left && !okRes) {
         await page.screenshot({ path: shot('3-after'), fullPage: false });
-        throw Object.assign(new Error(`발행 응답을 확인하지 못했습니다 (status ${res?.status()}) — 티스토리 글 관리에서 실제로 올라갔는지 확인 필요`), { shot: shot('3-after'), unsure: true });
+        throw Object.assign(new Error('발행이 됐는지 확인하지 못했습니다 — 티스토리 글 관리에서 확인 필요'), { shot: shot('3-after'), unsure: true });
     }
     return { ...base, url };
 }
