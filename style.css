@@ -3422,3 +3422,277 @@ textarea:focus-visible {
     outline-offset: 2px;
     border-radius: var(--radius-xs);
 }
+
+/* =========================================================================
+ * 홈 주제 전환: 달리기·맛집 ↔ 기술 블로그
+ * ========================================================================= */
+:root {
+    --tech-bg: #161827;
+    --tech-bg-2: #231f3d;
+    --tech-accent: #8b7bff;
+    --tech-accent-2: #4fd1c5;
+    --tech-text: #e9e8f5;
+    --tech-muted: #a3a1c0;
+    --gradient-tech: linear-gradient(135deg, #6c5ce7 0%, #4fd1c5 100%);
+}
+
+.home-switch,
+.tech-hub,
+.tech-sidebar { display: none; }
+
+#tt-body-index .home-switch {
+    position: relative;
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: min(440px, 100%);
+    padding: 5px;
+    border-radius: 999px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+}
+
+.home-switch-pill {
+    position: absolute;
+    top: 5px; bottom: 5px; left: 5px;
+    width: calc(50% - 5px);
+    border-radius: 999px;
+    background: var(--gradient-primary);
+    box-shadow: var(--shadow-glow);
+    transition: transform .45s cubic-bezier(.65, 0, .35, 1), background .45s var(--ease), box-shadow .45s var(--ease);
+}
+
+.home-switch-btn {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 12px;
+    border: 0;
+    background: none;
+    border-radius: 999px;
+    font: inherit;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color .3s var(--ease);
+    white-space: nowrap;
+}
+.home-switch-btn:hover { color: var(--text-primary); }
+.home-switch-btn.is-active,
+.home-switch-btn.is-active:hover { color: #fff; }
+.home-switch-btn .hs-ico { font-size: 1.1rem; transition: transform .45s var(--ease); }
+.home-switch-btn.is-active .hs-ico { transform: scale(1.15) rotate(-6deg); }
+.home-switch-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* JS 전에 #tech 로 열린 경우에도 바로 맞는 쪽이 보이도록 body 클래스로 판단 */
+.home-tech .home-switch-btn[data-mode="life"] { color: var(--text-secondary); }
+.home-tech .home-switch-btn[data-mode="tech"] { color: #fff; }
+.home-tech .home-switch-pill {
+    transform: translateX(100%);
+    background: var(--gradient-tech);
+    box-shadow: 0 0 22px rgba(108, 92, 231, .35);
+}
+
+/* 전환 시 보이는 것 바꾸기 */
+#tt-body-index.home-tech .heatmap-container,
+#tt-body-index.home-tech #index-sidebar { display: none; }
+
+#tt-body-index.home-tech .tech-hub {
+    display: flex;
+    grid-column: 1;
+    animation: modeIn .5s var(--ease);
+}
+#tt-body-index.home-tech .tech-sidebar {
+    display: block;
+    animation: modeIn .5s var(--ease) .05s both;
+}
+#tt-body-index:not(.home-tech) .heatmap-container,
+#tt-body-index:not(.home-tech) #index-sidebar { animation: modeIn .5s var(--ease); }
+
+@keyframes modeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* 기술 허브 카드 (지도 자리) */
+.tech-hub {
+    position: relative;
+    flex-direction: column;
+    gap: 24px;
+    height: 600px;
+    padding: 32px;
+    overflow: hidden auto;
+    border-radius: var(--radius);
+    color: var(--tech-text);
+    background:
+        radial-gradient(600px 300px at 100% 0%, rgba(139, 123, 255, .28), transparent 70%),
+        radial-gradient(500px 280px at 0% 100%, rgba(79, 209, 197, .18), transparent 70%),
+        linear-gradient(160deg, var(--tech-bg) 0%, var(--tech-bg-2) 100%);
+    box-shadow: var(--shadow-lg);
+    isolation: isolate;
+}
+.tech-hub::before {
+    /* 은은한 격자 */
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 85%);
+    pointer-events: none;
+}
+
+.tech-prompt {
+    margin: 0 0 12px;
+    font-family: 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+    font-size: .82rem;
+    color: var(--tech-muted);
+}
+.tp-user { color: var(--tech-accent-2); }
+.tp-path { color: var(--tech-accent); }
+.tp-cmd  { color: var(--tech-text); margin-left: 4px; }
+.tp-caret {
+    display: inline-block;
+    width: 8px; height: 1em;
+    margin-left: 4px;
+    vertical-align: -2px;
+    background: var(--tech-accent-2);
+    animation: caretBlink 1.1s steps(1) infinite;
+}
+@keyframes caretBlink { 50% { opacity: 0; } }
+
+.tech-title {
+    margin: 0 0 6px;
+    font-size: 1.9rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    background: linear-gradient(90deg, #fff 0%, #cfc8ff 60%, #8ff0e5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.tech-summary { margin: 0; font-size: .92rem; color: var(--tech-muted); }
+.tech-summary strong { color: var(--tech-text); }
+
+.tech-cats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.tech-cat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 84px;
+    padding: 16px 18px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    background: rgba(255,255,255,.04);
+    color: var(--tech-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: transform .25s var(--ease), border-color .25s var(--ease), background .25s var(--ease), box-shadow .25s var(--ease);
+}
+.tech-cat:hover {
+    transform: translateY(-3px);
+    border-color: rgba(139,123,255,.55);
+    background: rgba(139,123,255,.10);
+}
+.tech-cat.is-active {
+    border-color: transparent;
+    background:
+        linear-gradient(var(--tech-bg-2), var(--tech-bg-2)) padding-box,
+        var(--gradient-tech) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 8px 28px rgba(108, 92, 231, .35);
+}
+.tech-cat:focus-visible { outline: 2px solid var(--tech-accent-2); outline-offset: 2px; }
+.tech-cat.is-empty:not(.is-active) { opacity: .5; }
+
+.tc-ico {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.07);
+    font-size: 1.35rem;
+}
+.tech-cat.is-active .tc-ico { background: var(--gradient-tech); }
+.tc-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.tc-name { font-size: 1rem; font-weight: 700; }
+.tc-desc { font-size: .78rem; color: var(--tech-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tc-desc:empty { display: none; }
+.tc-count {
+    flex: 0 0 auto;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.08);
+    font-size: .75rem;
+    font-weight: 700;
+    color: var(--tech-muted);
+}
+.tc-count:empty { display: none; }
+.tech-cat.is-active .tc-count { color: #fff; background: rgba(139,123,255,.35); }
+
+/* 오른쪽 기술 글 목록 */
+.tech-sidebar-head {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--border-light);
+}
+.tech-sidebar-head h3 {
+    margin: 0 0 -2px;
+    padding: 10px 2px;
+    border-bottom: 2px solid var(--tech-accent);
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.tech-sidebar .tab-panel { display: flex; }
+
+.post-item .category[data-cat="tech"],
+.post-header .category[data-cat="tech"] {
+    background: #eeebff;
+    color: #5040c8;
+}
+
+@media (max-width: 1024px) {
+    #tt-body-index.home-tech .tech-hub { height: auto; }
+}
+
+@media (max-width: 640px) {
+    #tt-body-index .home-switch { width: 100%; }
+    .home-switch-btn { font-size: .88rem; gap: 6px; min-height: 44px; }
+    .tech-hub { padding: 22px 18px; gap: 18px; }
+    .tech-title { font-size: 1.5rem; }
+    .tech-cats { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .tech-cat { flex-direction: column; align-items: flex-start; gap: 10px; min-height: 0; padding: 14px; position: relative; }
+    .tc-ico { width: 38px; height: 38px; font-size: 1.15rem; }
+    .tc-name { font-size: .92rem; }
+    .tc-count { position: absolute; top: 12px; right: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-switch-pill, .tech-cat, .tp-caret { transition: none; animation: none; }
+    #tt-body-index.home-tech .tech-hub,
+    #tt-body-index.home-tech .tech-sidebar,
+    #tt-body-index:not(.home-tech) .heatmap-container,
+    #tt-body-index:not(.home-tech) #index-sidebar { animation: none; }
+}

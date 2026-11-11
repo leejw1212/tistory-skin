@@ -75,6 +75,30 @@
                     </div>
                 </s_notice_rep>
 
+                <!-- ============ Home mode switch ============ -->
+                <!-- 홈에서만 보인다. '달리기·맛집'(지도+코스/맛집/리뷰 탭) ↔ '기술 블로그'(기술 하위 카테고리+최근 글).
+                     고른 쪽은 이 브라우저에 기억해 두고, 주소 끝에 #tech 를 붙이면 기술 쪽으로 열린다. -->
+                <div class="home-switch" role="tablist" aria-label="주제 전환">
+                    <span class="home-switch-pill" aria-hidden="true"></span>
+                    <button type="button" class="home-switch-btn" data-mode="life" role="tab" aria-selected="true">
+                        <span class="hs-ico" aria-hidden="true">🏃</span> 달리기 · 맛집
+                    </button>
+                    <button type="button" class="home-switch-btn" data-mode="tech" role="tab" aria-selected="false">
+                        <span class="hs-ico" aria-hidden="true">💻</span> 기술 블로그
+                    </button>
+                </div>
+                <script>try{if(location.hash==='#tech'||(location.hash!=='#life'&&localStorage.getItem('home.mode')==='tech'))document.body.classList.add('home-tech');}catch(e){}</script>
+
+                <!-- ============ Tech hub (홈 '기술 블로그' 쪽, 지도 자리) ============ -->
+                <section class="tech-hub" id="tech-hub" aria-labelledby="tech-hub-title">
+                    <div class="tech-hub-head">
+                        <p class="tech-prompt" aria-hidden="true"><span class="tp-user">jjoyling@homelab</span>:<span class="tp-path">~/tech</span>$ <span class="tp-cmd">ls -l</span><span class="tp-caret"></span></p>
+                        <h2 class="tech-title" id="tech-hub-title">💻 기술 노트</h2>
+                        <p class="tech-summary">직접 굴려 보며 남긴 기록 · 글 <strong id="tech-total">-</strong>편 · 분류 <strong id="tech-cat-count">-</strong>개</p>
+                    </div>
+                    <div class="tech-cats" id="tech-cats" role="tablist" aria-label="기술 하위 카테고리"></div>
+                </section>
+
                 <!-- ============ Running Map ============ -->
                 <section class="heatmap-container" aria-label="러닝 코스 지도">
                     <canvas id="route-canvas" aria-label="러닝 코스가 표시된 지도"></canvas>
@@ -170,10 +194,9 @@
                         <div class="list-header">
                             <h2>'[##_list_conform_##]' 글 목록</h2>
                             <!-- 하위 카테고리 칩. 상위 카테고리(예: 기술)나 그 하위 페이지에 들어가면
-                                 아래 숨은 카테고리 목록을 읽어 '전체 · AI·에이전트 · 쿠버네티스 …' 칩을 그린다.
+                                 맨 아래 숨은 카테고리 목록(#cat-tree)을 읽어 '전체 · AI·에이전트 · 쿠버네티스 …' 칩을 그린다.
                                  하위가 없는 카테고리에서는 계속 숨어 있다. -->
                             <nav class="subcat-chips" aria-label="하위 카테고리" hidden></nav>
-                            <div id="cat-tree" style="display:none">[##_category_list_##]</div>
                         </div>
                     </s_list>
 
@@ -194,6 +217,16 @@
                             <div class="tab-panel" id="panel-review" role="tabpanel">
                                 <div class="panel-skeleton"><i></i><i></i><i></i></div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- 홈 '기술 블로그' 쪽 글 목록 (왼쪽 분류를 누르면 바뀐다) -->
+                    <div id="tech-sidebar" class="tech-sidebar">
+                        <div class="tech-sidebar-head">
+                            <h3 id="tech-list-title">🆕 최근 기술 글</h3>
+                        </div>
+                        <div class="tab-panel active" id="panel-tech">
+                            <div class="panel-skeleton"><i></i><i></i><i></i></div>
                         </div>
                     </div>
 
@@ -351,6 +384,8 @@
     </div>
 
     <button type="button" class="back-to-top" aria-label="맨 위로">↑</button>
+    <!-- 카테고리 트리. 화면에는 안 보이고, 하위 카테고리 칩과 홈 '기술 블로그' 화면이 읽는다. -->
+    <div id="cat-tree" style="display:none">[##_category_list_##]</div>
 </s_t3>
 <script id="skin-map-script" src="./images/map.js?v=14"></script>
 <script id="skin-path-helper" src="./images/mapData.js?v=9"></script>
@@ -410,6 +445,147 @@
         if (cur && cur.scrollIntoView && nav.scrollWidth > nav.clientWidth) cur.scrollIntoView({ block: 'nearest', inline: 'center' });
         return;
     }
+})();
+
+/* 홈 '달리기·맛집 ↔ 기술 블로그' 전환 */
+(function () {
+    if (document.body.id !== 'tt-body-index') return;
+    var body = document.body;
+    var TECH_NAME = '기술';
+    /* 하위 카테고리 아이콘·한 줄 소개. 카테고리 이름에 아래 글자가 들어 있으면 쓴다 (고쳐 써도 됨). */
+    var SUB_META = [
+        { m: 'AI',      ico: '🤖', d: 'LLM·에이전트·MCP' },
+        { m: '쿠버네티스', ico: '☸️', d: '클러스터 만들고 굴리기' },
+        { m: '서버',     ico: '🖧', d: '리눅스·네트워크' },
+        { m: '보안',     ico: '🔐', d: '지키면서 쓰기' },
+        { m: '홈랩',     ico: '🏠', d: '맥·집 서버 세팅' }
+    ];
+    function meta(name) {
+        for (var i = 0; i < SUB_META.length; i++) if (name.indexOf(SUB_META[i].m) > -1) return SUB_META[i];
+        return { ico: '📁', d: '' };
+    }
+    function norm(href) {
+        try { return decodeURIComponent(new URL(href, location.href).pathname).replace(/\/+$/, ''); }
+        catch (e) { return ''; }
+    }
+    function info(a) {
+        var c = a.cloneNode(true), cnt = c.querySelector('.c_cnt'), n = null;
+        if (cnt) { var m = cnt.textContent.match(/\d+/); if (m) n = +m[0]; cnt.remove(); }
+        return { name: c.textContent.replace(/\s+/g, ' ').trim(), path: norm(a.getAttribute('href')), count: n };
+    }
+
+    /* 카테고리 트리에서 '기술'과 그 하위 찾기 */
+    var top = { name: '전체', path: '/category/' + TECH_NAME, count: null }, subs = [];
+    var tops = document.querySelectorAll('#cat-tree .category_list > li');
+    for (var i = 0; i < tops.length; i++) {
+        var a = tops[i].querySelector('a');
+        if (!a) continue;
+        var t = info(a);
+        if (t.path.split('/').pop() !== TECH_NAME && t.name.indexOf(TECH_NAME) < 0) continue;
+        top = { name: '전체', path: t.path, count: t.count };
+        var subList = tops[i].querySelector('ul');
+        if (subList) Array.prototype.forEach.call(subList.querySelectorAll('a'), function (s) { subs.push(info(s)); });
+        break;
+    }
+    var total = document.getElementById('tech-total'), catCount = document.getElementById('tech-cat-count');
+    if (total) total.textContent = top.count == null ? '-' : top.count;
+    if (catCount) catCount.textContent = subs.length;
+
+    /* 분류 타일 */
+    var cats = document.getElementById('tech-cats');
+    var panel = document.getElementById('panel-tech');
+    var listTitle = document.getElementById('tech-list-title');
+    var all = [top].concat(subs);
+    all.forEach(function (it, idx) {
+        var mm = idx === 0 ? { ico: '✨', d: '모든 기술 글' } : meta(it.name);
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'tech-cat' + (idx === 0 ? ' is-active' : '') + (it.count === 0 ? ' is-empty' : '');
+        b.setAttribute('role', 'tab');
+        b.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
+        b.dataset.path = it.path;
+        b.dataset.name = it.name;
+        b.innerHTML = '<span class="tc-ico"></span><span class="tc-text"><span class="tc-name"></span><span class="tc-desc"></span></span><span class="tc-count"></span>';
+        b.querySelector('.tc-ico').textContent = mm.ico;
+        b.querySelector('.tc-name').textContent = it.name;
+        b.querySelector('.tc-desc').textContent = mm.d;
+        b.querySelector('.tc-count').textContent = it.count == null ? '' : it.count + '편';
+        b.addEventListener('click', function () {
+            Array.prototype.forEach.call(cats.children, function (c) {
+                c.classList.toggle('is-active', c === b);
+                c.setAttribute('aria-selected', c === b ? 'true' : 'false');
+            });
+            load(it, idx === 0);
+            if (window.matchMedia('(max-width: 1024px)').matches) {
+                var side = document.getElementById('tech-sidebar');
+                if (side) side.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+        cats.appendChild(b);
+    });
+
+    /* 글 목록 불러오기 (카테고리 페이지를 받아 카드만 꺼낸다) */
+    var memo = {}, seq = 0;
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function paint(it, markup) {
+        if (!markup) {
+            panel.innerHTML = '<div class="panel-empty">아직 이 분류에 올라온 글이 없어요. 곧 채워집니다 ✍️</div>';
+            return;
+        }
+        panel.innerHTML = markup + '<a class="panel-more" href="' + esc(it.path) + '">' +
+            esc(it.name === '전체' ? TECH_NAME : it.name) + ' 전체 보기 →</a>';
+        Array.prototype.forEach.call(panel.querySelectorAll('.post-item'), function (p, k) {
+            var c = p.querySelector('.category');
+            if (c) c.dataset.cat = 'tech';
+            setTimeout(function () { p.classList.add('is-visible'); }, 40 + k * 60);
+        });
+    }
+    function load(it, isAll) {
+        if (listTitle) listTitle.textContent = isAll ? '🆕 최근 기술 글' : meta(it.name).ico + ' ' + it.name;
+        var key = 'wl:tech:' + it.path, mine = ++seq;
+        var cached = memo[key];
+        if (cached == null) { try { var raw = JSON.parse(sessionStorage.getItem(key) || 'null'); if (raw && Date.now() - raw.t < 600000) cached = raw.v; } catch (e) {} }
+        if (cached != null) { paint(it, cached); return; }
+        panel.innerHTML = '<div class="panel-skeleton"><i></i><i></i><i></i></div>';
+        fetch(encodeURI(it.path), { credentials: 'same-origin' })
+            .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+            .then(function (html) {
+                var doc = new DOMParser().parseFromString(html, 'text/html');
+                var posts = Array.prototype.slice.call(doc.querySelectorAll('.original-list .post-item'), 0, 6);
+                posts.forEach(function (p) { Array.prototype.forEach.call(p.querySelectorAll('img'), function (img) { img.loading = 'lazy'; }); });
+                var markup = posts.map(function (p) { return p.outerHTML; }).join('');
+                memo[key] = markup;
+                try { sessionStorage.setItem(key, JSON.stringify({ t: Date.now(), v: markup })); } catch (e) {}
+                if (mine === seq) paint(it, markup);
+            })
+            .catch(function () {
+                if (mine !== seq) return;
+                panel.innerHTML = '<div class="panel-empty">글을 불러오지 못했어요. <a href="' + esc(it.path) + '">카테고리로 이동</a></div>';
+            });
+    }
+
+    /* 전환 */
+    var loaded = false;
+    function setMode(mode, save) {
+        var tech = mode === 'tech';
+        body.classList.toggle('home-tech', tech);
+        Array.prototype.forEach.call(document.querySelectorAll('.home-switch-btn'), function (b) {
+            var on = b.dataset.mode === mode;
+            b.classList.toggle('is-active', on);
+            b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        if (tech && !loaded) { loaded = true; load(top, true); }
+        if (save) {
+            try { localStorage.setItem('home.mode', mode); } catch (e) {}
+            if (history.replaceState) history.replaceState(null, '', location.pathname + location.search + (tech ? '#tech' : ''));
+        }
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('.home-switch-btn'), function (b) {
+        b.addEventListener('click', function () { setMode(b.dataset.mode, true); });
+    });
+    setMode(body.classList.contains('home-tech') ? 'tech' : 'life', false);
+    /* 달리기 쪽에 있어도 기술 첫 목록은 잠시 뒤 미리 받아 둔다 */
+    if (!loaded) setTimeout(function () { if (!loaded) { loaded = true; load(top, true); } }, 2500);
 })();
 </script>
 <!-- 대시보드(dash.autops.run) 블로그 탭이 읽는 방문자 수. 화면에는 안 보인다.
