@@ -13,3 +13,6 @@ runs/*/
 gpx/*.tcx
 gpx/*.gpx
 !gpx/sample.gpx
+
+# 티스토리 로그인 세션 — 절대 커밋하지 말 것
+tistory-state.json
