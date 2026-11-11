@@ -1,6 +1,6 @@
 ![메이플 오픈API 는 complete_flag 가 아니라 clear_flag 를 준다 — 문서만 보고는 모르는 여섯 가지](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/migrated/images/114-cover-maple-openapi.jpg)
 
-집 서버에서 돌아가는 대시보드에 [웹 터미널을 붙인](https://autops.run/web-terminal-in-dashboard/) 김에, 같은 Flask 앱에 화면을 하나 더 얹었다. 캐릭터 이름을 넣으면 장비·스탯·심볼·주간 보스를 보여 주는 페이지다. 도메인은 [Cloudflare CNAME 으로 붙인](https://autops.run/domain-cloudflare-nginx/) 서브도메인 하나를 더 파서 `maple.autops.run` 으로 뺐다. (지금은 서비스를 내렸다 — 아래 응답 형태와 함정은 넥슨 오픈API 를 쓰는 누구에게나 그대로다.)
+집 서버에서 돌아가는 대시보드(Flask 앱)에 화면을 하나 더 얹었다. 캐릭터 이름을 넣으면 장비·스탯·심볼·주간 보스를 보여 주는 페이지다. 도메인은 [Cloudflare CNAME 으로 붙인](https://autops.run/domain-cloudflare-nginx/) 서브도메인 하나를 더 파서 `maple.autops.run` 으로 뺐다. (지금은 서비스를 내렸다 — 아래 응답 형태와 함정은 넥슨 오픈API 를 쓰는 누구에게나 그대로다.)
 
 API 자체는 평범한 REST 다. 키를 헤더에 넣고 JSON 을 받으면 된다. **막힌 자리는 전부 문서와 실제 응답이 어긋나는 곳이었다.** 그 여섯 자리를 정리한다.
 
