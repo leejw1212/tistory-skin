@@ -205,6 +205,9 @@ async function publishOne(page, p) {
     // 예약
     if (at) {
         await (await first(page, SEL.reserveBtn)).click();
+        await page.waitForTimeout(800);
+        // 화면 구조가 다를 때 고칠 수 있게 발행 레이어를 통째로 남긴다
+        fs.writeFileSync(path.join(SHOTS, `${p.id}-layer.html`), await layer.evaluate(el => el.outerHTML).catch(() => ''));
         await setReserveTime(page, layer, at);
     }
 
