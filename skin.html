@@ -144,38 +144,8 @@
                     <p id="map-status" class="map-status"></p>
                 </section>
 
-                <!-- ============ My Sites ============ -->
-                <!-- 홈에서만 지도·목록 아래 전체 폭으로 보인다.
-                     사이트를 늘리거나 바꾸려면 <li> 하나를 복사해 아이콘·이름·설명·주소만 고치면 된다.
-                     검색엔진이 링크를 읽을 수 있게 스크립트 대신 HTML 에 직접 적어 둔다. -->
-                <section class="my-sites" aria-labelledby="my-sites-title">
-                    <h2 class="my-sites-title" id="my-sites-title">🔗 나의 다른 사이트</h2>
-                    <ul class="my-sites-list">
-                        <li>
-                            <a class="site-card" href="https://autops.run" target="_blank" rel="noopener">
-                                <span class="site-icon" aria-hidden="true">💻</span>
-                                <span class="site-body">
-                                    <strong class="site-name">개발 블로그</strong>
-                                    <span class="site-desc">autops.run</span>
-                                </span>
-                                <span class="site-arrow" aria-hidden="true">↗</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a class="site-card" href="https://maple.autops.run" target="_blank" rel="noopener">
-                                <span class="site-icon" aria-hidden="true">🍁</span>
-                                <span class="site-body">
-                                    <strong class="site-name">메이플 조회</strong>
-                                    <span class="site-desc">maple.autops.run</span>
-                                </span>
-                                <span class="site-arrow" aria-hidden="true">↗</span>
-                            </a>
-                        </li>
-                    </ul>
-                </section>
-
                 <!-- ============ Visitor Graph ============ -->
-                <!-- 홈에서만 보인다. PC 에서는 '나의 다른 사이트' 오른쪽 칸(목록 탭과 같은 폭), 좁은 화면에서는 그 아래.
+                <!-- 홈에서만 보인다. 지도·목록 아래 전체 폭.
                      그래프는 티스토리 관리 > 플러그인 > '방문자 통계 그래프'를 켜야 나오고, 로컬 미리보기에서는 비어 있다. -->
                 <section class="visitor-stats" aria-labelledby="visitor-stats-title">
                     <h2 class="visitor-stats-title" id="visitor-stats-title">📈 방문자</h2>
@@ -367,9 +337,7 @@
                 <!-- 방문자 수는 홈 '방문자' 칸에서 보여 주므로 푸터에는 두지 않는다.
                      블로그 소개는 티스토리 관리 > 블로그 > 블로그 설명 에서 바꾼다 (비우면 줄이 사라진다). -->
                 <p class="footer-desc">[##_desc_##]</p>
-                <nav class="footer-links" aria-label="다른 사이트">
-                    <a href="https://autops.run" target="_blank" rel="noopener">개발 블로그</a>
-                    <a href="https://maple.autops.run" target="_blank" rel="noopener">메이플 조회</a>
+                <nav class="footer-links" aria-label="링크">
                     <a href="[##_rss_url_##]">RSS</a>
                 </nav>
                 <p class="copyright">&copy; [##_title_##]</p>
