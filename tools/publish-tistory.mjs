@@ -151,28 +151,47 @@ async function publishOne(page, p) {
         throw Object.assign(new Error('로그인이 풀렸습니다 — tistory-login.mjs 로 세션을 다시 만들어 주세요'), { fatal: true });
     }
 
-    // 마크다운 모드 — 화면에 보이는 CodeMirror 가 있을 때만 이미 마크다운이다.
+    // 마크다운 모드 — 화면에 "보이는" 마크다운 편집기가 있을 때만 이미 마크다운이다.
     // (기본모드에서도 숨은 CodeMirror 가 DOM 에 있어서 개수만 세면 속는다)
-    const cmVisible = () => page.evaluate(() => [...document.querySelectorAll('.CodeMirror')].some(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50));
-    if (!(await cmVisible())) {
+    const MD_EDITORS = '.CodeMirror, .cm-editor, [class*="markdown" i] textarea, textarea[class*="markdown" i]';
+    const mdVisible = () => page.evaluate(sel => [...document.querySelectorAll(sel)]
+        .some(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50), MD_EDITORS);
+    if (!(await mdVisible())) {
         await (await first(page, SEL.modeOpen)).click();
         await (await first(page, SEL.modeMarkdown)).click();
         const until = Date.now() + 15000;
-        while (!(await cmVisible())) {
-            if (Date.now() > until) throw new Error('마크다운 모드로 바뀌지 않았습니다');
+        while (!(await mdVisible())) {
+            // "마크다운으로 전환하면 서식이…" 같은 확인 창이 브라우저 기본 창이 아니라 화면 안 모달일 수 있다
+            const ok = page.locator('[role="dialog"] button:has-text("확인"):visible, .ReactModal__Content button:has-text("확인"):visible, .mce-window button:has-text("확인"):visible, button.btn_ok:visible').first();
+            if (await ok.count()) { await ok.click().catch(() => {}); await page.waitForTimeout(500); continue; }
+            if (Date.now() > until) {
+                fs.writeFileSync(path.join(SHOTS, `${p.id}-page.html`), await page.content());
+                await page.screenshot({ path: shot('mode') });
+                throw Object.assign(new Error(`마크다운 모드로 바뀌지 않았습니다 — shots 의 ${p.id}-page.html 과 -mode.png 를 보내 주세요`), { shot: shot('mode') });
+            }
             await page.waitForTimeout(300);
         }
     }
 
     await (await first(page, SEL.title)).fill(p.meta.title);
-    await page.evaluate(text => {
-        const cm = [...document.querySelectorAll('.CodeMirror')].find(e => e.offsetParent !== null);
-        cm.CodeMirror.setValue(text);
-        cm.CodeMirror.save?.();
-    }, md);
-    // 본문이 실제로 들어갔는지 확인
-    const got = await page.evaluate(() => [...document.querySelectorAll('.CodeMirror')].find(e => e.offsetParent !== null).CodeMirror.getValue().length);
-    if (got < md.length * 0.9) throw new Error(`본문이 다 들어가지 않았습니다 (${got}/${md.length}자)`);
+
+    // 본문 — CodeMirror 5 면 API 로, 아니면 편집기를 눌러 통째로 바꿔 넣는다
+    const usedApi = await page.evaluate(({ sel, text }) => {
+        const el = [...document.querySelectorAll(sel)].find(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50);
+        if (el?.CodeMirror) { el.CodeMirror.setValue(text); el.CodeMirror.save?.(); return el.CodeMirror.getValue().length; }
+        return -1;
+    }, { sel: MD_EDITORS, text: md });
+    if (usedApi < 0) {
+        await page.evaluate(sel => [...document.querySelectorAll(sel)]
+            .find(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50)
+            .setAttribute('data-autopub', 'md'), MD_EDITORS);
+        await page.locator('[data-autopub="md"]').click();
+        await page.keyboard.press('Control+A');
+        await page.keyboard.press('Delete');
+        await page.keyboard.insertText(md);
+    } else if (usedApi < md.length * 0.9) {
+        throw new Error(`본문이 다 들어가지 않았습니다 (${usedApi}/${md.length}자)`);
+    }
 
     // 카테고리 — 하위 이름으로 고른다 (목록에는 "- AI·에이전트" 처럼 보인다)
     if (catLeaf || catParent) {
