@@ -1,6 +1,6 @@
 ![NoopHostnameVerifier 가 안 먹는다 — httpclient5 5.4 부터 달라진 TLS 호스트명 검증](https://cdn.jsdelivr.net/gh/leejw1212/tistory-skin@main/migrated/images/116-cover-httpclient5-tls.jpg)
 
-[SCA 도구는 어떻게 검사하나](https://autops.run/blackduck-scan-methods/)에서 본 것처럼, 스캔 결과를 받아 라이브러리 버전을 올리는 일은 보통 조용히 끝난다. 그런데 이번 `httpclient5` 업그레이드는 그렇지 않았다. **코드는 한 줄도 안 고쳤는데 사설 인증서를 쓰는 내부 시스템에 붙지 않는다.**
+보안 스캔 결과를 받아 라이브러리 버전을 올리는 일은 보통 조용히 끝난다. 그런데 이번 `httpclient5` 업그레이드는 그렇지 않았다. **코드는 한 줄도 안 고쳤는데 사설 인증서를 쓰는 내부 시스템에 붙지 않는다.**
 
 ```
 javax.net.ssl.SSLHandshakeException:
