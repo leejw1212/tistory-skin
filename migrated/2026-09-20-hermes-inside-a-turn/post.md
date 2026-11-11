@@ -58,8 +58,8 @@ print(len(p), '자 /', len(p.splitlines()), '줄')
 # Hermes runtime environment
 
 Host: macOS (14.8.3)
-User home directory: /Users/leejungwook
-Current working directory: /Users/leejungwook
+User home directory: /Users/me
+Current working directory: /Users/me
 ```
 
 모델은 내 컴퓨터를 볼 수 없다. 그래서 **프로그램이 알려 준다.** 에이전트가 "맥이니까 brew 를 쓰라" 고 답할 수 있는 건 똑똑해서가 아니라 이 줄을 읽었기 때문이다.

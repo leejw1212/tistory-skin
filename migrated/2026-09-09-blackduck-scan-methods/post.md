@@ -125,8 +125,8 @@ Signature 스캔의 오탐은 **버그가 아니라 원리의 결과다.** 파�
 
 - [Black Duck SCA 제품 문서](https://www.blackduck.com/software-composition-analysis-tools/black-duck-sca.html)
 - [Detect — Container Scan](https://docs.blackduck.com/r/detect/latest/black-duck-detect/container-scan.html)
-- [Understanding Component Scanning](https://abb.app.blackduck.com/2026_1_1/doc/static/en-us/help/ComponentDiscovery/Component_scanning_overview.html)
-- [About snippet matching](https://abb.app.blackduck.com/2026_1_1/doc/static/en-us/help/ComponentDiscovery/Snippets.html)
+- [Understanding Component Scanning](https://documentation.blackduck.com/)
+- [About snippet matching](https://documentation.blackduck.com/)
 - [Signature scanner 와 Binary scanner 의 차이](https://community.blackduck.com/s/article/Differences-between-binary-scan-via-Signature-scanner-or-Binary-scanner)
-- [Scanning Best Practices (PDF)](https://abb.app.blackduck.com/doc/pdfs/scanning_best_practices.pdf)
+- [Scanning Best Practices (PDF)](https://documentation.blackduck.com/)
 - [BDSA 와 NVD 의 버전 정확도 비교](https://www.blackduck.com/blog/comparing-bdsa-with-nvd-version-accuracy.html)
