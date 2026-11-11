@@ -13,6 +13,9 @@
 // 글 고르는 법: <dir>/*/meta.json 중 tistory_url 이 비어 있고, ledger 에도 없는 글을 이름순으로.
 // 발행 시각: meta.json 의 planned_date (YYYY-MM-DD) + --time (기본 09:00, 한국 시간).
 //            그 시각이 이미 지났으면 바로 발행한다.
+//   --start 2026-11-12 --times 13:00,18:00 을 주면 planned_date 대신, 남은 글을 그 날부터
+//            하루에 시각 수만큼(여기선 2편) 차례로 채운다. 이미 예약한 글(ledger)은 건드리지 않는다.
+//   글 사이 쉬는 시간: PUBLISH_GAP_MS (기본 5~10초).
 //
 // --dry-run 은 발행 버튼만 빼고 전부 입력한 뒤 화면을 찍고 글을 저장하지 않고 나간다.
 // 결과는 한 줄씩 `RESULT {json}` 으로 찍는다 (워크플로 로그에서 읽기 쉽게).
@@ -36,6 +39,10 @@ const DIR = opt('dir', 'migrated');
 const LEDGER = opt('ledger', path.join(path.dirname(STATE || '.'), 'done.json'));
 const SHOTS = opt('shots', path.join(path.dirname(STATE || '.'), 'shots'));
 const TIME = opt('time', '09:00');
+const START = opt('start');                       // YYYY-MM-DD
+const TIMES = opt('times') ? String(opt('times')).split(',').map(t => t.trim()).filter(Boolean) : null;
+if (START && !/^\d{4}-\d{2}-\d{2}$/.test(String(START))) { console.error('❌ --start 는 YYYY-MM-DD'); process.exit(2); }
+if (TIMES && !TIMES.every(t => /^\d{1,2}:\d{2}$/.test(t))) { console.error('❌ --times 는 13:00,18:00 꼴'); process.exit(2); }
 const VISIBILITY = opt('visibility', 'public'); // public | private
 const LIMIT = Number(opt('limit', 1000));
 const ONLY = opt('only');
@@ -109,10 +116,20 @@ function thumbnailPath(p, md) {
 }
 
 // KST 기준 예약 시각
+function slot(p) {
+    if (START && TIMES) {
+        const i = posts.indexOf(p);
+        const d = new Date(`${START}T00:00:00Z`);
+        d.setUTCDate(d.getUTCDate() + Math.floor(i / TIMES.length));
+        return [d.toISOString().slice(0, 10), TIMES[i % TIMES.length]];
+    }
+    return p.meta.planned_date ? [p.meta.planned_date, TIME] : null;
+}
 function when(p) {
-    if (!p.meta.planned_date) return null;
-    const [h, mi] = String(TIME).split(':').map(Number);
-    const at = new Date(`${p.meta.planned_date}T${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}:00+09:00`);
+    const sl = slot(p);
+    if (!sl) return null;
+    const [h, mi] = String(sl[1]).split(':').map(Number);
+    const at = new Date(`${sl[0]}T${String(h).padStart(2, '0')}:${String(mi).padStart(2, '0')}:00+09:00`);
     return at.getTime() > Date.now() + 10 * 60 * 1000 ? at : null; // 10분 안쪽·과거면 즉시 발행
 }
 
@@ -396,7 +413,7 @@ for (const p of posts) {
         ok++;
         if (DRY) await tg(`🧪 dry-run: ${p.meta.title}\n예약 ${r.at} · 썸네일 ${r.thumbOk ? r.thumbnail : '없음'}`, r.shot);
         // 사람 속도로 — 연달아 몰아치지 않는다
-        await page.waitForTimeout(Number(process.env.PUBLISH_GAP_MS ?? 20000 + Math.random() * 20000));
+        await page.waitForTimeout(Number(process.env.PUBLISH_GAP_MS ?? 5000 + Math.random() * 5000));
     } catch (e) {
         fail++;
         const shot = e.shot || path.join(SHOTS, `${p.id}-error.png`);

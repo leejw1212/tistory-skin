@@ -52,6 +52,10 @@ git pull
 node tools/publish-tistory.mjs --state tistory-state.json --limit 40
 ```
 
+하루에 여러 편: `--start 2026-11-12 --times 13:00,18:00` 를 붙이면 meta.json 의 날짜 대신 남은 글을
+그날부터 하루 2편(13시·18시)씩 채운다. 이미 예약한 글(done.json)은 건드리지 않는다.
+글 사이 쉬는 시간은 기본 5~10초 (`PUBLISH_GAP_MS` 로 바꿀 수 있음).
+
 - 이미 건 글은 `done.json` 에 남아서 다시 돌려도 두 번 올라가지 않습니다. 지우지 마세요.
 - 실패하면 `shots\` 폴더에 그 순간 화면이 남습니다.
 - `tistory-state.json` 이 있으면 누구든 블로그에 글을 쓸 수 있습니다. 공유·커밋하지 마세요 (.gitignore 에 있음).
