@@ -62,7 +62,7 @@ const SEL = {
     layer: ['.editor_layer', '#publish-layer', '[class*="layer_post"]'],
     visPublic: ['#open20', 'label:has-text("공개")'],
     visPrivate: ['#open0', 'label:has-text("비공개")'],
-    reserveBtn: ['button:has-text("예약")', 'label:has-text("예약")'],
+    reserveBtn: ['.btn_date:has-text("예약")', 'button:has-text("예약")'],
     publish: ['#publish-btn', 'button:has-text("발행")'],
 };
 
@@ -151,15 +151,28 @@ async function publishOne(page, p) {
         throw Object.assign(new Error('로그인이 풀렸습니다 — tistory-login.mjs 로 세션을 다시 만들어 주세요'), { fatal: true });
     }
 
-    // 마크다운 모드 (이미 마크다운이면 건너뜀)
-    if (!(await page.locator('.CodeMirror').count())) {
+    // 마크다운 모드 — 화면에 보이는 CodeMirror 가 있을 때만 이미 마크다운이다.
+    // (기본모드에서도 숨은 CodeMirror 가 DOM 에 있어서 개수만 세면 속는다)
+    const cmVisible = () => page.evaluate(() => [...document.querySelectorAll('.CodeMirror')].some(e => e.offsetParent !== null && e.getBoundingClientRect().height > 50));
+    if (!(await cmVisible())) {
         await (await first(page, SEL.modeOpen)).click();
         await (await first(page, SEL.modeMarkdown)).click();
+        const until = Date.now() + 15000;
+        while (!(await cmVisible())) {
+            if (Date.now() > until) throw new Error('마크다운 모드로 바뀌지 않았습니다');
+            await page.waitForTimeout(300);
+        }
     }
-    await first(page, SEL.codemirror, { timeout: 15000, visible: false });
 
     await (await first(page, SEL.title)).fill(p.meta.title);
-    await page.evaluate(text => document.querySelector('.CodeMirror').CodeMirror.setValue(text), md);
+    await page.evaluate(text => {
+        const cm = [...document.querySelectorAll('.CodeMirror')].find(e => e.offsetParent !== null);
+        cm.CodeMirror.setValue(text);
+        cm.CodeMirror.save?.();
+    }, md);
+    // 본문이 실제로 들어갔는지 확인
+    const got = await page.evaluate(() => [...document.querySelectorAll('.CodeMirror')].find(e => e.offsetParent !== null).CodeMirror.getValue().length);
+    if (got < md.length * 0.9) throw new Error(`본문이 다 들어가지 않았습니다 (${got}/${md.length}자)`);
 
     // 카테고리 — 하위 이름으로 고른다 (목록에는 "- AI·에이전트" 처럼 보인다)
     if (catLeaf || catParent) {
@@ -191,16 +204,15 @@ async function publishOne(page, p) {
 
     await (await first(page, VISIBILITY === 'private' ? SEL.visPrivate : SEL.visPublic)).click();
 
-    // 대표 이미지 — 레이어 안의 파일 입력에 원본 파일을 넣는다
+    // 대표 이미지 — 티스토리가 본문 첫 사진(= 커버)을 저절로 대표 이미지로 잡는다.
+    // 레이어에 파일 입력이 있으면 지정한 파일로 바꾸고, 없으면 자동으로 잡힌 것을 확인만 한다.
     let thumbOk = false;
-    if (thumb) {
-        const input = layer.locator('input[type="file"]').first();
-        if (await input.count()) {
-            await input.setInputFiles(thumb);
-            await page.waitForTimeout(3000);
-            thumbOk = true;
-        }
+    const input = layer.locator('input[type="file"]').first();
+    if (thumb && await input.count()) {
+        await input.setInputFiles(thumb);
+        await page.waitForTimeout(3000);
     }
+    thumbOk = await layer.locator('.box_thumb .thumb_g, .box_thumb img').count() > 0;
 
     // 예약
     if (at) {
@@ -230,29 +242,67 @@ async function publishOne(page, p) {
     return { ...base, url };
 }
 
-// 예약 날짜·시각 입력. 티스토리 레이어는 날짜 input 하나와 시·분 입력(또는 select)으로 되어 있다.
+// 예약 날짜·시각 입력. 티스토리 발행 레이어(2026-11 확인):
+//   날짜 = button.btn_reserve ("2026-11-11") → 누르면 달력, 시 = #dateHour, 분 = #dateMinute (number)
 async function setReserveTime(page, layer, at) {
     const kst = new Date(at.getTime() + 9 * 3600 * 1000);
-    const date = kst.toISOString().slice(0, 10);
-    const hh = String(kst.getUTCHours()).padStart(2, '0');
-    const mm = String(kst.getUTCMinutes()).padStart(2, '0');
-    const inputs = layer.locator('input:visible:not([type="radio"]):not([type="file"]):not([type="checkbox"])');
-    const n = await inputs.count();
-    let dateSet = false, hourSet = false, minSet = false;
-    for (let i = 0; i < n; i++) {
-        const el = inputs.nth(i);
-        const v = (await el.inputValue().catch(() => '')) || '';
-        if (!dateSet && /\d{4}[-.]\d{1,2}[-.]\d{1,2}/.test(v)) { await el.fill(date.replace(/-/g, v.includes('.') ? '.' : '-')); dateSet = true; continue; }
-        if (dateSet && !hourSet && /^\d{1,2}$/.test(v)) { await el.fill(hh); hourSet = true; continue; }
-        if (hourSet && !minSet && /^\d{1,2}$/.test(v)) { await el.fill(mm); minSet = true; }
+    const Y = kst.getUTCFullYear(), M = kst.getUTCMonth() + 1, D = kst.getUTCDate();
+    const want = `${Y}-${String(M).padStart(2, '0')}-${String(D).padStart(2, '0')}`;
+    const dateBtn = layer.locator('.btn_reserve').first();
+    await dateBtn.waitFor({ timeout: 8000 });
+
+    if ((await dateBtn.innerText()).trim() !== want) {
+        await dateBtn.click();
+        await page.waitForTimeout(500);
+        // 달력은 레이어 안에 그려질 수도, 페이지 맨 끝(portal)에 따로 그려질 수도 있다
+        const calSel = '[class*="calendar" i]:visible, [class*="datepicker" i]:visible, [class*="picker" i]:visible, [class*="layer_date" i]:visible';
+        const cal = (await page.locator(calSel).count()) ? page.locator(calSel).first() : layer;
+        fs.writeFileSync(path.join(SHOTS, `calendar.html`), await cal.evaluate(el => el.outerHTML).catch(() => ''));
+        await page.screenshot({ path: path.join(SHOTS, `calendar.png`) }).catch(() => {});
+        // 달력 머리의 "2026.11" / "2026년 11월" 을 읽어 원하는 달까지 다음 달로 넘긴다
+        const readYM = () => cal.evaluate(el => {
+            // 날짜 버튼("2026-11-11")과 제목은 빼고 달력 머리만 읽는다
+            const c = el.cloneNode(true);
+            c.querySelectorAll('.btn_reserve, .tit_publish, .layer_head, #urlPublish').forEach(x => x.remove());
+            const t = c.innerText || c.textContent;
+            const m = t.match(/(20\d\d)\s*[.년\-/]\s*(\d{1,2})/);
+            return m ? [Number(m[1]), Number(m[2])] : null;
+        });
+        for (let guard = 0; guard < 24; guard++) {
+            const ym = await readYM();
+            if (!ym) break;
+            const diff = (Y - ym[0]) * 12 + (M - ym[1]);
+            if (diff === 0) break;
+            const nav = cal.locator(diff > 0
+                ? '[class*="next"], button:has-text("다음"), [aria-label*="다음"], [aria-label*="next" i]'
+                : '[class*="prev"], button:has-text("이전"), [aria-label*="이전"], [aria-label*="prev" i]').first();
+            if (!(await nav.count())) break;
+            await nav.click();
+            await page.waitForTimeout(250);
+        }
+        // 날짜 칸: 숫자만 있는 칸 중 비활성/다른 달이 아닌 것
+        const cells = cal.locator('td, button, a, span').filter({ hasText: new RegExp(`^\\s*${D}\\s*$`) });
+        const n = await cells.count();
+        let clicked = false;
+        for (let i = 0; i < n && !clicked; i++) {
+            const c = cells.nth(i);
+            const cls = ((await c.getAttribute('class')) || '') + ' ' + ((await c.evaluate(e => e.parentElement?.className || '')) || '');
+            if (/disabled|other|prev|next|off|dimmed/i.test(cls) || !(await c.isVisible())) continue;
+            await c.click();
+            clicked = true;
+        }
+        await page.waitForTimeout(400);
+        const now = (await dateBtn.innerText().catch(() => '')).trim();
+        if (now !== want) throw new Error(`예약 날짜를 못 골랐습니다 (원한 날 ${want}, 지금 ${now || '?'}) — shots/calendar.html 을 보내 주세요`);
     }
-    const selects = layer.locator('select:visible');
-    for (let i = 0, k = await selects.count(); i < k && (!hourSet || !minSet); i++) {
-        const s = selects.nth(i);
-        if (!hourSet) { await s.selectOption({ value: hh }).catch(() => s.selectOption({ label: hh })); hourSet = true; }
-        else if (!minSet) { await s.selectOption({ value: mm }).catch(() => s.selectOption({ label: mm })); minSet = true; }
-    }
-    if (!dateSet || !hourSet) throw new Error(`예약 시각 칸을 못 찾았습니다 (날짜 ${dateSet}, 시 ${hourSet}, 분 ${minSet})`);
+
+    const hour = layer.locator('#dateHour'), minute = layer.locator('#dateMinute');
+    if (!(await hour.count()) || !(await minute.count())) throw new Error('예약 시·분 칸(#dateHour, #dateMinute)을 못 찾았습니다');
+    await hour.fill(String(kst.getUTCHours()));
+    await minute.fill(String(kst.getUTCMinutes()));
+    await hour.press('Tab');
+    const hv = Number(await hour.inputValue()), mv = Number(await minute.inputValue());
+    if (hv !== kst.getUTCHours() || mv !== kst.getUTCMinutes()) throw new Error(`예약 시각이 안 들어갔습니다 (${hv}:${mv})`);
 }
 
 // ---------- 실행 ----------
