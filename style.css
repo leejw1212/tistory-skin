@@ -3501,8 +3501,19 @@ textarea:focus-visible {
 }
 
 /* 전환 시 보이는 것 바꾸기 */
-#tt-body-index.home-tech .heatmap-container,
 #tt-body-index.home-tech #index-sidebar { display: none; }
+/* 지도는 display:none 이면 map.js 가 시작하지 않는다(기술 쪽으로 열린 뒤 돌아오면 지도가 빈다).
+   그래서 자리만 비우고 숨겨 두면, 돌아왔을 때 크기가 생기는 순간 map.js 가 스스로 그린다. */
+#tt-body-index.home-tech .heatmap-container {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1px; height: 1px;
+    margin: 0;
+    overflow: hidden;
+    visibility: hidden;
+    pointer-events: none;
+    clip-path: inset(50%);
+}
 
 #tt-body-index.home-tech .tech-hub {
     display: flex;
@@ -3668,6 +3679,7 @@ textarea:focus-visible {
 .tech-sidebar .tab-panel { display: flex; }
 
 .post-item .category[data-cat="tech"],
+.post-item .category.is-tech,
 .post-header .category[data-cat="tech"] {
     background: #eeebff;
     color: #5040c8;

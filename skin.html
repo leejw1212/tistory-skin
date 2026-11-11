@@ -392,7 +392,7 @@
 <script src="./images/script.js?v=16"></script>
 <script>
 /* 하위 카테고리 칩 — 카테고리 목록 페이지에서만.
- * 티스토리 [##_category_list_##] 는 ul.tt_category > … > ul.category_list > li(상위) > ul.sub_category_list > li(하위) 로 그려진다.
+ * 티스토리 카테고리 치환자(#cat-tree 안)는 ul.tt_category > … > ul.category_list > li(상위) > ul.sub_category_list > li(하위) 로 그려진다.
  * 지금 주소가 어느 상위 카테고리 아래인지 찾아, 그 상위에 하위가 있으면 칩을 보여 준다. 모든 상위 카테고리에 공통. */
 (function () {
     if (document.body.id !== 'tt-body-category') return;
@@ -536,7 +536,7 @@
             esc(it.name === '전체' ? TECH_NAME : it.name) + ' 전체 보기 →</a>';
         Array.prototype.forEach.call(panel.querySelectorAll('.post-item'), function (p, k) {
             var c = p.querySelector('.category');
-            if (c) c.dataset.cat = 'tech';
+            if (c) { c.dataset.cat = 'tech'; c.classList.add('is-tech'); }
             setTimeout(function () { p.classList.add('is-visible'); }, 40 + k * 60);
         });
     }
