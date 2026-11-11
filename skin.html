@@ -391,6 +391,33 @@
 <script id="skin-path-helper" src="./images/mapData.js?v=9"></script>
 <script src="./images/script.js?v=16"></script>
 <script>
+/* 아직 발행 시각이 안 된(예약) 글 숨기기.
+ * 티스토리 목록에 예약글이 섞여 나오는 경우가 있어, 카드의 날짜가 지금보다 뒤면 지운다.
+ * 카테고리·검색 목록, 홈 코스/맛집/리뷰 탭, 홈 기술 블로그 목록 모두에 적용. */
+(function () {
+    function when(text) {
+        var m = String(text || '').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})(?:\D+(\d{1,2}):(\d{2}))?/);
+        if (!m) return null;
+        return new Date(+m[1], +m[2] - 1, +m[3], m[4] ? +m[4] : 0, m[5] ? +m[5] : 0).getTime();
+    }
+    function isFuture(item) {
+        var d = item.querySelector('.date');
+        var t = d && when(d.textContent);
+        return t != null && t > Date.now();
+    }
+    function sweep(root) {
+        Array.prototype.forEach.call((root || document).querySelectorAll('.post-item'), function (p) {
+            if (isFuture(p)) p.remove();
+        });
+    }
+    window.skinIsFuturePost = isFuture;
+    sweep(document);
+    var wrap = document.querySelector('.content-wrap');
+    if (wrap && window.MutationObserver) {
+        new MutationObserver(function () { sweep(wrap); }).observe(wrap, { childList: true, subtree: true });
+    }
+})();
+
 /* 하위 카테고리 칩 — 카테고리 목록 페이지에서만.
  * 티스토리 카테고리 치환자(#cat-tree 안)는 ul.tt_category > … > ul.category_list > li(상위) > ul.sub_category_list > li(하위) 로 그려진다.
  * 지금 주소가 어느 상위 카테고리 아래인지 찾아, 그 상위에 하위가 있으면 칩을 보여 준다. 모든 상위 카테고리에 공통. */
@@ -542,7 +569,7 @@
     }
     function load(it, isAll) {
         if (listTitle) listTitle.textContent = isAll ? '🆕 최근 기술 글' : meta(it.name).ico + ' ' + it.name;
-        var key = 'wl:tech:' + it.path, mine = ++seq;
+        var key = 'wl:tech2:' + it.path, mine = ++seq;
         var cached = memo[key];
         if (cached == null) { try { var raw = JSON.parse(sessionStorage.getItem(key) || 'null'); if (raw && Date.now() - raw.t < 600000) cached = raw.v; } catch (e) {} }
         if (cached != null) { paint(it, cached); return; }
@@ -551,7 +578,9 @@
             .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
             .then(function (html) {
                 var doc = new DOMParser().parseFromString(html, 'text/html');
-                var posts = Array.prototype.slice.call(doc.querySelectorAll('.original-list .post-item'), 0, 6);
+                var posts = Array.prototype.slice.call(doc.querySelectorAll('.original-list .post-item'))
+                    .filter(function (p) { return !(window.skinIsFuturePost && window.skinIsFuturePost(p)); })
+                    .slice(0, 6);
                 posts.forEach(function (p) { Array.prototype.forEach.call(p.querySelectorAll('img'), function (img) { img.loading = 'lazy'; }); });
                 var markup = posts.map(function (p) { return p.outerHTML; }).join('');
                 memo[key] = markup;
