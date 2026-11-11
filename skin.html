@@ -169,6 +169,11 @@
                     <s_list>
                         <div class="list-header">
                             <h2>'[##_list_conform_##]' 글 목록</h2>
+                            <!-- 하위 카테고리 칩. 상위 카테고리(예: 기술)나 그 하위 페이지에 들어가면
+                                 아래 숨은 카테고리 목록을 읽어 '전체 · AI·에이전트 · 쿠버네티스 …' 칩을 그린다.
+                                 하위가 없는 카테고리에서는 계속 숨어 있다. -->
+                            <nav class="subcat-chips" aria-label="하위 카테고리" hidden></nav>
+                            <div id="cat-tree" style="display:none">[##_category_list_##]</div>
                         </div>
                     </s_list>
 
@@ -350,6 +355,63 @@
 <script id="skin-map-script" src="./images/map.js?v=14"></script>
 <script id="skin-path-helper" src="./images/mapData.js?v=9"></script>
 <script src="./images/script.js?v=16"></script>
+<script>
+/* 하위 카테고리 칩 — 카테고리 목록 페이지에서만.
+ * 티스토리 [##_category_list_##] 는 ul.tt_category > … > ul.category_list > li(상위) > ul.sub_category_list > li(하위) 로 그려진다.
+ * 지금 주소가 어느 상위 카테고리 아래인지 찾아, 그 상위에 하위가 있으면 칩을 보여 준다. 모든 상위 카테고리에 공통. */
+(function () {
+    if (document.body.id !== 'tt-body-category') return;
+    var nav = document.querySelector('.subcat-chips');
+    var tree = document.getElementById('cat-tree');
+    if (!nav || !tree) return;
+
+    function norm(href) {
+        try { return decodeURIComponent(new URL(href, location.href).pathname).replace(/\/+$/, ''); }
+        catch (e) { return ''; }
+    }
+    function info(a) {
+        var c = a.cloneNode(true), cnt = c.querySelector('.c_cnt'), n = null;
+        if (cnt) { var m = cnt.textContent.match(/\d+/); if (m) n = +m[0]; cnt.remove(); }
+        return { name: c.textContent.replace(/\s+/g, ' ').trim(), path: norm(a.getAttribute('href')), count: n };
+    }
+    function child(el, sel) {
+        for (var i = 0; i < el.children.length; i++) if (el.children[i].matches(sel)) return el.children[i];
+        return null;
+    }
+
+    var here = norm(location.href);
+    var tops = tree.querySelectorAll('.category_list > li');
+    for (var i = 0; i < tops.length; i++) {
+        var topA = child(tops[i], 'a'), subList = child(tops[i], 'ul');
+        if (!topA || !subList) continue;
+        var top = info(topA);
+        if (!top.path || (here !== top.path && here.indexOf(top.path + '/') !== 0)) continue;
+
+        var items = [{ name: '전체', path: top.path, count: top.count }];
+        Array.prototype.forEach.call(subList.querySelectorAll('li > a'), function (a) { items.push(info(a)); });
+        if (items.length < 2) return;
+
+        items.forEach(function (it) {
+            var a = document.createElement('a');
+            a.href = it.path;
+            a.className = 'subcat-chip' + (it.path === here ? ' is-current' : '') + (it.count === 0 ? ' is-empty' : '');
+            if (it.path === here) a.setAttribute('aria-current', 'page');
+            a.textContent = it.name;
+            if (it.count !== null) {
+                var b = document.createElement('span');
+                b.className = 'subcat-count';
+                b.textContent = it.count;
+                a.appendChild(b);
+            }
+            nav.appendChild(a);
+        });
+        nav.hidden = false;
+        var cur = nav.querySelector('.is-current');
+        if (cur && cur.scrollIntoView && nav.scrollWidth > nav.clientWidth) cur.scrollIntoView({ block: 'nearest', inline: 'center' });
+        return;
+    }
+})();
+</script>
 <!-- 대시보드(dash.autops.run) 블로그 탭이 읽는 방문자 수. 화면에는 안 보인다.
      GA4 는 티스토리 앱에서 읽은 조회를 못 세서, 오늘·어제·누적은 여기서 가져간다.
      id 와 class 이름을 바꾸면 대시보드가 숫자를 못 읽는다. -->

@@ -855,6 +855,59 @@ img {
     color: var(--text-primary);
 }
 
+/* 하위 카테고리 칩 (기술 > AI·에이전트 / 쿠버네티스 …) */
+.subcat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+.subcat-chips[hidden] { display: none; }
+.subcat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background var(--transition), color var(--transition), border-color var(--transition);
+}
+.subcat-chip:hover {
+    border-color: var(--primary-light);
+    color: var(--primary-dark);
+}
+.subcat-chip.is-current {
+    background: var(--gradient-primary);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: var(--shadow-glow);
+}
+.subcat-chip.is-empty:not(.is-current) { opacity: 0.55; }
+.subcat-count {
+    font-size: 0.78rem;
+    font-weight: 700;
+    opacity: 0.75;
+}
+@media (max-width: 640px) {
+    /* 폰에서는 한 줄로 두고 옆으로 밀어서 본다 */
+    .subcat-chips {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        margin: 14px -16px 0;
+        padding: 0 16px 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .subcat-chips::-webkit-scrollbar { display: none; }
+    .subcat-chip { flex: 0 0 auto; padding: 7px 12px; font-size: 0.85rem; }
+}
+
 /* ===========================
    Post Grid (Card Layout)
    =========================== */
